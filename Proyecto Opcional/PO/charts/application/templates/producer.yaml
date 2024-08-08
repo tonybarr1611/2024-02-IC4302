@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.config.producer.name }}
+  labels:
+    app: {{ .Values.config.producer.name }}
+spec:
+  replicas: {{ .Values.config.producer.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.config.producer.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.config.producer.name }}
+    spec:
+      containers:
+      - name: {{ .Values.config.producer.name }}
+        image: {{ .Values.config.docker_registry }}/{{ .Values.config.producer.image }}
+        env:
+          - name: DATAFROMK8S
+            value: "Hey"
+          - name: RABBITMQ
+            value: "databases-rabbitmq"
+          - name: RABBITMQ_QUEUE
+            value: "queue"
+          - name: RABBITMQ_USER
+            value: "user"
+          - name: RABBITMQ_PASS
+            valueFrom:
+              secretKeyRef:
+                name: databases-rabbitmq
+                key: rabbitmq-password
+                optional: false
+          - name: MARIADB
+            value: "databases-mariadb"
+          - name: MARIADB_TABLE
+            value: "objects"
+          - name: MARIADB_DB
+            value: "control"
+          - name: MARIADB_USER
+            value: "root"
+          - name: MARIADB_PASS
+            valueFrom:
+              secretKeyRef:
+                name: databases-mariadb
+                key: mariadb-root-password
+                optional: false

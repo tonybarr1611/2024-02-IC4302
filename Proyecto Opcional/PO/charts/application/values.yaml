@@ -1,0 +1,21 @@
+config:
+  docker_registry: nereo08
+  access_key: AKIAQ2VOGXQDTWAX4PUY
+  secret_key: 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
+  bucket: 2024-02-ic4302-gr1
+  producer:
+    replicas: 1
+    name: s3-spider
+    image: s3-spider
+  consumer:
+    replicas: 1
+    name: downloader
+    image: downloader
+  debug:
+    replicas: 1
+    name: debug
+    image: spark-job
+  cronjob:
+    name: spark-job
+    image: spark-job
+    schedule: "0 */12 * * *"

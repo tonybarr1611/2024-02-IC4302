@@ -1,0 +1,44 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ .Values.config.cronjob.name }}
+spec:
+  schedule: {{ .Values.config.cronjob.schedule }}
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      backoffLimit: 3
+      template:
+        spec:
+          terminationGracePeriodSeconds: 0
+          restartPolicy: Never
+          volumes:
+          - name: data
+            persistentVolumeClaim:
+              claimName: data
+          - name: scripts
+            configMap:
+              name: scala
+              defaultMode: 0700
+          containers:
+            - image: {{ .Values.config.docker_registry }}/{{ .Values.config.cronjob.image }}
+              name: {{ .Values.config.cronjob.name }}
+              env:
+                - name: XPATH
+                  value: "/data"
+                - name: ELASTIC_USER
+                  value: "elastic"
+                - name: ELASTIC_PASS
+                  valueFrom:
+                    secretKeyRef:
+                      name: ic4302-es-elastic-user
+                      key: elastic
+                      optional: false
+                - name: ELASTIC
+                  value: "ic4302-es-http"
+              volumeMounts:
+                - mountPath: "/data"
+                  name: data
+                - name: scripts
+                  mountPath: /scripts

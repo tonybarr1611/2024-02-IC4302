@@ -1,0 +1,3 @@
+pika
+mariadb
+boto3

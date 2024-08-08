@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.config.consumer.name }}
+  labels:
+    app: {{ .Values.config.consumer.name }}
+spec:
+  replicas: {{ .Values.config.consumer.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.config.consumer.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.config.consumer.name }}
+    spec:
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: data
+      containers:
+      - name: {{ .Values.config.consumer.name }}
+        volumeMounts:
+          - mountPath: "/data"
+            name: data
+        image: {{ .Values.config.docker_registry }}/{{ .Values.config.consumer.image }}
+        env:
+          - name: DATAFROMK8S
+            value: "Hey"
+          - name: AWS_ACCESS_KEY_ID
+            value: {{ .Values.config.access_key }}
+          - name: AWS_SECRET_ACCESS_KEY
+            value: {{ .Values.config.secret_key }}
+          - name: BUCKET
+            value: {{ .Values.config.bucket }}
+          - name: RABBITMQ
+            value: "databases-rabbitmq"
+          - name: RABBITMQ_QUEUE
+            value: "queue"
+          - name: RABBITMQ_USER
+            value: "user"
+          - name: XPATH
+            value: "/data"
+          - name: RABBITMQ_PASS
+            valueFrom:
+              secretKeyRef:
+                name: databases-rabbitmq
+                key: rabbitmq-password
+                optional: false
+          - name: MARIADB
+            value: "databases-mariadb"
+          - name: MARIADB_TABLE
+            value: "objects"
+          - name: MARIADB_DB
+            value: "control"
+          - name: MARIADB_USER
+            value: "root"
+          - name: MARIADB_PASS
+            valueFrom:
+              secretKeyRef:
+                name: databases-mariadb
+                key: mariadb-root-password
+                optional: false
