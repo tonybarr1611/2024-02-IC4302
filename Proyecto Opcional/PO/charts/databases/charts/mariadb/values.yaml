@@ -162,10 +162,18 @@ auth:
 ##      #!/bin/bash
 ##      echo "Do something."
 ##
-initdbScripts: {}
-## @param initdbScriptsConfigMap ConfigMap with the initdb scripts (Note: Overrides `initdbScripts`)
-##
-initdbScriptsConfigMap: ""
+initdbScripts:
+  init.sql: |
+    CREATE DATABASE IF NOT EXISTS control;
+    USE control;
+
+    CREATE TABLE IF NOT EXISTS objects (
+        ID INT PRIMARY KEY,
+        Estado VARCHAR(255) NOT NULL,
+        DOIs VARCHAR(255) NOT NULL,
+        omitido VARCHAR(255) NOT NULL
+    );
+
 
 ## @section MariaDB Primary parameters
 ##
