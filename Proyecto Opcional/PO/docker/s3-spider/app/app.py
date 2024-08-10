@@ -1,8 +1,12 @@
+import datetime
 import time
+import re
 import os
 import sys
 import pika
 import boto3
+import mariadb 
+import uuid
 
 #Environment variables
 
@@ -34,7 +38,20 @@ except NameError:
     print("No se ha configurado las credenciales de AWS")
     sys.exit(1)
 
-# TODO Set up MariaDB Connection 
+# Set up MariaDB Connection 
+
+try:
+    mariadb_conn = mariadb.connect(
+        user=MARIADB_USER,
+        password=MARIADB_PASS,
+        host=MARIADB,
+        port=3306,  # Change the port if necessary
+        database=MARIADB_DB
+    )
+    cursor = mariadb_conn.cursor()
+except mariadb.Error as e:
+    print(f"Error al conectar con MariaDB: {e}")
+    sys.exit(1)
 
 # Funtions
 
@@ -93,13 +110,41 @@ def list_all_objects(bucket):
 # Get the objects to read 
 files_to_read = list_all_objects(BUCKET)
 
+for file_key in files_to_read:
+    content = get_file_content(BUCKET, file_key)
 
-while True:
-    localtime = time.localtime()
-    result = time.strftime("%I:%M:%S %p", localtime)
-    msg = "{\"msg\": \""+result+"\"}"
-    channel.basic_publish(exchange='', routing_key=QUEUE_NAME, body=msg)
-    print(DATA+" - " +result)
-    time.sleep(1)
-    
+# Function to save job information to MariaDB
+def insert_job_to_mariadb(job_id, dois):
+    try:
+        cursor.execute(
+            f"INSERT INTO {MARIADB_TABLE} (ID, Estado, DOIs, omitido, fecha_inicio, fecha_final) VALUES (?, 'pending', ?, '', ?, NULL)",
+            (job_id, ','.join(dois), datetime.now())
+        )
+        mariadb_conn.commit()
+    except mariadb.Error as e:
+        print(f"Error inserting job into MariaDB: {e}")
+
+
+# Main functionality
+
+files_to_read = list_all_objects(BUCKET)
+
+for file in files_to_read:
+    content = get_file_content(BUCKET, file['Key'])
+    jobs = create_jobs(content, job_size=10)  # Adjust job_size as needed
+
+    for job in jobs:
+        id = uuid.uuid4()
+        job_id = insert_job_to_mariadb(job, id)
+        if job_id:
+            # Publish job ID to RabbitMQ
+            msg = f"Job ID: {job_id}"
+            channel.basic_publish(exchange='', routing_key=QUEUE_NAME, body=msg)
+            print(f"Published Job ID {job_id} to RabbitMQ")
+        else:
+            print("Failed to save job to MariaDB")
+
+# Clean up
 connection.close()
+mariadb_conn.close()
+ 
