@@ -1,79 +1,112 @@
-import time
 import os
-import sys
 import pika
-from datetime import datetime
-import json
-import hashlib
 import json
 import mariadb
+import hashlib
+import requests
+import datetime
 
-
-hostname = os.getenv('HOSTNAME')
 XPATH=os.getenv('XPATH')
-
 DATA=os.getenv('DATAFROMK8S')
 RABBIT_MQ=os.getenv('RABBITMQ')
 RABBIT_MQ_PASSWORD=os.getenv('RABBITMQ_PASS')
 QUEUE_NAME=os.getenv('RABBITMQ_QUEUE')
-
 MARIADB_USER = os.getenv('MARIADB_USER')
 MARIADB_PASS = os.getenv('MARIADB_PASS')
 MARIADB = os.getenv('MARIADB')
 MARIADB_DB = os.getenv('MARIADB_DB')
 MARIADB_TABLE = os.getenv('MARIADB_TABLE')
+API = 'https://api.crossref.org/works/'
 
-print("DATA: ", DATA)
-print("RABBIT_MQ: ", RABBIT_MQ)
-print("RABBIT_MQ_PASSWORD: ", RABBIT_MQ_PASSWORD)
-print("QUEUE_NAME: ", QUEUE_NAME)
-
-print("MARIADB_USER: ", MARIADB_USER)
-print("MARIADB_PASS: ", MARIADB_PASS)
-print("MARIADB: ", MARIADB)
-print("MARIADB_DB: ", MARIADB_DB)
-print("MARIADB_TABLE: ", MARIADB_TABLE)
-
-# Conectar a MariaDB
 def create_connection_pool():
-    print("Creando pool de conexiones")
     pool = mariadb.ConnectionPool(
         host=MARIADB,
         port=3306,
         user=MARIADB_USER,
         password=MARIADB_PASS,
-        database=MARIADB_DB, # my_database es el nombre de la base de datos con la cual nos funciono
+        database=MARIADB_DB,
         pool_name="job_pool",
         pool_size=10  
     )
-    print ("Pool de conexiones creado")
     return pool
 
-
-# Inicializar el pool de conexiones
 pool = create_connection_pool()
-print("Pool de conexiones inicializado")
 
-# Obtener una conexión del pool
-def get_connection():
+def execute_query(query, params=None):
+    conn = None
     try:
-        print("Obteniendo conexión")
-        return pool.get_connection()
-    except mariadb.PoolError as e:
-        print(f"Error obtaining connection from pool: {e}")
+        conn = pool.get_connection()
+        with conn.cursor() as cursor:
+            cursor.execute(query, params)
+            if query.strip().upper().startswith('SELECT'):
+                return cursor.fetchall()
+            conn.commit()
+    except mariadb.Error as e:
+        print(f"Error executing query: {e}")
+    finally:
+        if conn:
+            conn.close()
+
+def get_doi_information(doi_id):
+    try:
+        response = requests.get(API + doi_id)
+        if response.status_code == 200:
+            res = response.json()
+            return res
+        else:
+            return None
+    except requests.exceptions.RequestException as e:
+        print('Error:', e)
         return None
 
-# Devolver una conexión al pool
-print("Devolviendo conexión")
-get_connection()
-print ("Conexión devuelta")
+def save_json(name, data):
+    md5_doi = hashlib.md5(name.encode()).hexdigest()
+    filename = f"MD5({md5_doi}).json"
+    filepath = os.path.join(XPATH, filename)
+    with open(filepath, 'w') as f:
+        json.dump(data, f, indent=4)
+
+def update_info(job_id, doi):
+    doi_info = get_doi_information(doi)
+
+    if doi_info:
+        save_json(doi, doi_info)
+        print('json saved')
+    else:
+        # Get JOB
+        query = "SELECT omitido FROM objects WHERE ID = %s"
+        results = execute_query(query, [job_id])
+
+        for row in results:
+            omitted = row[0]
+            omitted = omitted + f'{doi};'
+
+        query = "UPDATE objects SET omitido = %s WHERE ID = %s"
+        results = execute_query(query, [doi, job_id])
+        print('omitted saved')
 
 def callback(ch, method, properties, body):
-    json_object = json.loads(body)
-    with open(XPATH+'/'+hashlib.md5(body).hexdigest()+'.json', 'w') as f:
-        json.dump(json_object, f)
-    print(" [x] Received %r" % body)
+    # Get Job ID from RabbitMQ
+    job_id = json.loads(body)
+    print(job_id)
+    print('------------------')
 
+    # Update Job state in MariaDB
+    query ="UPDATE objects SET Estado = 'in-progress' WHERE ID = %s"
+    execute_query(query, [job_id])
+
+    # Get JOB
+    query = "SELECT ID, Estado, DOIs, omitido FROM objects WHERE ID = %s"
+    results = execute_query(query, [job_id])
+
+    for row in results:
+        separated_dois = row[2].split(";")
+        for doi in separated_dois:
+            update_info(job_id, doi)
+        
+    # Update Job state in MariaDB
+    query = "UPDATE objects SET Estado = 'done', fecha_fin = %s WHERE ID = %s"
+    results = execute_query(query, [datetime.datetime.now(), job_id])
 
 credentials = pika.PlainCredentials('user', RABBIT_MQ_PASSWORD)
 parameters = pika.ConnectionParameters(host=RABBIT_MQ, credentials=credentials) 
@@ -83,5 +116,3 @@ channel.queue_declare(queue=QUEUE_NAME)
 channel.basic_consume(queue=QUEUE_NAME, on_message_callback=callback, auto_ack=True)
 print(' [*] Waiting for messages. To exit press CTRL+C')
 channel.start_consuming()
-
-
