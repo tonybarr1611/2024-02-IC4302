@@ -170,8 +170,10 @@ initdbScripts:
     CREATE TABLE IF NOT EXISTS objects (
         ID CHAR(36) PRIMARY KEY,
         Estado VARCHAR(255) NOT NULL,
-        DOIs VARCHAR(255) NOT NULL,
-        omitido VARCHAR(255) NOT NULL
+        DOIs VARCHAR(512) NOT NULL,
+        omitido VARCHAR(255) NOT NULL,
+        fecha_inicio DATETIME,
+        fecha_fin DATETIME
     );
 
 
