@@ -1,4 +1,4 @@
-import datetime
+import datetime as dt 
 import time
 import re
 import os
@@ -22,6 +22,7 @@ MARIADB_PASS = os.getenv('MARIADB_PASS')
 MARIADB = os.getenv('MARIADB')
 MARIADB_DB = os.getenv('MARIADB_DB')
 MARIADB_TABLE = os.getenv('MARIADB_TABLE')
+
  
 hostname = os.getenv('HOSTNAME')
 
@@ -34,24 +35,27 @@ channel.queue_declare(queue=QUEUE_NAME)
 # Set up S3 client
 try :
     s3_client = boto3.client('s3', aws_access_key_id=ACCESS_KEY, aws_secret_access_key=SECRET_KEY)
+    print("S3 client configured")
 except NameError:
-    print("No se ha configurado las credenciales de AWS")
+    print("AWS credentials not configured")
     sys.exit(1)
 
 # Set up MariaDB Connection 
 
-try:
-    mariadb_conn = mariadb.connect(
-        user=MARIADB_USER,
-        password=MARIADB_PASS,
-        host=MARIADB,
-        port=3306,  # Change the port if necessary
-        database=MARIADB_DB
-    )
-    cursor = mariadb_conn.cursor()
-except mariadb.Error as e:
-    print(f"Error al conectar con MariaDB: {e}")
-    sys.exit(1)
+def mariadb_connection():
+    try:
+        mariadb_conn = mariadb.connect(
+            user=MARIADB_USER,
+            password=MARIADB_PASS,
+            host=MARIADB,
+            port=3306,  # Change the port if necessary
+            database=MARIADB_DB
+        )
+        cursor = mariadb_conn.cursor()
+    except mariadb.Error as e:
+        print(f"Error connecting to mariadb {e}")
+        sys.exit(1)
+    return mariadb_conn, cursor
 
 # Funtions
 
@@ -60,10 +64,10 @@ def extract_dois(text):
     # Regex para identificar patrones de DOI válidos
     doi_pattern = r'\b10\.\d{4,9}/[-._;()/:A-Z0-9]+\b'
     
-    # Buscar todos los DOI en el texto
+    # Search all DOIs in the text
     potential_dois = re.findall(doi_pattern, text, flags=re.IGNORECASE)
     
-    # Filtrar los resultados para asegurar que sean DOIs válidos
+    # Filter the results to ensure they are valid DOIs
     valid_dois = [doi for doi in potential_dois if re.match(doi_pattern, doi)]
 
     return valid_dois
@@ -98,35 +102,37 @@ def list_all_objects(bucket):
         if 'Contents' in response:
             objects.extend(response['Contents'])
         
-        if response.get('IsTruncated'):  # Si la respuesta está truncada, hay más objetos que obtener
+        if response.get('IsTruncated'):  # If the response is truncated, there are more objects to get
             continuation_token = response.get('NextContinuationToken')
         else:
             break
     
     return objects
 
-# Funcionality 
-
-# Get the objects to read 
-files_to_read = list_all_objects(BUCKET)
-
-for file_key in files_to_read:
-    content = get_file_content(BUCKET, file_key)
-
 # Function to save job information to MariaDB
 def insert_job_to_mariadb(job_id, dois):
+    table_name = MARIADB_TABLE
+    db_name = MARIADB_DB
+    
+    mariadb_conn, cursor = mariadb_connection()
+    # Insert the job into the specified table
     try:
-        cursor.execute(
-            f"INSERT INTO {MARIADB_TABLE} (ID, Estado, DOIs, omitido, fecha_inicio, fecha_final) VALUES (?, 'pending', ?, '', ?, NULL)",
-            (job_id, ','.join(dois), datetime.now())
-        )
+        insert_query = f"INSERT INTO {table_name} (ID, Estado, DOIs, omitido, fecha_inicio, fecha_fin) VALUES (%s, %s, %s, %s, %s, %s)"
+        cursor.execute(insert_query, (job_id, 'pending', ','.join(dois), '', dt.datetime.now(), None))
+        print(f"Job ID {job_id} inserted into {table_name} in {db_name}")
         mariadb_conn.commit()
+        return True 
     except mariadb.Error as e:
         print(f"Error inserting job into MariaDB: {e}")
+        return False
+    finally:
+        cursor.close()  
+        mariadb_conn.close()  
 
 
 # Main functionality
 
+# Get the objects to read 
 files_to_read = list_all_objects(BUCKET)
 
 for file in files_to_read:
@@ -134,17 +140,16 @@ for file in files_to_read:
     jobs = create_jobs(content, job_size=10)  # Adjust job_size as needed
 
     for job in jobs:
-        id = uuid.uuid4()
-        job_id = insert_job_to_mariadb(job, id)
-        if job_id:
-            # Publish job ID to RabbitMQ
-            msg = f"Job ID: {job_id}"
-            channel.basic_publish(exchange='', routing_key=QUEUE_NAME, body=msg)
-            print(f"Published Job ID {job_id} to RabbitMQ")
-        else:
-            print("Failed to save job to MariaDB")
+        id = str(uuid.uuid4())
+        insert = insert_job_to_mariadb(id, job)
 
+        if insert :
+            # Publish job ID to RabbitMQ
+            msg = f"Job ID: {id}"
+            channel.basic_publish(exchange='', routing_key=QUEUE_NAME, body=msg)
+            print(f"Published Job ID {id} to RabbitMQ")
+        else :
+            print(f"Error inserting job {id} to MariaDB")
 # Clean up
 connection.close()
-mariadb_conn.close()
  
