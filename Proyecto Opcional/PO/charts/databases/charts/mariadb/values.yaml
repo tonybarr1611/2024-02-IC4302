@@ -171,7 +171,9 @@ initdbScripts:
         ID INT PRIMARY KEY,
         Estado VARCHAR(255) NOT NULL,
         DOIs VARCHAR(255) NOT NULL,
-        omitido VARCHAR(255) NOT NULL
+        omitido VARCHAR(255) NOT NULL,
+        fecha_inicio DATETIME,
+        fecha_fin DATETIME
     );
 
 
