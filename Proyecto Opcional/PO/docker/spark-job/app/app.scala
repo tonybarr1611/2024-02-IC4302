@@ -34,6 +34,25 @@ val options = Map("es.read.field.as.array.include" -> "data")
 val tmp_data = spark.read.json(path)
 tmp_data.createOrReplaceTempView("tmp")
 
+val datequery = """
+  SELECT *,
+    date_format(`message.indexed.date-time`, 'MM-dd-yyyy') AS `message.indexed.date`,
+    date_format(`message.created.date-time`, 'MM-dd-yyyy') AS `message.created.date`
+  FROM tmp
+"""
+
+spark.sql(datequery).show(false)
+spark.sql(datequery).saveToEs("data")
+
+val authorquery = """
+  SELECT *,
+    concat_ws(', ', `message.author.family`, `message.author.given`) AS `message.autor_names`
+  FROM tmp
+"""
+
+spark.sql(authorquery).show(false)
+spark.sql(authorquery).saveToEs("data")
+
 // tmp_data.printSchema
 
 // spark.sql("SELECT * FROM tmp").count
