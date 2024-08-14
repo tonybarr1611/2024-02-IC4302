@@ -176,6 +176,11 @@ initdbScripts:
         fecha_fin DATETIME
     );
 
+    CREATE TABLE IF NOT EXISTS processed_objects (
+    object_key VARCHAR(255) PRIMARY KEY,
+    processed_at DATETIME NOT NULL
+    );
+
 
 ## @section MariaDB Primary parameters
 ##
