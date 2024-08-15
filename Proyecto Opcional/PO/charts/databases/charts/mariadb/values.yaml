@@ -201,13 +201,12 @@ initdbScripts:
     DELIMITER $$
 
     CREATE PROCEDURE CheckIfObjectProcessed(
-        IN p_object_key VARCHAR(255),
-        OUT p_processed_count INT
+      IN p_object_key VARCHAR(255)
     )
     BEGIN
-        SELECT COUNT(*) INTO p_processed_count
-        FROM processed_objects
-        WHERE object_key = p_object_key;
+      SELECT COUNT(*)
+      FROM processed_objects
+      WHERE object_key = p_object_key;
     END $$
 
     DELIMITER ;
