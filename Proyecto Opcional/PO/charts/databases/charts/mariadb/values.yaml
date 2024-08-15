@@ -177,9 +177,53 @@ initdbScripts:
     );
 
     CREATE TABLE IF NOT EXISTS processed_objects (
-    object_key VARCHAR(255) PRIMARY KEY,
-    processed_at DATETIME NOT NULL
+        object_key VARCHAR(255) PRIMARY KEY,
+        processed_at DATETIME NOT NULL
     );
+
+    DELIMITER $$
+
+    CREATE PROCEDURE InsertJob(
+        IN p_id CHAR(36),
+        IN p_estado VARCHAR(255),
+        IN p_dois VARCHAR(512),
+        IN p_omitido VARCHAR(255),
+        IN p_fecha_inicio DATETIME,
+        IN p_fecha_fin DATETIME
+    )
+    BEGIN
+        INSERT INTO objects (ID, Estado, DOIs, omitido, fecha_inicio, fecha_fin)
+        VALUES (p_id, p_estado, p_dois, p_omitido, p_fecha_inicio, p_fecha_fin);
+    END $$
+
+    DELIMITER ;
+
+    DELIMITER $$
+
+    CREATE PROCEDURE CheckIfObjectProcessed(
+        IN p_object_key VARCHAR(255),
+        OUT p_processed_count INT
+    )
+    BEGIN
+        SELECT COUNT(*) INTO p_processed_count
+        FROM processed_objects
+        WHERE object_key = p_object_key;
+    END $$
+
+    DELIMITER ;
+
+    DELIMITER $$
+
+    CREATE PROCEDURE MarkObjectAsProcessed(
+        IN p_object_key VARCHAR(255)
+    )
+    BEGIN
+        INSERT INTO processed_objects (object_key, processed_at)
+        VALUES (p_object_key, NOW())
+        ON DUPLICATE KEY UPDATE processed_at = VALUES(processed_at);
+    END $$
+
+    DELIMITER ;
 
 
 ## @section MariaDB Primary parameters
