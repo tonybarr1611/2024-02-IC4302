@@ -65,16 +65,15 @@ def save_json(name, data):
     filepath = os.path.join(XPATH, filename)
     with open(filepath, 'w') as f:
         json.dump(data, f, indent=4)
+    return True
 
 def update_info(job_id, doi):
     doi_info = get_doi_information(doi)
 
     if doi_info:
         save_json(doi, doi_info)
-        print('json saved')
     else:
-        # Get JOB
-        query = "SELECT omitido FROM objects WHERE ID = %s"
+        query = "CALL GetOmitidoByID(%s)"
         results = execute_query(query, [job_id])
 
         for row in results:
