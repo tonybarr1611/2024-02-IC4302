@@ -24,17 +24,21 @@ MARIADB_DB = os.getenv('MARIADB_DB')
 MARIADB_TABLE = os.getenv('MARIADB_TABLE')
 PROCESSED_TABLE = os.getenv('PROCESSED_TABLE')
 
-credentials = pika.PlainCredentials('user', RABBIT_MQ_PASSWORD)
-parameters = pika.ConnectionParameters(host=RABBIT_MQ, credentials=credentials) 
-connection = pika.BlockingConnection(parameters)
-channel = connection.channel()
-channel.queue_declare(queue=QUEUE_NAME)
+try: 
+    credentials = pika.PlainCredentials('user', RABBIT_MQ_PASSWORD)
+    parameters = pika.ConnectionParameters(host=RABBIT_MQ, credentials=credentials) 
+    connection = pika.BlockingConnection(parameters)
+    channel = connection.channel()
+    channel.queue_declare(queue=QUEUE_NAME)
+except pika.exceptions.AMQPError as e:
+    print(f"Error connecting to RabbitMQ: {e}")
+    sys.exit(1)
 
 # Set up S3 client
 try :
     s3_client = boto3.client('s3', aws_access_key_id=ACCESS_KEY, aws_secret_access_key=SECRET_KEY)
     print("S3 client configured")
-except NameError:
+except NameError as e:
     print("AWS credentials not configured")
     sys.exit(1)
 
