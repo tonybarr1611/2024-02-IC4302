@@ -168,6 +168,69 @@ Now that Spark Shell is up and running, you can execute the contents of the file
 
 # Components
 
+## S3 Spider
+
+### Overview 
+
+This script automates the processing of objects stored in an Amazon S3 bucket. For each object, it extracts DOIs, creates "jobs" with a list of DOIs, saves these jobs to a MariaDB database, and publishes the unique job IDs to RabbitMQ. Once an object is processed, it is marked in the database to prevent it from being processed again.
+
+The script performs the following key steps:
+   1.  All files are fetched from the S3 bucket.
+   2.  For each file, if it has not been processed: - The file content is fetched.
+      - DOIs are extracted and jobs are created.
+      - Each job is inserted into the MariaDB database and its ID is published to RabbitMQ.
+      - The file is marked as processed.
+   3. The connection to RabbitMQ is closed and the application terminates.
+
+
+### Configuration 
+
+- **RabbitMQ**: A connection is established with RabbitMQ using the provided credentials. A queue with the name specified in RABBITMQ_QUEUE is declared.
+
+- **S3 Client Configuration**: The S3 client is configured using AWS credentials. If the credentials are not configured correctly, the script will terminate with an error.
+
+#### Dependencies 
+- **boto3**: The AWS SDK for Python, used to interact with Amazon S3.
+- **pika**: A RabbitMQ client library for Python, used to interact with RabbitMQ.
+- **mariadb**: A MariaDB client library for Python, used to interact with MariaDB.
+- **uuid**: A library used to generate unique identifiers for jobs.
+- **re**: A library used to work with regular expressions in Python.
+- **os**: A library used to interact with the operating system and handle environment variables.
+- **sys**: A library used to work with system-specific parameters and functions.
+- **time**: A library used to work with time-related functions in Python.
+  
+####  Environment Variables 
+- **RABBITMQ**: RabbitMQ server address.
+- **RABBITMQ_PASS**: Password to access RabbitMQ.
+- **RABBITMQ_QUEUE**: Name of the RabbitMQ queue to which the messages will be sent.
+- **BUCKET**: Name of the S3 bucket where the objects to be processed are located.
+- **ACCESS_KEY** and *SECRET_KEY*: AWS access credentials.
+- **MARIADB_USER**: MariaDB user.
+- **MARIADB_PASS**: MariaDB password.
+- **MARIADB**: MariaDB server address.
+- **MARIADB_DB**: Name of the database in MariaDB.
+- **MARIADB_TABLE**: Name of the table where jobs are stored in MariaDB.
+- **PROCESSED_TABLE**: Name of the table where processed objects are marked.
+
+### Main Functions 
+
+- **mariadb_connection()** Establishes a connection to the MariaDB database and returns the connection object and cursor.
+
+- **is_object_processed(file_key)** Checks if an object in S3 has already been processed using a stored procedure in MariaDB.
+
+- **mark_object_as_processed(file_key)** Marks an object as processed in MariaDB using a stored procedure, this storages the key of the object in the table processed_objects.
+
+- **extract_dois(text)** Extracts valid DOIs from the contents of a file using a regular expression.
+
+- **get_file_content(bucket, key)** Gets the contents of a file stored in an S3 bucket.
+
+- **create_jobs(data, job_size)** Creates "jobs" by splitting the list of DOIs into batches of the specified size. In the program case we use 10 job size. 
+
+- **list_all_objects(bucket)** Lists all objects in an S3 bucket, handling pagination if necessary.
+
+- **insert_job_to_mariadb(job_id, dois)** Inserts job information into the MariaDB database using a stored procedure.
+
+
 ## Downloader
 
 ### Overview
@@ -190,12 +253,24 @@ The downloader is a Python application designed to process jobs from a message q
 
 5. **Job Completion**:
    - After processing all DOIs associated with a job, the downloader updates the job status in MariaDB to "done" and records the completion time.
-
-6. **Environment Configuration**:
-   - The downloader relies on environment variables for configuration. These variables specify important details like RabbitMQ credentials, MariaDB credentials, and the file storage path.
+   - The downloader then waits for the next job message from the RabbitMQ queue and repeats the process.
 
 
 ### Configuration
+
+The Downloader component requires configuration settings for RabbitMQ, MariaDB, and the CrossRef API. These settings are provided through environment variables, which specify the connection details for each service.
+
+#### Dependencies
+
+- **pika**: A Python RabbitMQ client library that allows the downloader to interact with the message queue.
+- **mariadb**: A MariaDB client library that enables the downloader to connect to the database and execute queries.
+- **requests**: A library used to make HTTP requests to the CrossRef API and retrieve data.
+- **hashlib**: A library used to generate MD5 hashes for file names.
+- **os**: A library used to interact with the operating system and handle file operations.
+- **json**: A library used to parse JSON responses from the CrossRef API.
+- **datetime**: A library used to work with dates and times in Python.
+
+#### Environment Variables
 
 The Downloader component requires the following environment variables to be set:
 
@@ -209,13 +284,20 @@ The Downloader component requires the following environment variables to be set:
 * **DB_PASS**: The password for authenticating with the MariaDB server.
 * **DB_NAME**: The name of the MariaDB database to store the data in.
 
-### Usage
+### Main Functions 
 
-To run the Downloader component, execute the following command:
+- create_connection_pool(): Creates a connection pool to the MariaDB database using the provided credentials.
+- execute_query(query, params=None): Executes a SQL query on the MariaDB database using the provided parameters.
+- get_doi_information(doi_id): Retrieves information about a DOI from the CrossRef API.
+- save_json(name, data): Saves JSON data to a file with the specified name.
+- update_info(job_id,doi): Updates the status of a job in the MariaDB database.
+- callback(ch, method, properties, body): Callback function that processes messages from the RabbitMQ queue.
 
-```bash
-python downloader.py
-```
+
+## SparkJob
+
+
+
 
 
 
