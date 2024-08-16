@@ -173,8 +173,63 @@ initdbScripts:
         DOIs VARCHAR(255) NOT NULL,
         omitido VARCHAR(255) NOT NULL,
         fecha_inicio DATETIME,
-        fecha_fin DATETIME
+        fecha_final DATETIME
     );
+
+    DELIMITER $$
+
+    CREATE PROCEDURE GetOmitidoByID(IN Job_ID INT)
+    BEGIN
+        SELECT omitido
+        FROM objects
+        WHERE ID = Job_ID;
+    END$$
+
+    DELIMITER;
+
+    DELIMITER $$
+
+    CREATE PROCEDURE UpdateOmitidoByID(IN Job_ID INT, IN p_omitido VARCHAR(255))
+    BEGIN
+        UPDATE objects
+        SET omitido = p_omitido
+        WHERE ID = Job_ID;
+    END$$
+
+    DELIMITER ;
+
+    DELIMITER $$
+
+    CREATE PROCEDURE SetJobInProgressByID(IN Job_ID INT)
+    BEGIN
+        UPDATE objects
+        SET Estado = 'in-progress'
+        WHERE ID = Job_ID;
+    END$$
+
+    DELIMITER ;
+
+    DELIMITER $$
+
+    CREATE PROCEDURE GetDOIsByJobID(IN Job_ID INT)
+    BEGIN
+        SELECT DOIs
+        FROM objects
+        WHERE ID = Job_ID;
+    END$$
+
+    DELIMITER ;
+
+    DELIMITER $$
+
+    CREATE PROCEDURE SetJobDoneByID(IN Job_ID INT, IN p_fecha_final DATE)
+    BEGIN
+        UPDATE objects
+        SET Estado = 'done', fecha_final = p_fecha_final
+        WHERE ID = Job_ID;
+    END$$
+
+    DELIMITER ;
 
 
 ## @section MariaDB Primary parameters
