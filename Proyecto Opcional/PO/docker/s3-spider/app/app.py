@@ -98,6 +98,7 @@ def extract_dois(text):
     valid_dois = [doi for doi in potential_dois if re.match(doi_pattern, doi)]
 
     valid_dois = list(set(valid_dois))
+    valid_dois.sort()
 
     return valid_dois
 
