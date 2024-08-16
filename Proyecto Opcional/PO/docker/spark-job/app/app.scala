@@ -1,63 +1,72 @@
-import org.apache.spark.SparkContext
-import org.apache.spark.SparkContext._
+import spark.implicits._
+import java.nio.file.{Files, Paths}
+import scala.collection.JavaConverters._
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.SparkSession
-import org.apache.spark.sql.SparkSession._
-import org.elasticsearch.spark.sql
+import org.apache.spark.sql.functions._
 import org.elasticsearch.spark.sql._
-import org.elasticsearch.spark._ 
 
-sc.stop()
-spark.stop()
+val dateQuery = """
+  SELECT *, 
+         date_format(`message`.`indexed`.`date-time`, 'MM-dd-yyyy') AS `message.indexed.date`, 
+         date_format(`message`.`created`.`date-time`, 'MM-dd-yyyy') AS `message.created.date`
+  FROM tmp
+"""
+
+val authorQuery = """
+  SELECT *,
+    concat_ws(', ', 
+      transform(`message`.`author`, author -> concat(author.`family`, ', ', author.`given`))
+    ) AS `message.author_names`
+  FROM tmp
+"""
 
 val conf = new SparkConf()
-var path = System.getenv("XPATH")
-var esuser = System.getenv("ELASTIC_USER")
-var espass = System.getenv("ELASTIC_PASS")
-var esurl = System.getenv("ELASTIC_URL")
-conf.set("es.index.auto.create", "true")
-conf.set("es.nodes", esurl)
-conf.set("es.net.http.auth.user", esuser)
-conf.set("es.net.http.auth.pass", espass)
-conf.set("es.port", "9200")
-conf.set("es.nodes.wan.only", "true")
+  .set("es.index.auto.create", "true")
+  .set("es.nodes", System.getenv("ELASTIC_URL"))
+  .set("es.net.http.auth.user", System.getenv("ELASTIC_USER"))
+  .set("es.net.http.auth.pass", System.getenv("ELASTIC_PASS"))
+  .set("es.port", "9200")
+  .set("es.nodes.wan.only", "true")
 
+// Initialize SparkSession and SparkContext once
+val spark = SparkSession.builder.config(conf).appName("Spark Elastic Search Integration").getOrCreate()
+val sc = spark.sparkContext
+val sqlContext = spark.sqlContext
 
-val sc = new SparkContext(conf)
+val dirPath = System.getenv("XPATH")
+val jsonFiles = Files.list(Paths.get(dirPath)).iterator().asScala.filter(_.toString.endsWith(".json")).toList
 
-val spark = SparkSession.builder.config(sc.getConf).getOrCreate()
+jsonFiles.foreach { file =>
+  try {
+    // Read JSON file into a DataFrame
+    val apiDF = spark.read.json(file.toString)
+    apiDF.createOrReplaceTempView("tmp")
 
-val sqlcontext = new org.apache.spark.sql.SQLContext(sc)
+    // Run the queries
+    val dateDF = spark.sql(dateQuery)
+    dateDF.createOrReplaceTempView("tmp")
+    val authorDF = spark.sql(authorQuery)
+    authorDF.createOrReplaceTempView("tmp")
 
-val options = Map("es.read.field.as.array.include" -> "data")
+    // Placeholder for the third query
+    val thirdQuery = """
+      SELECT * FROM tmp
+    """
+    val thirdDF = spark.sql(thirdQuery)
 
-val tmp_data = spark.read.json(path)
-tmp_data.createOrReplaceTempView("tmp")
+    // Write the final DataFrame to Elasticsearch
+    thirdDF.saveToEs("data")
 
-val datequery = """
-  SELECT *,
-    date_format(`message.indexed.date-time`, 'MM-dd-yyyy') AS `message.indexed.date`,
-    date_format(`message.created.date-time`, 'MM-dd-yyyy') AS `message.created.date`
-  FROM tmp
-"""
+    println(s"Successfully processed file: ${file.toString}")
+    // Delete the file after processing
+    Files.delete(Paths.get(file.toString))
+  } catch {
+    case e: Exception =>
+      println(s"Error processing file: ${file.toString}")
+      e.printStackTrace()
+  }
+}
 
-spark.sql(datequery).show(false)
-spark.sql(datequery).saveToEs("data")
-
-val authorquery = """
-  SELECT *,
-    concat_ws(', ', `message.author.family`, `message.author.given`) AS `message.autor_names`
-  FROM tmp
-"""
-
-spark.sql(authorquery).show(false)
-spark.sql(authorquery).saveToEs("data")
-
-// tmp_data.printSchema
-
-// spark.sql("SELECT * FROM tmp").count
-// spark.sql("SELECT * FROM tmp").show(false)
-
-// spark.sql("SELECT split(split(msg, ' ')[0], ':')[0] AS hour, split(split(msg, ' ')[0], ':')[1] AS minute, split(split(msg, ' ')[0], ':')[2] AS second  FROM tmp").show(false)
-
-// spark.sql("SELECT split(split(msg, ' ')[0], ':')[0] AS hour, split(split(msg, ' ')[0], ':')[1] AS minute, split(split(msg, ' ')[0], ':')[2] AS second  FROM tmp").saveToEs("data")
+// Stop SparkSession after processing all files
+spark.stop()
