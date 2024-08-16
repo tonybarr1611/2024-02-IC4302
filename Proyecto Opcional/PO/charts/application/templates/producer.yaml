@@ -1,23 +1,81 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: batch/v1
+kind: CronJob
 metadata:
   name: {{ .Values.config.producer.name }}
-  labels:
-    app: {{ .Values.config.producer.name }}
 spec:
-  replicas: {{ .Values.config.producer.replicas }}
-  selector:
-    matchLabels:
-      app: {{ .Values.config.producer.name }}
+  schedule: "*/15 * * * *"  # Programa el CronJob para que se ejecute cada 15 minutos. Puedes ajustar esto según sea necesario.
+  jobTemplate:
+    spec: 
+      template:
+        spec:
+          containers:
+          - name: {{ .Values.config.producer.name }}
+            image: {{ .Values.config.docker_registry }}/{{ .Values.config.producer.image }}
+            env:
+              - name: PROCESSED_TABLE
+                value: "processed_objects"
+              - name: BUCKET
+                value: "2024-02-ic4302-gr1"
+              - name: ACCESS_KEY
+                value: "AKIAQ2VOGXQDTWAX4PUY"
+              - name: SECRET_KEY
+                value: "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"
+              - name: DATAFROMK8S
+                value: "Hey"
+              - name: RABBITMQ
+                value: "databases-rabbitmq"
+              - name: RABBITMQ_QUEUE
+                value: "queue"
+              - name: RABBITMQ_USER
+                value: "user"
+              - name: RABBITMQ_PASS
+                valueFrom:
+                  secretKeyRef:
+                    name: databases-rabbitmq
+                    key: rabbitmq-password
+                    optional: false
+              - name: MARIADB
+                value: "databases-mariadb"
+              - name: MARIADB_TABLE
+                value: "objects"
+              - name: MARIADB_DB
+                value: "control"
+              - name: MARIADB_USER
+                value: "root"
+              - name: MARIADB_PASS
+                valueFrom:
+                  secretKeyRef:
+                    name: databases-mariadb
+                    key: mariadb-root-password
+                    optional: false
+          restartPolicy: OnFailure  # El CronJob se reiniciará solo si falla
+          resources:
+            requests:
+              memory: "64Mi"  # Reduce la solicitud de memoria
+              cpu: "250m"     # Reduce la solicitud de CPU
+            limits:
+              memory: "128Mi" # Reduce el límite de memoria
+              cpu: "500m"     # Reduce el límite de CPU
+              
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Values.config.producer.name }}-initial-job
+spec:
   template:
-    metadata:
-      labels:
-        app: {{ .Values.config.producer.name }}
     spec:
       containers:
       - name: {{ .Values.config.producer.name }}
         image: {{ .Values.config.docker_registry }}/{{ .Values.config.producer.image }}
         env:
+          - name: PROCESSED_TABLE
+            value: "processed_objects"
+          - name: BUCKET
+            value: "2024-02-ic4302-gr1"
+          - name: ACCESS_KEY
+            value: "AKIAQ2VOGXQDTWAX4PUY"
+          - name: SECRET_KEY
+            value: "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"
           - name: DATAFROMK8S
             value: "Hey"
           - name: RABBITMQ
@@ -46,3 +104,11 @@ spec:
                 name: databases-mariadb
                 key: mariadb-root-password
                 optional: false
+      restartPolicy: Never  # El Job se ejecutará una vez y no se reiniciará.
+      resources:
+        requests:
+          memory: "64Mi"
+          cpu: "250m"
+        limits:
+          memory: "128Mi"
+          cpu: "500m"
