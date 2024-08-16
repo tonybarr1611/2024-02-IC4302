@@ -171,7 +171,7 @@ for file in files_to_read:
 
             if insert :
                 # Publish job ID to RabbitMQ
-                msg = f"Job ID: {id}"
+                msg = f"{id}"
                 channel.basic_publish(exchange='', routing_key=QUEUE_NAME, body=msg)
                 # Mark the object as processed
                 print(f"Published Job ID {id} to RabbitMQ")

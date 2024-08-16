@@ -72,13 +72,16 @@ def update_info(job_id, doi):
 
     if doi_info:
         save_json(doi, doi_info)
+        print(f'DOI {doi} saved')
     else:
-        query = "CALL GetOmitidoByID(%s)"
+        query = "SELECT omitido FROM objects WHERE ID = %s"
         results = execute_query(query, [job_id])
 
-        for row in results:
-            omitted = row[0]
-            omitted = omitted + f'{doi};'
+        if results:
+            for row in results:
+                omitted = row[0]
+                omitted = omitted + f'{doi};'
+                print(f'DOI {doi} ommited')
 
         query = "UPDATE objects SET omitido = %s WHERE ID = %s"
         results = execute_query(query, [doi, job_id])
@@ -86,9 +89,9 @@ def update_info(job_id, doi):
 
 def callback(ch, method, properties, body):
     # Get Job ID from RabbitMQ
-    job_id = json.loads(body)
-    print(job_id)
+    job_id = body.decode('utf-8')
     print('------------------')
+    print(f"Received message: {job_id}")
 
     # Update Job state in MariaDB
     query ="UPDATE objects SET Estado = 'in-progress' WHERE ID = %s"
@@ -98,10 +101,11 @@ def callback(ch, method, properties, body):
     query = "SELECT ID, Estado, DOIs, omitido FROM objects WHERE ID = %s"
     results = execute_query(query, [job_id])
 
-    for row in results:
-        separated_dois = row[2].split(";")
-        for doi in separated_dois:
-            update_info(job_id, doi)
+    if results:
+        for row in results:
+            separated_dois = row[2].split(",")
+            for doi in separated_dois:
+                update_info(job_id, doi)
         
     # Update Job state in MariaDB
     query = "UPDATE objects SET Estado = 'done', fecha_fin = %s WHERE ID = %s"
