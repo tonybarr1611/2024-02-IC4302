@@ -88,16 +88,15 @@ def mark_object_as_processed(file_key):
 
 # Extract the dois from the content of the object
 def extract_dois(text):
-    # Regex para identificar patrones de DOI válidos
+    # Regex to identify valid DOI patterns
     doi_pattern = r'\b10\.\d{4,9}/[-._;()/:A-Z0-9]+\b'
-    
-    # Search all DOIs in the text
+
+    # Find all DOIs in the texts
     potential_dois = re.findall(doi_pattern, text, flags=re.IGNORECASE)
     
     # Filter the results to ensure they are valid DOIs
-    valid_dois = [doi for doi in potential_dois if re.match(doi_pattern, doi)]
+    valid_dois = list(set(potential_dois))  # Use set to remove duplicates
 
-    valid_dois = list(set(valid_dois))
     valid_dois.sort()
 
     return valid_dois
