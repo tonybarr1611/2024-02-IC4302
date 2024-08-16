@@ -195,10 +195,44 @@ initdbScripts:
         INSERT INTO objects (ID, Estado, DOIs, omitido, fecha_inicio, fecha_fin)
         VALUES (p_id, p_estado, p_dois, p_omitido, p_fecha_inicio, p_fecha_fin);
     END $$
+    
+    DELIMITER;
+     
+    DELIMITER $$
+
+    CREATE PROCEDURE GetOmitidoByID(IN Job_ID INT)
+    BEGIN
+        SELECT omitido
+        FROM objects
+        WHERE ID = Job_ID;
+    END$$
+
+    DELIMITER;
+
+    DELIMITER $$
+
+    CREATE PROCEDURE UpdateOmitidoByID(IN Job_ID INT, IN p_omitido VARCHAR(255))
+    BEGIN
+        UPDATE objects
+        SET omitido = p_omitido
+        WHERE ID = Job_ID;
+    END$$
 
     DELIMITER ;
 
     DELIMITER $$
+
+    CREATE PROCEDURE SetJobInProgressByID(IN Job_ID INT)
+    BEGIN
+        UPDATE objects
+        SET Estado = 'in-progress'
+        WHERE ID = Job_ID;
+    END$$
+
+    DELIMITER ;
+
+    DELIMITER $$
+
 
     CREATE PROCEDURE CheckIfObjectProcessed(
       IN p_object_key VARCHAR(255)
@@ -208,6 +242,17 @@ initdbScripts:
       FROM processed_objects
       WHERE object_key = p_object_key;
     END $$
+    
+    DELIMITER ;
+    
+    DELIMITER $$
+
+    CREATE PROCEDURE GetDOIsByJobID(IN Job_ID INT)
+    BEGIN
+        SELECT DOIs
+        FROM objects
+        WHERE ID = Job_ID;
+    END$$
 
     DELIMITER ;
 
@@ -221,7 +266,17 @@ initdbScripts:
         VALUES (p_object_key, NOW())
         ON DUPLICATE KEY UPDATE processed_at = VALUES(processed_at);
     END $$
+    
+    DELIMITER ;
+    
+    DELIMITER $$
 
+    CREATE PROCEDURE SetJobDoneByID(IN Job_ID INT, IN p_fecha_fin DATE)
+    BEGIN
+        UPDATE objects
+        SET Estado = 'done', fecha_fin = p_fecha_fin
+        WHERE ID = Job_ID;
+    END$$
     DELIMITER ;
 
 
