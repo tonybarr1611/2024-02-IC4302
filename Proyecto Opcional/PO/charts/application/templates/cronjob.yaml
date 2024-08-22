@@ -3,7 +3,7 @@ kind: CronJob
 metadata:
   name: {{ .Values.config.cronjob.name }}
 spec:
-  schedule: {{ .Values.config.cronjob.schedule }}
+  schedule: "*/3 * * * *"
   successfulJobsHistoryLimit: 1
   failedJobsHistoryLimit: 1
   jobTemplate:

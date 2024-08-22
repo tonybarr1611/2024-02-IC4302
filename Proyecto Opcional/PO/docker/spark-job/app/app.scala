@@ -1,10 +1,29 @@
-import spark.implicits._
+println("Starting the Spark job...")
+
 import java.nio.file.{Files, Paths}
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions._
 import org.elasticsearch.spark.sql._
+
+SparkSession.builder().getOrCreate().stop()
+
+// Initialize SparkSession and SparkContext first
+val conf = new SparkConf()
+  .setAppName("Spark Elastic Search Integration")
+  .set("es.index.auto.create", "true")
+  .set("es.nodes", "http://ic4302-es-http:9200/")
+  .set("es.net.http.auth.user", System.getenv("ELASTIC_USER"))
+  .set("es.net.http.auth.pass", System.getenv("ELASTIC_PASS"))
+  .set("es.port", "9200")
+  .set("es.nodes.wan.only", "true")
+
+val spark = SparkSession.builder.config(conf).getOrCreate()
+println("SparkSession initialized successfully")
+
+// Import spark.implicits._ after SparkSession is created
+import spark.implicits._
 
 val dateQuery = """
   SELECT *, 
@@ -21,32 +40,25 @@ val authorQuery = """
   FROM tmp
 """
 
-val conf = new SparkConf()
-  .set("es.index.auto.create", "true")
-  .set("es.nodes", System.getenv("ELASTIC_URL"))
-  .set("es.net.http.auth.user", System.getenv("ELASTIC_USER"))
-  .set("es.net.http.auth.pass", System.getenv("ELASTIC_PASS"))
-  .set("es.port", "9200")
-  .set("es.nodes.wan.only", "true")
-
-// Initialize SparkSession and SparkContext once
-val spark = SparkSession.builder.config(conf).appName("Spark Elastic Search Integration").getOrCreate()
-val sc = spark.sparkContext
-val sqlContext = spark.sqlContext
-
 val dirPath = System.getenv("XPATH")
 val jsonFiles = Files.list(Paths.get(dirPath)).iterator().asScala.filter(_.toString.endsWith(".json")).toList
+println(s"Found ${jsonFiles.length} JSON files in the directory: $dirPath")
 
 jsonFiles.foreach { file =>
   try {
+    val jsonContent = Files.readString(Paths.get(file.toString))
+    val jsonOneLine = jsonContent.replaceAll("\n", "").replaceAll("\r", "")
+    val apiDF = spark.read.json(Seq(jsonOneLine).toDS)
     // Read JSON file into a DataFrame
-    val apiDF = spark.read.json(file.toString)
+    // val apiDF = spark.read.json(file.toString)
     apiDF.createOrReplaceTempView("tmp")
 
     // Run the queries
     val dateDF = spark.sql(dateQuery)
+    dateDF.show(false)
     dateDF.createOrReplaceTempView("tmp")
     val authorDF = spark.sql(authorQuery)
+    authorDF.show(false)
     authorDF.createOrReplaceTempView("tmp")
 
     // Placeholder for the third query
@@ -62,6 +74,12 @@ jsonFiles.foreach { file =>
     // Delete the file after processing
     Files.delete(Paths.get(file.toString))
   } catch {
+    case e: org.apache.spark.sql.catalyst.parser.ParseException =>
+      println(s"JSON parsing error in file: ${file.toString}")
+      e.printStackTrace()
+    case e: org.apache.spark.sql.AnalysisException =>
+      println(s"Schema mismatch error in file: ${file.toString}")
+      e.printStackTrace()
     case e: Exception =>
       println(s"Error processing file: ${file.toString}")
       e.printStackTrace()
@@ -70,3 +88,4 @@ jsonFiles.foreach { file =>
 
 // Stop SparkSession after processing all files
 spark.stop()
+println("SparkSession stopped successfully")

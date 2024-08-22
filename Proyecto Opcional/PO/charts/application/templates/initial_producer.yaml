@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: {{ .Values.config.producer.name }}-initial-job
+  name: {{ .Values.config.producer.name }}-initial-job--{{ now | unixEpoch }}
 spec:
   template:
     spec:
