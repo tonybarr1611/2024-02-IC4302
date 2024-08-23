@@ -324,6 +324,10 @@ The script performs the following key steps:
 
 - **insert_job_to_mariadb(job_id, dois)** Inserts job information into the MariaDB database using a stored procedure.
 
+#### Execution of Tests
+Test execution happens while the Docker image is being built, but this is an example of running the downloader unit tests.
+![Spider_testing](./images/spider-testing.png)
+
 
 ## Downloader
 
@@ -386,6 +390,25 @@ The Downloader component requires the following environment variables to be set:
 - save_json(name, data): Saves JSON data to a file with the specified name.
 - update_info(job_id,doi): Updates the status of a job in the MariaDB database.
 - callback(ch, method, properties, body): Callback function that processes messages from the RabbitMQ queue.
+
+### Unit Testing
+This unit test isolates the following functions and checks its correctness by providing various input values and asserting the corresponding output.
+
+- **test_get_doi_information()**: Tests the **get_doi_information(doi_id)** function to confirm that it
+accurately retrieves and processes DOI information.
+
+- **test_save_json()**: Verifies the **save_json(name, data)** function's ability to correctly serialize data into a JSON file and store it at the designated location.
+
+### Unit Testing
+Unit test verifies the correct behavior of vital individual functions to ensure that the Spider works properly in execution time.
+
+- *test_extract_dois(): Test the behavior of the **extract_dois(text)* with a example text.
+
+- *test_create_jobs(): Ensure that the function **create_job(data, job_size)* is working perfectly.
+
+#### Execution of Tests
+Test execution happens while the Docker image is being built, but this is an example of running the downloader unit tests.
+![Downloader_testing](./images/downloader-testing.png)
 
 
 ## SparkJob

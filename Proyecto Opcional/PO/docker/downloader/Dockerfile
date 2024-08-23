@@ -8,4 +8,6 @@ RUN apt-get install -y libmariadb-dev
 RUN apt install build-essential -y 
 RUN pip install --no-cache-dir -r requirements.txt
 
+RUN python -m unittest test.py
+
 CMD [ "python", "-u", "./app.py" ]
