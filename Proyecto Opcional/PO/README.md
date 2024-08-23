@@ -1,6 +1,22 @@
 # Optional Project
 
+
+## Introduction
+Following you can find the documentation for the optional project of the course IC4302 - Databases II. The project consists of three main components: the S3 Spider, the Downloader, and the SparkJob. These components work together to process data from an S3 bucket, retrieve information from an external API, and perform data transformations and indexing using Spark and Elasticsearch. The project is designed to run in a Kubernetes environment and utilizes RabbitMQ for messaging, MariaDB for database operations, and various Python and Scala libraries for data processing.
+
+The project aims to provide students with hands-on experience in working with real-world data processing scenarios, integrating multiple technologies, and deploying applications in a containerized environment. 
+
+## Team Members
+- Victor Aymerich
+- Anthony Barrantes
+- Fabricio Solis 
+- Melanie Wong
+- Pavel Zamora 
+
+Next up, you will find the requirements to run the project, the steps to execute it, testing examples, unit tests and the recommendations and conclusions we have gathered from the project.
 ## Requirements
+
+The requirements for the project are the following:
 
 * Create an user in [DockerHub](https://hub.docker.com/)
 * Install [Docker Desktop](https://docs.docker.com/desktop/install/windows-install/), if you are using MacOS, please make sure you select the right installer for your CPU architecture.
@@ -20,6 +36,8 @@
 
 **Secret Key:** Ks9UU/Ll1sWNP+YQgmeciXoTRyT0f5frRWzzOkLE
 
+After installing all the necessary requirements described before, in order to execute the optional project you must proceed with the following steps:
+
 
 ## Building the docker images
 
@@ -30,10 +48,10 @@ cd ./PO/docker
 ./build.sh nereo08
 ```
 
-Change **nereo08** by your DockerHub username
+Change **nereo08** to your DockerHub username
 
 Please take a look on the script contents to make sure you understand what is done under the hood.
-
+This script will build the images for the S3 Spider, Downloader and SparkJob components. They are the base of the project. It is important to have the DockerHub username set correctly in the script to ensure the images are pushed to the correct repository.
 
 ## Helm Charts
 
@@ -55,7 +73,7 @@ Execute:
 cd ./PO/charts
 ./install.sh
 ```
-
+Here we are installing the components in the Kubernetes cluster. The script will install the RabbitMQ, MariaDB, and Elasticsearch components, as well as the S3 Spider, Downloader, and SparkJob components. It is important to have the DockerHub username set correctly in the script to ensure the images are pulled from the correct repository.
 
 ### Uninstall
 
@@ -65,6 +83,7 @@ Execute:
 cd ./PO/charts
 ./uninstall.sh
 ```
+This script will uninstall the components from the Kubernetes cluster. It is important to have the DockerHub username set correctly in the script to ensure the correct components are removed.
 
 ## Access Debug Pod
 
@@ -74,6 +93,7 @@ kubectl get pods
 # then replace debug-844bb45d6f-9jt45 by that name
 kubectl exec --stdin --tty debug-844bb45d6f-9jt45 -- /bin/bash
 ```
+In case you need to access the debug pod to check the logs or execute some commands, you can use the previous command to access it.
 
 ### Execute Spark
 
@@ -84,6 +104,10 @@ bin/spark-shell
 
 Now that Spark Shell is up and running, you can execute the contents of the file **PO/charts/application/scala/app.scala**
 
+# Testing
+
+
+# Unit Testing
 
 # Recommendations and Conclusions
 
@@ -132,6 +156,46 @@ Now that Spark Shell is up and running, you can execute the contents of the file
 11. **Learning the difference between CronJob and a Deployment**
    - **Recommendation**: Understand the difference between a CronJob and a Deployment in Kubernetes, as the project uses both to run the components.
    - **Reason**: The project uses a CronJob to run the S3 Spider and SparkJob components at specific times, and a Deployment to run the Downloader component. Knowing the difference between the two will help you understand how the components are being executed.
+  
+12. **Ensure Environment Variables Are Set**
+   - **Recommendation**: Verify that the environment variables (`XPATH`, `ELASTIC_USER`, `ELASTIC_PASS`, `ELASTIC_URL`) are properly set before running the script.
+   - **Reason**: These variables are essential for the script to locate the JSON data file and connect to Elasticsearch. Missing or incorrect variables can lead to errors during execution.
+
+13. **Check Elasticsearch Connectivity**
+   - **Recommendation**: Confirm that the Elasticsearch cluster is accessible from the machine running the script and that the provided URL (`ELASTIC_URL`) is correct.
+   - **Reason**: Proper connectivity ensures that Spark can successfully index and retrieve data from Elasticsearch, avoiding connection failures.
+
+14. **Verify Spark and Elasticsearch Versions**
+   - **Recommendation**: Ensure that the versions of Spark and Elasticsearch are compatible with the Elasticsearch Spark connector being used.
+   - **Reason**: Compatibility issues can lead to runtime errors or unexpected behavior. Using compatible versions avoids integration problems.
+
+15. **Validate JSON Data Path**
+   - **Recommendation**: Double-check the JSON data path provided in the `XPATH` environment variable to make sure it points to a valid JSON file.
+   - **Reason**: An incorrect path will cause errors when the script attempts to read the data, preventing the script from executing successfully.
+
+16. **Review Elasticsearch Index Settings**
+   - **Recommendation**: Verify that the index settings and parameters in the `SparkConf` configuration match your Elasticsearch setup.
+   - **Reason**: Ensuring that settings like `es.index.auto.create` and authentication parameters are correct helps avoid indexing issues and ensures proper data handling.
+
+17. **Optimize Spark Configurations**
+   - **Recommendation**: Review and adjust Spark configurations for performance, such as memory settings and parallelism, based on your dataset size.
+   - **Reason**: Proper configurations can enhance the performance of Spark jobs, especially for large datasets, leading to faster execution times.
+
+18. **Check Data Format and Consistency**
+   - **Recommendation**: Ensure that the JSON data is well-formatted and consistent with the expected schema used in SQL queries.
+   - **Reason**: Inconsistent or improperly formatted data can lead to errors during data processing and querying.
+
+19. **Monitor Resource Usage**
+   - **Recommendation**: Keep an eye on resource usage (CPU, memory) while running the script to ensure it operates within acceptable limits.
+   - **Reason**: Monitoring helps prevent performance bottlenecks and ensures that the script runs efficiently, particularly for large datasets.
+
+20. **Test with Sample Data**
+   - **Recommendation**: Run the script with a small sample of data before processing the full dataset to validate the functionality.
+   - **Reason**: Testing with smaller datasets helps identify and fix issues early, reducing the risk of errors during full-scale execution.
+
+21. **Document Configuration and Steps**
+    - **Recommendation**: Document the configuration parameters and execution steps clearly for future reference and ease of use.
+    - **Reason**: Clear documentation helps users understand the setup and execution process, making it easier to troubleshoot and replicate the environment.
 
 ## Conclusions 
 
@@ -164,6 +228,36 @@ Now that Spark Shell is up and running, you can execute the contents of the file
 
 10. **Documentation and Learning to Search are Key**
    Documentation and learning how to navigate the internet in search of solutions are essential skills for students like us. By documenting the work, we can keep track of our progress, plus it helps with sharing our knowledge with others, and refering back to previous solutions if needed. Additionally, knowing how to search for information online may help us find solutions to problems we encounter, learn information about technologies we are not familiar with, and integrating new tools into our projects. The more information we can find, the more we can learn and apply to our projects.
+
+11. **Spark and Elasticsearch Configuration**
+  The code configures a `SparkConf` to connect to an Elasticsearch cluster and sets the required credentials.
+
+12. **Initialization of SparkContext and SparkSession**
+  `SparkContext` and `SparkSession` are initialized using the previously defined configuration.
+
+13. **Data Reading**
+  Data is read from a JSON path specified in the environment variable `XPATH`.
+
+14. **SQL Queries**
+  SQL queries are executed to format dates and concatenate author names.
+
+15. **Saving Data to Elasticsearch**
+  The results of the SQL queries are saved to Elasticsearch using the `data` index.
+
+16. **Usage of `SQLContext`**
+  Although `SQLContext` is created, it is not explicitly used in the script. It may be possible to remove it if only `SparkSession` is used.
+
+17. **Indexing in Elasticsearch**
+  Data is indexed in Elasticsearch with the `es.index.auto.create` option enabled, allowing automatic index creation if it does not exist.
+
+18. **Environment Variables**
+  Elasticsearch configuration relies on environment variables, which is a good practice for maintaining flexibility and security.
+
+19. **Date Formats**
+  Date transformations in SQL queries ensure dates are stored in a readable format.
+
+20. **Name Concatenation**
+  Author names are concatenated to consolidate information into a single field.
 
 
 # Components
@@ -296,7 +390,60 @@ The Downloader component requires the following environment variables to be set:
 
 ## SparkJob
 
+### Overview
+The Spark job is a Scala script designed to process JSON data, perform SQL transformations, and interact with Elasticsearch for indexing. It operates within a Spark environment and performs the following key steps:
 
+1. **Spark Configuration**:
+   - The job initializes `SparkConf` to set up the configuration for connecting to Elasticsearch. It configures essential settings such as Elasticsearch nodes, authentication details, and index creation options.
+
+2. **Context Initialization**:
+   - The script creates a `SparkContext` using the configured `SparkConf`. This context is crucial for executing Spark operations.
+   - A `SparkSession` is then initialized using the `SparkContext`. This session serves as the entry point for working with Spark SQL.
+
+3. **Data Reading**:
+   - JSON data is read from a path specified by the environment variable `XPATH`. The data is loaded into a DataFrame using `spark.read.json`.
+
+4. **SQL Transformations**:
+   - The script defines and executes SQL queries to transform the data:
+     - **Date Formatting**: It formats dates in the `message.indexed.date-time` and `message.created.date-time` fields into `MM-dd-yyyy`.
+     - **Name Concatenation**: It concatenates the `message.author.family` and `message.author.given` fields into a single `message.author_names` field.
+
+5. **Data Indexing**:
+   - The transformed data is saved to Elasticsearch using the `saveToEs` method. The data is indexed under the `data` index.
+
+6. **Resource Management**:
+   - After processing, the `SparkContext` and `SparkSession` are stopped to release resources.
+
+### Configuration
+
+#### Dependencies
+
+The Spark job requires the following dependencies to be included in the project:
+
+- **elasticsearch-spark-30_2.12-8.14.3**: The Elasticsearch connector for Spark 3.0, used to interact with Elasticsearch.
+
+#### Environment Variables
+
+The Spark job requires the following environment variables to be set:
+
+* **XPATH**: The path to the JSON data file.
+* **ELASTIC_USER**: The username for authenticating with the Elasticsearch cluster.
+* **ELASTIC_PASS**: The password for authenticating with the Elasticsearch cluster.
+* **ELASTIC_URL**: The URL of the Elasticsearch cluster.
+
+
+
+# References
+
+- [1] "Dockerfile reference," Docker Documentation. [Online]. Available: https://docs.docker.com/reference/dockerfile/#overview. [Accessed: Aug. 15, 2024].
+
+- [2] "kubectl commands," Kubernetes Documentation. [Online]. Available: https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands. [Accessed: Aug. 15, 2024].
+
+- [3] "MariaDB Documentation," MariaDB Knowledge Base. [Online]. Available: https://mariadb.com/kb/en/documentation/. [Accessed: Aug. 15, 2024].
+
+- [4] "RabbitMQ Tutorials," RabbitMQ. [Online]. Available: https://www.rabbitmq.com/tutorials. [Accessed: Aug. 15, 2024].
+
+- [5] "Spark SQL, DataFrames and Datasets Guide," Apache Spark. [Online]. Available: https://spark.apache.org/docs/latest/sql-programming-guide.html. [Accessed: Aug. 15, 2024].
 
 
 
