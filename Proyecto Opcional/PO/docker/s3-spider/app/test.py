@@ -1,6 +1,5 @@
 import re
 import unittest
-from app import extract_dois, create_jobs
 
 def extract_dois(text):
     doi_pattern = r'\b10\.\d{4,9}/[-._;()/:A-Z0-9]+\b'
