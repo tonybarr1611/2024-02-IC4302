@@ -18,7 +18,6 @@ MARIADB_DB = os.getenv('MARIADB_DB')
 MARIADB_TABLE = os.getenv('MARIADB_TABLE')
 API = 'https://api.crossref.org/works/'
 
-pool = None
 
 def create_connection_pool():
     pool = mariadb.ConnectionPool(
@@ -32,9 +31,10 @@ def create_connection_pool():
     )
     return pool
 
+pool = create_connection_pool()
+
+
 def execute_query(query, params=None):
-    if not pool:
-        pool = create_connection_pool()
     conn = None
     try:
         conn = pool.get_connection()
@@ -66,7 +66,7 @@ def save_json(name, data):
     filename = f"MD5({md5_doi}).json"
     filepath = os.path.join(XPATH, filename)
     with open(filepath, 'w') as f:
-        json.dump(data, f, indent=4)
+        json.dump(data, f)
     return True
 
 def update_info(job_id, doi):

@@ -40,48 +40,81 @@ val authorQuery = """
   FROM tmp
 """
 
+// Read all files from the directory
 val dirPath = System.getenv("XPATH")
 val jsonFiles = Files.list(Paths.get(dirPath)).iterator().asScala.filter(_.toString.endsWith(".json")).toList
 println(s"Found ${jsonFiles.length} JSON files in the directory: $dirPath")
 
-jsonFiles.foreach { file =>
-  try {
-    val jsonContent = Files.readString(Paths.get(file.toString))
-    val jsonOneLine = jsonContent.replaceAll("\n", "").replaceAll("\r", "")
-    val apiDF = spark.read.json(Seq(jsonOneLine).toDS)
+try {
+  println(s"Processing file: ${dirPath}")
+  val apiDF = spark.read.json(dirPath)
     // Read JSON file into a DataFrame
     // val apiDF = spark.read.json(file.toString)
     apiDF.createOrReplaceTempView("tmp")
+    apiDF.printSchema
+    println("Files read successfully")
 
     // Run the queries
+    println("First query")
     val dateDF = spark.sql(dateQuery)
     dateDF.show(false)
+    println("Second query")
     dateDF.createOrReplaceTempView("tmp")
     val authorDF = spark.sql(authorQuery)
     authorDF.show(false)
     authorDF.createOrReplaceTempView("tmp")
 
-    // Placeholder for the third query
-    val thirdQuery = """
-      SELECT * FROM tmp
-    """
-    val thirdDF = spark.sql(thirdQuery)
+    // Third query
+  
+    // println("Third query")
+    // val titleDF = spark.sql("SELECT `message`.`DOI`, `message`.`title` FROM tmp")
+    // println("Title DataFrame")
+    // titleDF.show(false)
+
+    println("Result dataframe")
+
+    var result = authorDF.withColumn("message.reference_title", 
+      coalesce(
+        when(col("`message`.`reference`").isNotNull, 
+          expr("filter(transform(`message`.`reference`, x -> coalesce(x.DOI, null)), x -> x is not null)")
+        ),
+        lit(null)
+      )
+    )
+    
+    result.show(false)
+        
+    var standardizedDF = result
+    try{
+      standardizedDF = result.withColumn("message.assertion.value", col("message.assertion.value").cast("string"))
+    } catch {
+      case e: Exception =>
+        println("Did not require assertion")
+    }
+    println("Standardized DataFrame")
+    standardizedDF.show(false)
 
     // Write the final DataFrame to Elasticsearch
-    thirdDF.saveToEs("data")
+    standardizedDF.saveToEs("data")
+} catch {
+  case e: org.apache.spark.sql.catalyst.parser.ParseException =>
+    println(s"JSON parsing error in file: ${dirPath}")
+    e.printStackTrace()
+  case e: org.apache.spark.sql.AnalysisException =>
+    println(s"Schema mismatch error in file: ${dirPath}")
+    e.printStackTrace()
+  case e: Exception =>
+    println(s"Error processing file: ${dirPath}")
+    e.printStackTrace()
+}
 
-    println(s"Successfully processed file: ${file.toString}")
-    // Delete the file after processing
-    Files.delete(Paths.get(file.toString))
+// Delete all JSON files after processing
+jsonFiles.foreach { file =>
+  try {
+    Files.delete(file)
   } catch {
-    case e: org.apache.spark.sql.catalyst.parser.ParseException =>
-      println(s"JSON parsing error in file: ${file.toString}")
-      e.printStackTrace()
-    case e: org.apache.spark.sql.AnalysisException =>
-      println(s"Schema mismatch error in file: ${file.toString}")
-      e.printStackTrace()
     case e: Exception =>
-      println(s"Error processing file: ${file.toString}")
+      println(s"Error deleting file: ${file}")
       e.printStackTrace()
   }
 }
