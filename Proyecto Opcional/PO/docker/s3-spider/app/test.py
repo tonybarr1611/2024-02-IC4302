@@ -1,4 +1,5 @@
 import unittest
+from app import extract_dois, create_jobs
 
 class TestDownloaderFunctions(unittest.TestCase):
     def test_extract_dois(self):

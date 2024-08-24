@@ -64,7 +64,7 @@ def save_json(name, data):
     filename = f"MD5({md5_doi}).json"
     filepath = os.path.join(XPATH, filename)
     with open(filepath, 'w') as f:
-        json.dump(data, f, indent=4)
+        json.dump(data, f)
     return True
 
 def update_info(job_id, doi):
