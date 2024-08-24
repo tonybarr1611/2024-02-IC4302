@@ -40,6 +40,7 @@ val authorQuery = """
   FROM tmp
 """
 
+// Read all files from the directory
 val dirPath = System.getenv("XPATH")
 val jsonFiles = Files.list(Paths.get(dirPath)).iterator().asScala.filter(_.toString.endsWith(".json")).toList
 println(s"Found ${jsonFiles.length} JSON files in the directory: $dirPath")
@@ -63,51 +64,24 @@ try {
     authorDF.show(false)
     authorDF.createOrReplaceTempView("tmp")
 
-    // Placeholder for the third query
-    
-
-    println("Third query")
+    // Third query
+  
+    // println("Third query")
     // val titleDF = spark.sql("SELECT `message`.`DOI`, `message`.`title` FROM tmp")
     // println("Title DataFrame")
     // titleDF.show(false)
 
-    // // Explode the references to work with each one individually
-    // val explodedDF = authorDF.withColumn("reference", explode(col("`message`.`reference`")))
-    // println("Exploded DataFrame")
-    // explodedDF.show(false)
-
-    // // Join with title DataFrame on the DOI to get the title
-    // val joinedDF = explodedDF
-    //   .join(titleDF, explodedDF("reference.DOI") === titleDF("DOI"), "left")
-    //   .withColumn("reference_title", col("title")) // Add the title to the exploded reference
-    // println("Joined DataFrame")
-    // joinedDF.show(false)
-
-  //   // Reconstruct the original structure, including the reference_title
-  //   val result = joinedDF
-  //     .groupBy("message", "message-type", "message-version", "status")
-  //     .agg(
-  //       collect_list(
-  //         struct(
-  //           col("reference.DOI"),
-  //           col("reference.doi-asserted-by"),
-  //           col("reference.key"),
-  //           col("reference.unstructured"),
-  //           col("reference_title") // Add the reference_title field
-  //         )
-  //       ).as("reference")
-  //     )
-  //     .withColumn("message.reference", col("reference"))
-  // .drop("reference") // Remove the temporary reference column used during aggregation
-
-    // val result = authorDF
-    //   .join(joinedDF, authorDF("`message`.`DOI`") === joinedDF("DOI"), "left")
     println("Result dataframe")
-    var result = authorDF
-        .withColumn("`message`.`reference_title`", 
-                  when(col("`message`.`reference`").isNotNull, 
-                       expr("filter(transform(`message`.`reference`, x -> if(x.DOI is not null, x.DOI, null)), x -> x is not null)"))
-                  .otherwise(lit(null)))
+
+    var result = authorDF.withColumn("message.reference_title", 
+      coalesce(
+        when(col("`message`.`reference`").isNotNull, 
+          expr("filter(transform(`message`.`reference`, x -> coalesce(x.DOI, null)), x -> x is not null)")
+        ),
+        lit(null)
+      )
+    )
+    
     result.show(false)
         
     var standardizedDF = result
@@ -134,6 +108,7 @@ try {
     e.printStackTrace()
 }
 
+// Delete all JSON files after processing
 jsonFiles.foreach { file =>
   try {
     Files.delete(file)
