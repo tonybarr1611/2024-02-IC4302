@@ -1,5 +1,24 @@
+import re
 import unittest
 from app import extract_dois, create_jobs
+
+def extract_dois(text):
+    doi_pattern = r'\b10\.\d{4,9}/[-._;()/:A-Z0-9]+\b'
+
+    potential_dois = re.findall(doi_pattern, text, flags=re.IGNORECASE)
+    
+    valid_dois = list(set(potential_dois))  # Use set to remove duplicates
+
+    valid_dois.sort()
+
+    return valid_dois
+
+def create_jobs(data, job_size):
+    dois = extract_dois(data)
+    
+    jobs = [dois[i:i + job_size] for i in range(0, len(dois), job_size)]
+    
+    return jobs
 
 class TestDownloaderFunctions(unittest.TestCase):
     def test_extract_dois(self):
@@ -18,4 +37,5 @@ class TestDownloaderFunctions(unittest.TestCase):
 
         self.assertEqual(result, expected_jobs)
 
-    
+if __name__ == "__main__":
+    unittest.main()

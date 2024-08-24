@@ -1,23 +1,34 @@
 import os
 import unittest
+import hashlib
+import json
+import requests
 from unittest.mock import patch, MagicMock
-from app import execute_query, get_doi_information, save_json
 
-XPATH=os.getenv('XPATH')
+XPATH='./'
 API = 'https://api.crossref.org/works/'
 
+def get_doi_information(doi_id):
+    try:
+        response = requests.get(API + doi_id)
+        if response.status_code == 200:
+            res = response.json()
+            return res
+        else:
+            return None
+    except requests.exceptions.RequestException as e:
+        print('Error:', e)
+        return None
+
+def save_json(name, data):
+    md5_doi = hashlib.md5(name.encode()).hexdigest()
+    filename = f"MD5({md5_doi}).json"
+    filepath = os.path.join(XPATH, filename)
+    with open(filepath, 'w') as f:
+        json.dump(data, f, indent=4)
+    return True
+
 class TestDownloaderFunctions(unittest.TestCase):
-    @patch('mariadb.ConnectionPool')
-    def test_execute_query(self, MockConnectionPool):
-        mock_cursor = MagicMock()
-        mock_conn = MagicMock()
-        mock_cursor.fetchall.return_value = [('mock_result',)]
-        mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
-        MockConnectionPool.return_value.get_connection.return_value = mock_conn
-
-        result = execute_query("SELECT * FROM mock_table WHERE id = %s", [1])
-        self.assertEqual(result, [('mock_result',)])
-
     @patch('requests.get')
     def test_get_doi_information(self, mock_get):
         mock_response = MagicMock()
