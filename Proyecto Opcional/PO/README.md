@@ -106,8 +106,32 @@ Now that Spark Shell is up and running, you can execute the contents of the file
 
 # Testing
 
+To test the whole project together, you can follow the next steps:
+First you need to do the build and install steps, after that to verify that the project is working correctly you can follow the next steps:
 
-# Unit Testing
+Check Docker images are running, you can check this in the Docker Desktop application.
+In this area it is important to check the different images, you can check the RabbitMQ, MariaDB, and Elasticsearch pods are running in the Kubernetes cluster. 
+
+![Spider S3 Logs](./images/SpiderS3.jpeg)
+
+Atter that you can check in Lens that the pods are running correctly, here you can check the logs of the pods to see if there are any errors and the status of the pods.
+
+After that you can check the logs of the downloader pod to see if the data is being processed correctly.
+
+[Downloader Logs](./images/downloader.jpeg)
+
+Finally you can check the logs of the SparkJob pod to see if the data is being indexed correctly in Elasticsearch.
+
+[SparkJob Logs](./images/sparkjob.jpeg)
+
+Once you have checked all the logs and the data is being processed correctly, you can consider to go to Elasticsearch by forwarding the IC4302 KB pod and here check if the data is being indexed correctly. The user on Elasticsearch is **elastic** and the password can be obtained from the spark pod's environment variables.
+
+[ElasticSearch Main Page](./images/elasticm.jpeg)
+
+Once you enter the Elasticsearch, you head towards the Discover tab and create a data visualization to see the data that is being indexed. This can be done by creating a new index pattern using the name "data" and creating the new visualization to see the stored information.
+
+[Elasticsearch](./images/elasticsearch.jpeg)
+
 
 # Recommendations and Conclusions
 
