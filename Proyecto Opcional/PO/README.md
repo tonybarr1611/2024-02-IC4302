@@ -118,19 +118,19 @@ Atter that you can check in Lens that the pods are running correctly, here you c
 
 After that you can check the logs of the downloader pod to see if the data is being processed correctly.
 
-[Downloader Logs](./images/downloader.jpeg)
+![Downloader Logs](./images/downloader.jpeg)
 
 Finally you can check the logs of the SparkJob pod to see if the data is being indexed correctly in Elasticsearch.
 
-[SparkJob Logs](./images/sparkjob.jpeg)
+![SparkJob Logs](./images/sparkjob.jpeg)
 
 Once you have checked all the logs and the data is being processed correctly, you can consider to go to Elasticsearch by forwarding the IC4302 KB pod and here check if the data is being indexed correctly. The user on Elasticsearch is **elastic** and the password can be obtained from the spark pod's environment variables.
 
-[ElasticSearch Main Page](./images/elasticm.jpeg)
+![ElasticSearch Main Page](./images/elasticm.jpeg)
 
 Once you enter the Elasticsearch, you head towards the Discover tab and create a data visualization to see the data that is being indexed. This can be done by creating a new index pattern using the name "data" and creating the new visualization to see the stored information.
 
-[Elasticsearch](./images/elasticsearch.jpeg)
+![Elasticsearch](./images/elasticsearch.jpeg)
 
 
 # Recommendations and Conclusions
