@@ -32,4 +32,13 @@ dependencies:
     version: "7.4.11"
     repository: https://charts.bitnami.com/bitnami
     condition: memcached.enabled
+  - name: mariadb
+    version: "16.0.2"
+    repository: https://charts.bitnami.com/bitnami
+    condition: mariadb.enabled
+  - name: postgresql
+    version: "15.5.24"
+    repository: https://charts.bitnami.com/bitnami
+    condition: postgresql.enabled
+  
 
