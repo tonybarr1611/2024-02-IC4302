@@ -1,1 +1,5 @@
-flask 
+flask
+psycopg2
+pandas
+mysql-connector-python
+elasticsearch
