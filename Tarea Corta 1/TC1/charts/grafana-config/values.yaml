@@ -1,0 +1,19 @@
+prometheus: 
+  namespace: monitoring
+dashboards:
+  elasticsearch:
+    name: elasticsearch
+    file: elasticsearch.json
+    enable: true
+  redis:
+    name: redis
+    file: redis.json
+    enable: true
+  mariadb:
+    name: mariadb
+    file: mariadb.json
+    enable: true
+  mongodb:
+    name: mongodb
+    file: mongodb.json
+    enable: true

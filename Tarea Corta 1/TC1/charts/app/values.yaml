@@ -1,0 +1,6 @@
+config:
+  flask:
+    enabled: false
+    name: flasktest
+    replicas: 10
+    image: nereo08/flask-example
