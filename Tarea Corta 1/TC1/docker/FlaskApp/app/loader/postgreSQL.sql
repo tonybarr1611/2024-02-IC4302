@@ -42,15 +42,15 @@ CREATE TABLE RACE (
     calendarDate DATE,
     timeObtained TIME,
     url VARCHAR(128),
-    fp1_date TIME,
+    fp1_date DATE,
     fp1_time TIME,
-    fp2_date TIME,
+    fp2_date DATE,
     fp2_time TIME,
-    fp3_date TIME,
+    fp3_date DATE,
     fp3_time TIME,
-    quali_date TIME,
+    quali_date DATE,
     quali_time TIME,
-    sprint_date TIME,
+    sprint_date DATE,
     sprint_time TIME
 );
 

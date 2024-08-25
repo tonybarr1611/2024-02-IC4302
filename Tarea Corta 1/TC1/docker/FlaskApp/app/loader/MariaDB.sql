@@ -1,3 +1,8 @@
+CREATE TABLE STATUS (
+    statusId INT PRIMARY KEY,
+    status VARCHAR(255)
+);
+
 CREATE TABLE CIRCUIT (
     circuitId INT PRIMARY KEY,
     circuitRef VARCHAR(255),
@@ -110,7 +115,7 @@ CREATE TABLE RACE (
     round INT,
     circuitId INT,
     name VARCHAR(255),
-    date DATE,
+    calendarDate DATE,
     timeObtained TIME,
     url VARCHAR(255),
     fp1_date DATE,
@@ -177,11 +182,6 @@ CREATE TABLE SPRINT_RESULT (
     FOREIGN KEY (driverId) REFERENCES DRIVER(driverId),
     FOREIGN KEY (constructorId) REFERENCES CONSTRUCTOR(constructorId),
     FOREIGN KEY (statusId) REFERENCES STATUS(statusId)
-);
-
-CREATE TABLE STATUS (
-    statusId INT PRIMARY KEY,
-    status VARCHAR(255)
 );
 
 LOAD DATA INFILE './data/circuits.csv'
@@ -262,7 +262,7 @@ FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
 IGNORE 1 LINES
-(raceId, year, round, circuitId, name, date, timeObtained, url, fp1_date, fp1_time, fp2_date, fp2_time, fp3_date, fp3_time, quali_date, quali_time, sprint_date, sprint_time);
+(raceId, year, round, circuitId, name, calendarDate, timeObtained, url, fp1_date, fp1_time, fp2_date, fp2_time, fp3_date, fp3_time, quali_date, quali_time, sprint_date, sprint_time);
 
 LOAD DATA INFILE './data/results.csv'
 INTO TABLE RESULT
