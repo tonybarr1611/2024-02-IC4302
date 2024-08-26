@@ -13,12 +13,21 @@ mariadb:
       enabled: true
       namespace: "monitoring"
 
+postgresql:
+  enabled: true
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+      namespace: "monitoring"
+
 elasticsearch:
   metrics:
     enabled: true
     serviceMonitor:
       enabled: true
       namespace: "monitoring"
+
 elastic:
   enabled: false
   version: 8.6.1
