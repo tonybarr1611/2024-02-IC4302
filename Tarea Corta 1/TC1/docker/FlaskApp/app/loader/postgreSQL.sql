@@ -1,3 +1,9 @@
+-- Create the STATUS table
+CREATE TABLE STATUS (
+    statusId SERIAL PRIMARY KEY,
+    status VARCHAR(255)
+);
+
 -- Create the CIRCUIT table
 CREATE TABLE CIRCUIT (
     circuitId SERIAL PRIMARY KEY,
@@ -47,12 +53,6 @@ CREATE TABLE RESULT (
     points DECIMAL(5,2),
     laps INT,
     statusId INT REFERENCES STATUS(statusId)
-);
-
--- Create the STATUS table
-CREATE TABLE STATUS (
-    statusId SERIAL PRIMARY KEY,
-    status VARCHAR(255)
 );
 
 -- Create the CONSTRUCTOR_RESULT table
@@ -133,163 +133,163 @@ CREATE TABLE SPRINT_RESULT (
     statusId INT REFERENCES STATUS(statusId)
 );
 
--- Load data into CIRCUIT table
-COPY CIRCUIT(
-    circuitId, 
-    name, 
-    location, 
-    country
-) FROM './data/circuits.csv'
-DELIMITER ','
-CSV HEADER;
+-- -- Load data into CIRCUIT table
+-- \copy CIRCUIT(
+--     circuitId, 
+--     name, 
+--     location, 
+--     country
+-- ) FROM './data/circuits.csv'
+-- DELIMITER ','
+-- CSV HEADER;
 
--- Load data into CONSTRUCTOR table
-COPY CONSTRUCTOR(
-    constructorId, 
-    name, 
-    nationality
-) FROM './data/constructors.csv'
-DELIMITER ','
-CSV HEADER;
+-- -- Load data into CONSTRUCTOR table
+-- \copy CONSTRUCTOR(
+--     constructorId, 
+--     name, 
+--     nationality
+-- ) FROM './data/constructors.csv'
+-- DELIMITER ','
+-- CSV HEADER;
 
--- Load data into DRIVER table
-COPY DRIVER(
-    driverId, 
-    driverRef, 
-    assignedNumber, 
-    code, 
-    forename, 
-    surname, 
-    dob, 
-    nationality
-) FROM './data/drivers.csv'
-DELIMITER ','
-CSV HEADER;
+-- -- Load data into DRIVER table
+-- \copy DRIVER(
+--     driverId, 
+--     driverRef, 
+--     assignedNumber, 
+--     code, 
+--     forename, 
+--     surname, 
+--     dob, 
+--     nationality
+-- ) FROM './data/drivers.csv'
+-- DELIMITER ','
+-- CSV HEADER;
 
--- Load data into RACE table
-COPY RACE(
-    raceId, 
-    year, 
-    round, 
-    circuitId, 
-    name, 
-    date, 
-    timeObtained
-) FROM './data/races.csv'
-DELIMITER ','
-CSV HEADER;
+-- -- Load data into RACE table
+-- \copy RACE(
+--     raceId, 
+--     year, 
+--     round, 
+--     circuitId, 
+--     name, 
+--     date, 
+--     timeObtained
+-- ) FROM './data/races.csv'
+-- DELIMITER ','
+-- CSV HEADER;
 
--- Load data into RESULT table
-COPY RESULT(
-    resultId, 
-    raceId, 
-    driverId, 
-    constructorId, 
-    grid, 
-    position, 
-    points, 
-    laps, 
-    statusId
-) FROM './data/results.csv'
-DELIMITER ','
-CSV HEADER;
+-- -- Load data into RESULT table
+-- \copy RESULT(
+--     resultId, 
+--     raceId, 
+--     driverId, 
+--     constructorId, 
+--     grid, 
+--     position, 
+--     points, 
+--     laps, 
+--     statusId
+-- ) FROM './data/results.csv'
+-- DELIMITER ','
+-- CSV HEADER;
 
--- Load data into STATUS table
-COPY STATUS(
-    statusId, 
-    status
-) FROM './data/status.csv'
-DELIMITER ','
-CSV HEADER;
+-- -- Load data into STATUS table
+-- \copy STATUS(
+--     statusId, 
+--     status
+-- ) FROM './data/status.csv'
+-- DELIMITER ','
+-- CSV HEADER;
 
--- Load data into CONSTRUCTOR_RESULT table
-COPY CONSTRUCTOR_RESULT(
-    constructorResultId, 
-    raceId, 
-    constructorId, 
-    points, 
-    status
-) FROM './data/constructor_results.csv'
-DELIMITER ','
-CSV HEADER;
+-- -- Load data into CONSTRUCTOR_RESULT table
+-- \copy CONSTRUCTOR_RESULT(
+--     constructorResultId, 
+--     raceId, 
+--     constructorId, 
+--     points, 
+--     status
+-- ) FROM './data/constructor_results.csv'
+-- DELIMITER ','
+-- CSV HEADER;
 
--- Load data into CONSTRUCTOR_STANDING table
-COPY CONSTRUCTOR_STANDING(
-    constructorStandingsId, 
-    raceId, 
-    constructorId, 
-    points, 
-    position
-) FROM './data/constructor_standings.csv'
-DELIMITER ','
-CSV HEADER;
+-- -- Load data into CONSTRUCTOR_STANDING table
+-- \copy CONSTRUCTOR_STANDING(
+--     constructorStandingsId, 
+--     raceId, 
+--     constructorId, 
+--     points, 
+--     position
+-- ) FROM './data/constructor_standings.csv'
+-- DELIMITER ','
+-- CSV HEADER;
 
--- Load data into DRIVER_STANDING table
-COPY DRIVER_STANDING(
-    driverStandingsId, 
-    raceId, 
-    driverId, 
-    points, 
-    position
-) FROM './data/driver_standings.csv'
-DELIMITER ','
-CSV HEADER;
+-- -- Load data into DRIVER_STANDING table
+-- \copy DRIVER_STANDING(
+--     driverStandingsId, 
+--     raceId, 
+--     driverId, 
+--     points, 
+--     position
+-- ) FROM './data/driver_standings.csv'
+-- DELIMITER ','
+-- CSV HEADER;
 
--- Load data into LAP_TIME table
-COPY LAP_TIME(
-    raceId, 
-    driverId, 
-    lap, 
-    position, 
-    timeObtained
-) FROM './data/lap_times.csv'
-DELIMITER ','
-CSV HEADER;
+-- -- Load data into LAP_TIME table
+-- \copy LAP_TIME(
+--     raceId, 
+--     driverId, 
+--     lap, 
+--     position, 
+--     timeObtained
+-- ) FROM './data/lap_times.csv'
+-- DELIMITER ','
+-- CSV HEADER;
 
--- Load data into PIT_STOP table
-COPY PIT_STOP(
-    raceId, 
-    driverId, 
-    stop, 
-    lap, 
-    timeObtained, 
-    duration
-) FROM './data/pit_stops.csv'
-DELIMITER ','
-CSV HEADER;
+-- -- Load data into PIT_STOP table
+-- \copy PIT_STOP(
+--     raceId, 
+--     driverId, 
+--     stop, 
+--     lap, 
+--     timeObtained, 
+--     duration
+-- ) FROM './data/pit_stops.csv'
+-- DELIMITER ','
+-- CSV HEADER;
 
--- Load data into QUALIFYING table
-COPY QUALIFYING(
-    qualifyId, 
-    raceId, 
-    driverId, 
-    constructorId, 
-    position, 
-    q1, 
-    q2, 
-    q3
-) FROM './data/qualifying.csv'
-DELIMITER ','
-CSV HEADER;
+-- -- Load data into QUALIFYING table
+-- \copy QUALIFYING(
+--     qualifyId, 
+--     raceId, 
+--     driverId, 
+--     constructorId, 
+--     position, 
+--     q1, 
+--     q2, 
+--     q3
+-- ) FROM './data/qualifying.csv'
+-- DELIMITER ','
+-- CSV HEADER;
 
--- Load data into SEASON table
-COPY SEASON(
-    year, 
-    url
-) FROM './data/seasons.csv'
-DELIMITER ','
-CSV HEADER;
+-- -- Load data into SEASON table
+-- \copy SEASON(
+--     year, 
+--     url
+-- ) FROM './data/seasons.csv'
+-- DELIMITER ','
+-- CSV HEADER;
 
--- Load data into SPRINT_RESULT table
-COPY SPRINT_RESULT(
-    sprintResultId, 
-    raceId, 
-    driverId, 
-    constructorId, 
-    position, 
-    points, 
-    laps, 
-    statusId
-) FROM './data/sprint_results.csv'
-DELIMITER ','
-CSV HEADER;
+-- -- Load data into SPRINT_RESULT table
+-- \copy SPRINT_RESULT(
+--     sprintResultId, 
+--     raceId, 
+--     driverId, 
+--     constructorId, 
+--     position, 
+--     points, 
+--     laps, 
+--     statusId
+-- ) FROM './data/sprint_results.csv'
+-- DELIMITER ','
+-- CSV HEADER;
