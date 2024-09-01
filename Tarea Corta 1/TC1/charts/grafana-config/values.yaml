@@ -26,9 +26,5 @@ dashboards:
     file: mongodb.json
     enable: true
 
-"Dashboard de elasticsearch ID: 14191"
-"Dashboard de MariaDB ID: 11679"
-"Dashboard de PostgreSQL ID: 12485"
-"Dashboard de Redis ID: 14091 / 11835 / 881"
-"Dashboard de Memcached ID: 20480 / 15235"
+
 
