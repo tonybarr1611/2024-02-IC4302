@@ -6,41 +6,60 @@ CREATE TABLE STATUS (
 
 -- Create the CIRCUIT table
 CREATE TABLE CIRCUIT (
-    circuitId SERIAL PRIMARY KEY,
-    name VARCHAR(255),
+    circuitId INTEGER PRIMARY KEY,
+    circuitRef VARCHAR(32),
+    name VARCHAR(128),
     location VARCHAR(255),
-    country VARCHAR(255)
+    country VARCHAR(255),
+    latitude Decimal(8,6),
+    longitude Decimal(9,6),
+    altitude INTEGER
 );
 
 -- Create the CONSTRUCTOR table
 CREATE TABLE CONSTRUCTOR (
     constructorId SERIAL PRIMARY KEY,
-    name VARCHAR(255),
-    nationality VARCHAR(255)
+    constructorRef VARCHAR(32),
+    name VARCHAR(64),
+    nationality VARCHAR(64),
+    url VARCHAR(128)
 );
 
 -- Create the DRIVER table
 CREATE TABLE DRIVER (
     driverId SERIAL PRIMARY KEY,
-    driverRef VARCHAR(255),
+    driverRef VARCHAR(64),
     assignedNumber INT,
     code VARCHAR(3),
-    forename VARCHAR(255),
-    surname VARCHAR(255),
+    forename VARCHAR(64),
+    surname VARCHAR(64),
     dob DATE,
-    nationality VARCHAR(255)
+    nationality VARCHAR(64),
+    url VARCHAR(128)
 );
 
 -- Create the RACE table
 CREATE TABLE RACE (
     raceId SERIAL PRIMARY KEY,
-    year INT,
+    year VARCHAR(4),
     round INT,
     circuitId INT REFERENCES CIRCUIT(circuitId),
-    name VARCHAR(255),
-    date DATE,
-    timeObtained TIME
+    name VARCHAR(64),
+    calendarDate DATE,
+    timeObtained TIME,
+    url VARCHAR(128),
+    fp1_date DATE,
+    fp1_time TIME,
+    fp2_date DATE,
+    fp2_time TIME,
+    fp3_date DATE,
+    fp3_time TIME,
+    quali_date DATE,
+    quali_time TIME,
+    sprint_date DATE,
+    sprint_time TIME
 );
+
 
 -- Create the RESULT table
 CREATE TABLE RESULT (
@@ -48,10 +67,19 @@ CREATE TABLE RESULT (
     raceId INT REFERENCES RACE(raceId),
     driverId INT REFERENCES DRIVER(driverId),
     constructorId INT REFERENCES CONSTRUCTOR(constructorId),
+    numberObtained INT,
     grid INT,
     position INT,
-    points DECIMAL(5,2),
+    positionText VARCHAR(2),
+    positionOrder INT,
+    points INT,
     laps INT,
+    timeObtained VARCHAR(16),
+    milliseconds VARCHAR(16),
+    fastestLap VARCHAR(16),
+    rank VARCHAR(2),
+    fastestLapTime VARCHAR(16),
+    fastestLapSpeed VARCHAR(16),
     statusId INT REFERENCES STATUS(statusId)
 );
 
@@ -60,17 +88,19 @@ CREATE TABLE CONSTRUCTOR_RESULT (
     constructorResultId SERIAL PRIMARY KEY,
     raceId INT REFERENCES RACE(raceId),
     constructorId INT REFERENCES CONSTRUCTOR(constructorId),
-    points DECIMAL(5,2),
-    status VARCHAR(255)
+    points INT,
+    status VARCHAR(32)
 );
 
 -- Create the CONSTRUCTOR_STANDING table
 CREATE TABLE CONSTRUCTOR_STANDING (
-    constructorStandingsId SERIAL PRIMARY KEY,
+    constructorStandingId SERIAL PRIMARY KEY,
     raceId INT REFERENCES RACE(raceId),
     constructorId INT REFERENCES CONSTRUCTOR(constructorId),
-    points DECIMAL(5,2),
-    position INT
+    points INT,
+    position INT,
+    positionText VARCHAR(4),
+    wins INT
 );
 
 -- Create the DRIVER_STANDING table
@@ -78,8 +108,10 @@ CREATE TABLE DRIVER_STANDING (
     driverStandingsId SERIAL PRIMARY KEY,
     raceId INT REFERENCES RACE(raceId),
     driverId INT REFERENCES DRIVER(driverId),
-    points DECIMAL(5,2),
-    position INT
+    points INT,
+    position INT,
+    positionText VARCHAR(4),
+    wins INT
 );
 
 -- Create the LAP_TIME table
@@ -89,6 +121,7 @@ CREATE TABLE LAP_TIME (
     lap INT,
     position INT,
     timeObtained TIME,
+    milliseconds VARCHAR(16),
     PRIMARY KEY (raceId, driverId, lap)
 );
 
@@ -100,6 +133,7 @@ CREATE TABLE PIT_STOP (
     lap INT,
     timeObtained TIME,
     duration VARCHAR(255),
+    milliseconds VARCHAR(16),
     PRIMARY KEY (raceId, driverId, stop)
 );
 
@@ -109,6 +143,7 @@ CREATE TABLE QUALIFYING (
     raceId INT REFERENCES RACE(raceId),
     driverId INT REFERENCES DRIVER(driverId),
     constructorId INT REFERENCES CONSTRUCTOR(constructorId),
+    assignedNumber INT,
     position INT,
     q1 TIME,
     q2 TIME,
@@ -123,13 +158,21 @@ CREATE TABLE SEASON (
 
 -- Create the SPRINT_RESULT table
 CREATE TABLE SPRINT_RESULT (
-    sprintResultId SERIAL PRIMARY KEY,
+    resultId SERIAL PRIMARY KEY,
     raceId INT REFERENCES RACE(raceId),
     driverId INT REFERENCES DRIVER(driverId),
     constructorId INT REFERENCES CONSTRUCTOR(constructorId),
+    numberObtained INT,
+    grid INT,
     position INT,
+    positionText VARCHAR(4),
+    positionOrder INT,
     points DECIMAL(5,2),
     laps INT,
+    timeObtained VARCHAR(16),
+    milliseconds VARCHAR(16),
+    fastestLap VARCHAR(16),
+    fastestLapTime VARCHAR(16),
     statusId INT REFERENCES STATUS(statusId)
 );
 
