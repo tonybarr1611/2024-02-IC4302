@@ -19,6 +19,8 @@ spec:
       - name: {{ .Values.config.loader.name }}
         image: {{ .Values.config.loader.image }}
         env:
+        - name: POSTGRES
+          value: "databases-postgresql"
         - name: POSTGRES_USER
           value: "postgres"
         - name: POSTGRES_PASSWORD
@@ -27,9 +29,11 @@ spec:
               name: databases-postgresql
               key: postgres-password
               optional: false
-        - name: MARIA_DB_USER
+        - name: MARIADB
+          value: "databases-mariadb"
+        - name: MARIADB_USER
           value: "root"
-        - name: MARIA_DB_PASSWORD
+        - name: MARIADB_PASSWORD
           valueFrom:
             secretKeyRef:
               name: databases-mariadb
