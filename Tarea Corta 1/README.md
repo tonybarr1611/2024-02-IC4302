@@ -231,7 +231,7 @@ The structure of the databases is designed to store historical Formula 1 data. T
 
 ## Data Loading Scripts:
 
-Each table in the database is loaded with historical data through CSV files that contain information about Formula 1. The LOAD DATA INFILE commands are used to import the data into the tables, allowing for a database with ready-to-query information.
+Each table in the database is loaded with historical data through CSV files that contain information about Formula 1. 
 
 ## Gatling
 
