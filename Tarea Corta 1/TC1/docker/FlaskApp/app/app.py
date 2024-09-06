@@ -1,18 +1,7 @@
 # Flask App for PostgreSQL
-import os
-import subprocess
 from flask import Flask
 
 app = Flask(__name__)
-
-@app.before_first_request
-def initialize_db():
-
-    mariadb_password = os.getenv('MARIADB_PASSWORD', 'defaultpassword')
-    subprocess.run(f'mysql -u root -p{mariadb_password} < /docker-entrypoint-initdb.d/MariaDB.sql', shell=True)
-
-    postgres_password = os.getenv('POSTGRES_PASSWORD', 'defaultpassword')
-    subprocess.run(f'psql -U postgres -W {postgres_password} -f /docker-entrypoint-initdb.d/postgreSQL.sql', shell=True)
 
 @app.route("/")
 def hello_world():
