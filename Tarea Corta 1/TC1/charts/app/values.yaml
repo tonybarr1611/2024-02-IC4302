@@ -1,6 +1,5 @@
 config:
   flask:
-    enabled: false
-    name: flasktest
-    replicas: 10
-    image: tonybar16/flask-example
+    enabled: true
+    name: flaskapi
+    image: tonybarr16/flaskapi
