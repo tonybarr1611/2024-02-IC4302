@@ -25,3 +25,7 @@ dashboards:
     name: mongodb
     file: mongodb.json
     enable: true
+  pythonprometheus:
+    name: pythonprometheus
+    file: pythonprometheus.json
+    enable: true

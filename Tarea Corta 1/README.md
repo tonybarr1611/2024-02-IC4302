@@ -174,13 +174,29 @@ To successfully complete the project, the following recommendations are provided
 
 ## Conclusions 
 
-1. The structure of the relational database is designed to make queries efficient, with tables separated by categories. This allows for searches using indexes and foreign keys.
+1. The structure of the relational database is designed to make queries efficient, with tables separated by categories. This allows searches using indexes and foreign keys.
 
-2. The use of PostgreSQL and MariaDB allows for handling large volumes of data. Additionally, integrating ElasticSearch into the project provides options for fast and scalable searches in even larger or distributed databases.
+2. The use of PostgreSQL and MariaDB allows handling large volumes of data. Additionally, integrating Elasticsearch into the project provides options for fast and scalable searches in even larger or distributed databases.
 
-3. The API offers direct and simple access to data through well-structured SQL queries. The relationships between tables allow for obtaining details of races, times, and rankings, which is essential for performance analysis of drivers and constructors.
+3. The API offers direct and simple access to data through well-structured SQL queries. The relationships between tables allow obtaining details of races, times, and rankings, which is essential for analyzing the performance of drivers and constructors.
 
-4. The database and API are designed in a way that facilitates the incorporation of new data (future drivers, additional circuits, etc.) without disrupting the current functionality.
+4. The database and API are designed in a way that facilitates the incorporation of new data (future drivers, additional circuits, etc.) without interrupting current operations.
+
+5. The data source is configured to connect to Prometheus using an internal URL and is set as the default and editable data source, making it easy to adjust in the environment.
+
+6. The dashboard-loader.yaml configuration allows the automatic creation of dashboards for multiple services (Elasticsearch, Redis, MariaDB, PostgreSQL and Memcached).
+
+7. Each of these dashboards is enabled or disabled through the values.yaml file, allowing for flexible deployment based on monitoring needs.
+
+8. The dashboards are based on pre-existing Grafana configurations, making it easier to adopt best practices for monitoring.
+
+9. The dashboards follow a standard Grafana structure, using panels like Graph and Singlestat, which are essential for metric visualizations and alerts.
+
+10. Each dashboard's JSON file defines inputs such as DS_PROMETHEUS to connect to the Prometheus data source.
+
+11. The project is designed to provide a comprehensive monitoring solution for the different components, allowing users to visualize key metrics and identify performance bottlenecks or areas for optimization.
+
+12. The integration of diverse technologies, helps create a application that uses optimal solutions for different tasks, such as data storage, retrieval, caching, and monitoring.
 
 # Components
 
@@ -235,6 +251,7 @@ Each table in the database is loaded with historical data through CSV files that
 
 ## Gatling
 
+Gatling is an open-source load testing tool that is used to simulate user behavior and measure the performance of the application under different conditions. Gatling allows users to create scenarios that simulate real-world user interactions, such as browsing web pages, submitting forms, and making API requests. It generates load on the system by sending multiple requests concurrently and measures the response times, throughput, and error rates. Gatling provides detailed reports and metrics that help users analyze the performance of the application and identify bottlenecks or areas for optimization. In this project, Gatling is used to test the performance of the API under varying loads and analyze the system's behavior in terms of resource usage and query performance. The load tests are designed to simulate different scenarios, such as multiple users accessing the API simultaneously, querying large datasets, and performing complex operations. The results of the load tests are used to evaluate the performance of the application and identify areas that need improvement. Gatling is configured to run load tests against the API and measure key metrics, such as response times, throughput, and error rates. The load tests are executed in a controlled environment, allowing users to analyze the impact of different loads on the system and make informed decisions based on the data.
 
 ## Prometheus
 
