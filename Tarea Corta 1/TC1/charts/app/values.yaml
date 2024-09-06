@@ -3,3 +3,7 @@ config:
     enabled: true
     name: flaskapi
     image: tonybarr16/flaskapi
+  loader:
+    enabled: true
+    name: loader
+    image: tonybarr16/loader

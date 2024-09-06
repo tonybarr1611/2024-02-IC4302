@@ -1,0 +1,48 @@
+{{ if .Values.config.loader.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.config.loader.name }}
+  labels:
+    app: {{ .Values.config.loader.name }}
+spec:
+  replicas: {{ .Values.config.loader.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.config.loader.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.config.loader.name }}
+    spec:
+      containers:
+      - name: {{ .Values.config.loader.name }}
+        image: {{ .Values.config.loader.image }}
+        env:
+        - name: POSTGRES_USER
+          value: "postgres"
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: databases-postgresql
+              key: postgres-password
+              optional: false
+        - name: MARIA_DB_USER
+          value: "root"
+        - name: MARIA_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: databases-mariadb
+              key: mariadb-root-password
+              optional: false
+        - name: ELASTIC_USER
+          value: "elastic"
+        - name: ELASTIC_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: ic4302-es-elastic-user
+              key: elastic
+              optional: false
+        - name: ELASTIC
+          value: "ic4302-es-http"
+{{ end }}
