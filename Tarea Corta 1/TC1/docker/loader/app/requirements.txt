@@ -1,5 +1,4 @@
-flask
 psycopg2-binary
 pandas
-mysql-connector-python
+mariadb
 elasticsearch

@@ -2,6 +2,10 @@
 # $1 is the username
 docker login
 cd FlaskApp
-docker build -t $1/flask-example .
-docker push $1/flask-example
+docker build -t $1/flaskapi .
+docker push $1/flaskapi
+cd ..
+cd loader
+docker build -t $1/loader .
+docker push $1/loader
 cd ..
