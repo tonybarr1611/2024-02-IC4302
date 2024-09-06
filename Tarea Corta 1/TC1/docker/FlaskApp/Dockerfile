@@ -2,16 +2,21 @@ FROM python:3.12.4-slim-bookworm
 
 WORKDIR /app
 
-COPY app/. .
-RUN pip install --no-cache-dir -r requirements.txt
+# Install necessary system libraries
+RUN apt-get update && apt-get install -y \
+    gcc \
+    libpq-dev \
+    default-libmysqlclient-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-# RUN apt-get update && apt-get install -y mariadb-client postgresql-client
+COPY app/. .
+
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app/loader/MariaDB.sql /docker-entrypoint-initdb.d/MariaDB.sql
 COPY app/loader/postgreSQL.sql /docker-entrypoint-initdb.d/postgreSQL.sql
 
 # RUN mysql -u root -pmysecretpassword < /docker-entrypoint-initdb.d/MariaDB.sql
 # RUN psql -U postgres -f /docker-entrypoint-initdb.d/postgreSQL.sql
-
 
 CMD [ "flask",  "--app", "app", "run" ]

@@ -104,7 +104,7 @@ def get_laps_driver(id):
     """
     return "<p>Laps for driver with id: " + str(id) + "</p>"
 
-@app.route("driver/<int:id>/total_races", methods=['GET'])
+@app.route("/driver/<int:id>/total_races", methods=['GET'])
 def get_total_races_driver(id):
     """
         SELECT   D.driverId,
