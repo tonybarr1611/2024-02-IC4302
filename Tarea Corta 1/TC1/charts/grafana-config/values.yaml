@@ -25,4 +25,3 @@ dashboards:
     name: mongodb
     file: mongodb.json
     enable: true
-
