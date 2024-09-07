@@ -2,8 +2,8 @@ config:
   flask:
     enabled: true
     name: flaskapi
-    image: tonybarr16/flaskapi
+    image: sfabricito/flaskapi
   loader:
     enabled: true
     name: loader
-    image: tonybarr16/loader
+    image: sfabricito/loader

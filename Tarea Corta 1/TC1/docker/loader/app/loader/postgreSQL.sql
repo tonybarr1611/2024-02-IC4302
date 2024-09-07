@@ -1,23 +1,30 @@
 -- Create the STATUS table
-CREATE TABLE STATUS (
+CREATE TABLE IF NOT EXISTS STATUS (
     statusId SERIAL PRIMARY KEY,
     status VARCHAR(255)
 );
 
 -- Create the CIRCUIT table
-CREATE TABLE CIRCUIT (
+CREATE TABLE IF NOT EXISTS CIRCUIT (
     circuitId INTEGER PRIMARY KEY,
     circuitRef VARCHAR(32),
     name VARCHAR(128),
     location VARCHAR(255),
     country VARCHAR(255),
-    latitude Decimal(8,6),
-    longitude Decimal(9,6),
-    altitude INTEGER
+    lat Decimal(8,6),
+    lng Decimal(9,6),
+    alt INTEGER,
+    url VARCHAR(255)
+);
+
+-- Create the SEASON table
+CREATE TABLE IF NOT EXISTS SEASON (
+    year INT PRIMARY KEY,
+    url VARCHAR(255)
 );
 
 -- Create the CONSTRUCTOR table
-CREATE TABLE CONSTRUCTOR (
+CREATE TABLE IF NOT EXISTS CONSTRUCTOR (
     constructorId SERIAL PRIMARY KEY,
     constructorRef VARCHAR(32),
     name VARCHAR(64),
@@ -26,11 +33,11 @@ CREATE TABLE CONSTRUCTOR (
 );
 
 -- Create the DRIVER table
-CREATE TABLE DRIVER (
+CREATE TABLE IF NOT EXISTS DRIVER (
     driverId SERIAL PRIMARY KEY,
     driverRef VARCHAR(64),
-    assignedNumber INT,
-    code VARCHAR(3),
+    assignedNumber VARCHAR(16),
+    code VARCHAR(16),
     forename VARCHAR(64),
     surname VARCHAR(64),
     dob DATE,
@@ -39,30 +46,29 @@ CREATE TABLE DRIVER (
 );
 
 -- Create the RACE table
-CREATE TABLE RACE (
+CREATE TABLE IF NOT EXISTS RACE (
     raceId SERIAL PRIMARY KEY,
     year VARCHAR(4),
     round INT,
     circuitId INT REFERENCES CIRCUIT(circuitId),
     name VARCHAR(64),
-    calendarDate DATE,
-    timeObtained TIME,
+    calendarDate VARCHAR(64),
+    timeObtained VARCHAR(64),
     url VARCHAR(128),
-    fp1_date DATE,
-    fp1_time TIME,
-    fp2_date DATE,
-    fp2_time TIME,
-    fp3_date DATE,
-    fp3_time TIME,
-    quali_date DATE,
-    quali_time TIME,
-    sprint_date DATE,
-    sprint_time TIME
+    fp1_date VARCHAR(64),
+    fp1_time VARCHAR(64),
+    fp2_date VARCHAR(64),
+    fp2_time VARCHAR(64),
+    fp3_date VARCHAR(64),
+    fp3_time VARCHAR(64),
+    quali_date VARCHAR(64),
+    quali_time VARCHAR(64),
+    sprint_date VARCHAR(64),
+    sprint_time VARCHAR(64)
 );
 
-
 -- Create the RESULT table
-CREATE TABLE RESULT (
+CREATE TABLE IF NOT EXISTS RESULT (
     resultId SERIAL PRIMARY KEY,
     raceId INT REFERENCES RACE(raceId),
     driverId INT REFERENCES DRIVER(driverId),
@@ -84,7 +90,7 @@ CREATE TABLE RESULT (
 );
 
 -- Create the CONSTRUCTOR_RESULT table
-CREATE TABLE CONSTRUCTOR_RESULT (
+CREATE TABLE IF NOT EXISTS CONSTRUCTOR_RESULT (
     constructorResultId SERIAL PRIMARY KEY,
     raceId INT REFERENCES RACE(raceId),
     constructorId INT REFERENCES CONSTRUCTOR(constructorId),
@@ -93,7 +99,7 @@ CREATE TABLE CONSTRUCTOR_RESULT (
 );
 
 -- Create the CONSTRUCTOR_STANDING table
-CREATE TABLE CONSTRUCTOR_STANDING (
+CREATE TABLE IF NOT EXISTS CONSTRUCTOR_STANDING (
     constructorStandingId SERIAL PRIMARY KEY,
     raceId INT REFERENCES RACE(raceId),
     constructorId INT REFERENCES CONSTRUCTOR(constructorId),
@@ -104,7 +110,7 @@ CREATE TABLE CONSTRUCTOR_STANDING (
 );
 
 -- Create the DRIVER_STANDING table
-CREATE TABLE DRIVER_STANDING (
+CREATE TABLE IF NOT EXISTS DRIVER_STANDING (
     driverStandingsId SERIAL PRIMARY KEY,
     raceId INT REFERENCES RACE(raceId),
     driverId INT REFERENCES DRIVER(driverId),
@@ -115,7 +121,7 @@ CREATE TABLE DRIVER_STANDING (
 );
 
 -- Create the LAP_TIME table
-CREATE TABLE LAP_TIME (
+CREATE TABLE IF NOT EXISTS LAP_TIME (
     raceId INT REFERENCES RACE(raceId),
     driverId INT REFERENCES DRIVER(driverId),
     lap INT,
@@ -126,7 +132,7 @@ CREATE TABLE LAP_TIME (
 );
 
 -- Create the PIT_STOP table
-CREATE TABLE PIT_STOP (
+CREATE TABLE IF NOT EXISTS PIT_STOP (
     raceId INT REFERENCES RACE(raceId),
     driverId INT REFERENCES DRIVER(driverId),
     stop INT,
@@ -138,7 +144,7 @@ CREATE TABLE PIT_STOP (
 );
 
 -- Create the QUALIFYING table
-CREATE TABLE QUALIFYING (
+CREATE TABLE IF NOT EXISTS QUALIFYING (
     qualifyId SERIAL PRIMARY KEY,
     raceId INT REFERENCES RACE(raceId),
     driverId INT REFERENCES DRIVER(driverId),
@@ -150,14 +156,8 @@ CREATE TABLE QUALIFYING (
     q3 TIME
 );
 
--- Create the SEASON table
-CREATE TABLE SEASON (
-    year INT PRIMARY KEY,
-    url VARCHAR(255)
-);
-
 -- Create the SPRINT_RESULT table
-CREATE TABLE SPRINT_RESULT (
+CREATE TABLE IF NOT EXISTS SPRINT_RESULT (
     resultId SERIAL PRIMARY KEY,
     raceId INT REFERENCES RACE(raceId),
     driverId INT REFERENCES DRIVER(driverId),
@@ -175,164 +175,3 @@ CREATE TABLE SPRINT_RESULT (
     fastestLapTime VARCHAR(16),
     statusId INT REFERENCES STATUS(statusId)
 );
-
--- -- Load data into CIRCUIT table
--- \copy CIRCUIT(
---     circuitId, 
---     name, 
---     location, 
---     country
--- ) FROM './data/circuits.csv'
--- DELIMITER ','
--- CSV HEADER;
-
--- -- Load data into CONSTRUCTOR table
--- \copy CONSTRUCTOR(
---     constructorId, 
---     name, 
---     nationality
--- ) FROM './data/constructors.csv'
--- DELIMITER ','
--- CSV HEADER;
-
--- -- Load data into DRIVER table
--- \copy DRIVER(
---     driverId, 
---     driverRef, 
---     assignedNumber, 
---     code, 
---     forename, 
---     surname, 
---     dob, 
---     nationality
--- ) FROM './data/drivers.csv'
--- DELIMITER ','
--- CSV HEADER;
-
--- -- Load data into RACE table
--- \copy RACE(
---     raceId, 
---     year, 
---     round, 
---     circuitId, 
---     name, 
---     date, 
---     timeObtained
--- ) FROM './data/races.csv'
--- DELIMITER ','
--- CSV HEADER;
-
--- -- Load data into RESULT table
--- \copy RESULT(
---     resultId, 
---     raceId, 
---     driverId, 
---     constructorId, 
---     grid, 
---     position, 
---     points, 
---     laps, 
---     statusId
--- ) FROM './data/results.csv'
--- DELIMITER ','
--- CSV HEADER;
-
--- -- Load data into STATUS table
--- \copy STATUS(
---     statusId, 
---     status
--- ) FROM './data/status.csv'
--- DELIMITER ','
--- CSV HEADER;
-
--- -- Load data into CONSTRUCTOR_RESULT table
--- \copy CONSTRUCTOR_RESULT(
---     constructorResultId, 
---     raceId, 
---     constructorId, 
---     points, 
---     status
--- ) FROM './data/constructor_results.csv'
--- DELIMITER ','
--- CSV HEADER;
-
--- -- Load data into CONSTRUCTOR_STANDING table
--- \copy CONSTRUCTOR_STANDING(
---     constructorStandingsId, 
---     raceId, 
---     constructorId, 
---     points, 
---     position
--- ) FROM './data/constructor_standings.csv'
--- DELIMITER ','
--- CSV HEADER;
-
--- -- Load data into DRIVER_STANDING table
--- \copy DRIVER_STANDING(
---     driverStandingsId, 
---     raceId, 
---     driverId, 
---     points, 
---     position
--- ) FROM './data/driver_standings.csv'
--- DELIMITER ','
--- CSV HEADER;
-
--- -- Load data into LAP_TIME table
--- \copy LAP_TIME(
---     raceId, 
---     driverId, 
---     lap, 
---     position, 
---     timeObtained
--- ) FROM './data/lap_times.csv'
--- DELIMITER ','
--- CSV HEADER;
-
--- -- Load data into PIT_STOP table
--- \copy PIT_STOP(
---     raceId, 
---     driverId, 
---     stop, 
---     lap, 
---     timeObtained, 
---     duration
--- ) FROM './data/pit_stops.csv'
--- DELIMITER ','
--- CSV HEADER;
-
--- -- Load data into QUALIFYING table
--- \copy QUALIFYING(
---     qualifyId, 
---     raceId, 
---     driverId, 
---     constructorId, 
---     position, 
---     q1, 
---     q2, 
---     q3
--- ) FROM './data/qualifying.csv'
--- DELIMITER ','
--- CSV HEADER;
-
--- -- Load data into SEASON table
--- \copy SEASON(
---     year, 
---     url
--- ) FROM './data/seasons.csv'
--- DELIMITER ','
--- CSV HEADER;
-
--- -- Load data into SPRINT_RESULT table
--- \copy SPRINT_RESULT(
---     sprintResultId, 
---     raceId, 
---     driverId, 
---     constructorId, 
---     position, 
---     points, 
---     laps, 
---     statusId
--- ) FROM './data/sprint_results.csv'
--- DELIMITER ','
--- CSV HEADER;
