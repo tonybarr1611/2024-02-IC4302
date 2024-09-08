@@ -1,4 +1,4 @@
-import os
+from os import getenv, path
 import mariadb
 import pandas as pd
 import csv
@@ -11,69 +11,6 @@ from psycopg2 import pool
 # CSV files to load
 csv_file_names = ["status", "circuits", "seasons", "constructors", "drivers", "races", "constructor_results", 
                   "constructor_standings", "driver_standings", "lap_times", "pit_stops", "qualifying", "results"]
-
-# Directory where the CSV files are located
-CSV_DIR = "loader/data"
-
-# Conection to Elasticsearch
-try: 
-    elasticsearch_connection = Elasticsearch("http://ic4302-es-http:9200")  # Cambia la URL si es necesario
-    index_prefix = "f1_records"
-except Exception as e:
-    print(f"Error connecting to Elasticsearch: {e}")
-
-def load_elasticsearch(csv_file_names, csv_dir, elasticsearch_connection, index_prefix):
-    try:
-        for csv_file in csv_file_names:
-            file_path = os.path.join(csv_dir, f"{csv_file}.csv")
-            
-            if os.path.exists(file_path):
-                # create the index name
-                index_name = index_prefix + "_" + csv_file
-            
-                # read the CSV file
-                info = pd.read_csv(file_path)
-            
-                # convert to dictionary
-                records = info.to_dict(orient='records')
-            
-                # tranformation to the format required by Elasticsearch
-                actions = [
-                    {
-                        "_index": index_name,
-                        "_source": record
-                    }
-                    for record in records
-                ]
-                
-                # upload data to Elasticsearch
-                helpers.bulk(elasticsearch_connection, actions)
-                print(f"Uploaded {len(records)} records to Elasticsearch index: {index_name}")
-            else:
-                print(f"El archivo {file_path} no existe.")
-    except Exception as e:
-        print(f"Error loading data into Elasticsearch: {e}")
-
-# call the function to load data into Elasticsearch
-load_elasticsearch(csv_file_names, CSV_DIR, elasticsearch_connection, index_prefix)
-
-# MariaDB configuration
-
-MARIADB = os.getenv("MARIADB")
-MARIADB_USER = os.getenv("MARIADB_USER")
-MARIADB_PASSWORD = os.getenv("MARIADB_PASSWORD")
-
-POSTGRES = os.getenv("POSTGRES")
-POSTGRES_USER = os.getenv("POSTGRES_USER")
-POSTGRESQL_PASSWORD = os.getenv("POSTGRES_PASSWORD")
-
-print(f"MariaDB: {MARIADB}")
-print(f"MariaDB User: {MARIADB_USER}")
-print(f"MariaDB Password: {MARIADB_PASSWORD}")
-
-print(f"PostgreSQL: {POSTGRES}")
-print(f"PostgreSQL User: {POSTGRES_USER}")
-print(f"PostgreSQL Password: {POSTGRESQL_PASSWORD}")
 
 # Insert queries
 insert_queries = {
@@ -99,6 +36,79 @@ insert_queries_postgres = {
     "drivers": "INSERT INTO driver (driverId, driverRef, assignedNumber, code, forename, surname, dob, nationality, url) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
     "races": "INSERT INTO race (raceId, year, round, circuitId, name, calendarDate, timeObtained, url, fp1_date, fp1_time, fp2_date, fp2_time, fp3_date, fp3_time, quali_date, quali_time, sprint_date, sprint_time) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 }
+
+# Directory where the CSV files are located
+CSV_DIR = "loader/data"
+
+
+# MariaDB configuration
+
+MARIADB = getenv("MARIADB")
+MARIADB_USER = getenv("MARIADB_USER")
+MARIADB_PASSWORD = getenv("MARIADB_PASSWORD")
+
+POSTGRES = getenv("POSTGRES")
+POSTGRES_USER = getenv("POSTGRES_USER")
+POSTGRESQL_PASSWORD = getenv("POSTGRES_PASSWORD")
+
+ELASTIC = getenv("ELASTIC")
+ELASTIC_USER = getenv("ELASTIC_USER")
+ELASTIC_PASSWORD = getenv("ELASTIC_PASSWORD")
+
+print(f"MariaDB: {MARIADB}")
+print(f"MariaDB User: {MARIADB_USER}")
+print(f"MariaDB Password: {MARIADB_PASSWORD}")
+
+print(f"PostgreSQL: {POSTGRES}")
+print(f"PostgreSQL User: {POSTGRES_USER}")
+print(f"PostgreSQL Password: {POSTGRESQL_PASSWORD}")
+
+print(f"Elasticsearch: {ELASTIC}")
+print(f"Elasticsearch User: {ELASTIC_USER}")
+print(f"Elasticsearch Password: {ELASTIC_PASSWORD}")
+
+# Conection to Elasticsearch
+
+def create_elasticsearch_connection():
+    try:
+        elasticsearch_connection = Elasticsearch([ELASTIC], basic_auth=[ELASTIC_USER, ELASTIC_PASSWORD])
+        return elasticsearch_connection
+    except Exception as e:
+        print(f"Error connecting to Elasticsearch: {e}")
+        return None
+
+def load_elasticsearch(elasticsearch_connection):
+    try:
+        for csv_file in insert_queries:
+            file_path = f"{CSV_DIR}/{csv_file}.csv"
+            
+            if path.exists(file_path):
+                # create the index name
+                index_name = f"f1_records_{csv_file}"
+            
+                # read the CSV file
+                info = pd.read_csv(file_path)
+            
+                # convert to dictionary
+                records = info.to_dict(orient='records')
+            
+                # tranformation to the format required by Elasticsearch
+                actions = [
+                    {
+                        "_index": index_name,
+                        "_source": record
+                    }
+                    for record in records
+                ]
+                
+                # upload data to Elasticsearch
+                for action in actions:
+                    elasticsearch_connection.index(index=action["_index"], body=action["_source"])
+                print(f"Uploaded {len(records)} records to Elasticsearch index: {index_name}")
+            else:
+                print(f"El archivo {file_path} no existe.")
+    except Exception as e:
+        print(f"Error loading data into Elasticsearch: {e}")
 
 # Establish a connection pool to MariaDB
 def create_connection_pool():
@@ -160,7 +170,7 @@ def insert_data(pool: mariadb.ConnectionPool):
         cursor = conn.cursor()
         cursor.execute("USE f1_records")
         for query in insert_queries:
-            csv_data = open(f"loader/data/{query}.csv", "r")
+            csv_data = open(f"{CSV_DIR}/{query}.csv", "r")
             # Ignore header row
             header = True
             for row in csv_data:
@@ -256,7 +266,7 @@ def insert_data_postgresql(pool: psycopg2.pool.SimpleConnectionPool):
         cursor = conn.cursor()
         #cursor.execute("SET search_path TO f1_records")  # Set schema if necessary
         for query in insert_queries_postgres:
-            csv_data = open(f"loader/data/{query}.csv", "r")
+            csv_data = open(f"{CSV_DIR}/{query}.csv", "r")
             # Ignore header row
             header = True
             for row in csv_data:
@@ -303,10 +313,15 @@ def execute_postgres():
     print('--------- script executed ---------')
     insert_data_postgresql(pool)
     print('--------- data inserted ---------')
+    
+def execute_elasticsearch():
+    elasticsearch_connection= create_elasticsearch_connection()
+    print("Connection to Elasticsearch established")
+    load_elasticsearch(elasticsearch_connection)
+    print("Data loaded into Elasticsearch")
 
-def main():
+if __name__ == "__main__":
     execute_mariadb()
     execute_postgres()
+    execute_elasticsearch()
     exit(0)
-    
-main()

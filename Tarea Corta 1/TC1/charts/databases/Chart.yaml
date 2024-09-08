@@ -40,9 +40,5 @@ dependencies:
     version: "15.5.24"
     repository: https://charts.bitnami.com/bitnami
     condition: postgresql.enabled
-  - name: elasticsearch
-    version: "7.14.0"
-    repository: https://charts.bitnami.com/bitnami
-    condition: elasticsearch.enabled
   
 
