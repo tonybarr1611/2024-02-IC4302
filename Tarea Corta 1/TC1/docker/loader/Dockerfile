@@ -13,9 +13,6 @@ COPY app/. .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY app/loader/MariaDB.sql /docker-entrypoint-initdb.d/MariaDB.sql
-COPY app/loader/postgreSQL.sql /docker-entrypoint-initdb.d/postgreSQL.sql
-
 # RUN mysql -u root -pmysecretpassword < /docker-entrypoint-initdb.d/MariaDB.sql
 # RUN psql -U postgres -f /docker-entrypoint-initdb.d/postgreSQL.sql
 

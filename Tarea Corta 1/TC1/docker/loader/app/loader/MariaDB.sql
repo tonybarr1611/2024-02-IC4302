@@ -29,7 +29,7 @@ CREATE TABLE CONSTRUCTOR (
 );
 
 CREATE TABLE DRIVER (
-    driverId VARCHAR(128) PRIMARY KEY,
+    driverId INT, PRIMARY KEY,
     driverRef VARCHAR(255),
     assignedNumber VARCHAR(255),
     code VARCHAR(255),
@@ -41,7 +41,7 @@ CREATE TABLE DRIVER (
 );
 
 CREATE TABLE RACE (
-    raceId VARCHAR(128) PRIMARY KEY,
+    raceId INT PRIMARY KEY,
     year VARCHAR(128),
     round VARCHAR(128),
     circuitId VARCHAR(128),
@@ -64,7 +64,7 @@ CREATE TABLE RACE (
 
 CREATE TABLE CONSTRUCTOR_RESULT (
     constructorResultId VARCHAR(128) PRIMARY KEY,
-    raceId VARCHAR(128),
+    raceId INT,
     constructorId VARCHAR(128),
     points VARCHAR(128),
     status VARCHAR(255),
@@ -74,7 +74,7 @@ CREATE TABLE CONSTRUCTOR_RESULT (
 
 CREATE TABLE CONSTRUCTOR_STANDING (
     constructorStandingsId VARCHAR(128) PRIMARY KEY,
-    raceId VARCHAR(128),
+    raceId INT,
     constructorId VARCHAR(128),
     points VARCHAR(128),
     position VARCHAR(128),
@@ -86,8 +86,8 @@ CREATE TABLE CONSTRUCTOR_STANDING (
 
 CREATE TABLE DRIVER_STANDING (
     driverStandingsId VARCHAR(128) PRIMARY KEY,
-    raceId VARCHAR(128),
-    driverId VARCHAR(128),
+    raceId INT,
+    driverId INT,
     points VARCHAR(128),
     position VARCHAR(128),
     positionText VARCHAR(128),
@@ -98,20 +98,20 @@ CREATE TABLE DRIVER_STANDING (
 
 
 CREATE TABLE LAP_TIME (
-    raceId VARCHAR(128),
-    driverId VARCHAR(128),
-    lap VARCHAR(128),
-    position VARCHAR(128),
-    timeObtained VARCHAR(255),
-    milliseconds VARCHAR(128),
+    raceId INT,
+    driverId INT,
+    lap INT,
+    position INT,
+    timeObtained VARCHAR(64),
+    milliseconds VARCHAR(16),
     PRIMARY KEY (raceId, driverId, lap),
     FOREIGN KEY (raceId) REFERENCES RACE(raceId),
     FOREIGN KEY (driverId) REFERENCES DRIVER(driverId)
 );
 
 CREATE TABLE PIT_STOP (
-    raceId VARCHAR(128),
-    driverId VARCHAR(128),
+    raceId INT,
+    driverId INT,
     stop VARCHAR(128),
     lap VARCHAR(128),
     timeObtained VARCHAR(255),
@@ -124,8 +124,8 @@ CREATE TABLE PIT_STOP (
 
 CREATE TABLE QUALIFYING (
     qualifyId VARCHAR(128) PRIMARY KEY,
-    raceId VARCHAR(128),
-    driverId VARCHAR(128),
+    raceId INT,
+    driverId INT,
     constructorId VARCHAR(128),
     assignedNumber VARCHAR(128),
     position VARCHAR(128),
@@ -140,8 +140,8 @@ CREATE TABLE QUALIFYING (
 
 CREATE TABLE RESULT (
     resultId VARCHAR(128) PRIMARY KEY,
-    raceId VARCHAR(128),
-    driverId VARCHAR(128),
+    raceId INT,
+    driverId INT,
     constructorId VARCHAR(128),
     assignedNumber VARCHAR(128),
     grid VARCHAR(128),
@@ -159,14 +159,13 @@ CREATE TABLE RESULT (
     statusId VARCHAR(128),
     FOREIGN KEY (raceId) REFERENCES RACE(raceId),
     FOREIGN KEY (driverId) REFERENCES DRIVER(driverId),
-    FOREIGN KEY (constructorId) REFERENCES CONSTRUCTOR(constructorId),
-    FOREIGN KEY (statusId) REFERENCES STATUS(statusId)
+    FOREIGN KEY (constructorId) REFERENCES CONSTRUCTOR(constructorId)
 );
 
 CREATE TABLE SPRINT_RESULT (
     resultId VARCHAR(128) PRIMARY KEY,
-    raceId VARCHAR(128),
-    driverId VARCHAR(128),
+    raceId INT,
+    driverId INT,
     constructorId VARCHAR(128),
     assignedNumber VARCHAR(128),
     grid VARCHAR(128),
@@ -182,6 +181,5 @@ CREATE TABLE SPRINT_RESULT (
     statusId VARCHAR(128),
     FOREIGN KEY (raceId) REFERENCES RACE(raceId),
     FOREIGN KEY (driverId) REFERENCES DRIVER(driverId),
-    FOREIGN KEY (constructorId) REFERENCES CONSTRUCTOR(constructorId),
-    FOREIGN KEY (statusId) REFERENCES STATUS(statusId)
+    FOREIGN KEY (constructorId) REFERENCES CONSTRUCTOR(constructorId)
 );
