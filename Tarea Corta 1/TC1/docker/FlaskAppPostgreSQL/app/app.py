@@ -41,6 +41,7 @@ def get_drivers():
     cursor_psql.execute(query)
     results_psql = cursor_psql.fetchall()
     cursor_psql.close()
+    conn_psql.close()
     
     return f"<h1>PostgreSQL</h1><p>{results_psql}</p>"
 
@@ -53,6 +54,7 @@ def get_constructors():
     cursor_psql.execute(query)
     results_psql = cursor_psql.fetchall()
     cursor_psql.close()
+    conn_psql.close()
     
     return f"<h1>PostgreSQL</h1><p>{results_psql}</p>"
 
@@ -65,6 +67,7 @@ def get_laps():
     cursor_psql.execute(query)
     results_psql = cursor_psql.fetchall()
     cursor_psql.close()
+    conn_psql.close()
     
     return f"<h1>PostgreSQL</h1><p>{results_psql}</p>"
 
@@ -77,6 +80,7 @@ def get_laps_driver():
     cursor_psql.execute(query)
     results_psql = cursor_psql.fetchall()
     cursor_psql.close()
+    conn_psql.close()
     
     return f"<h1>PostgreSQL</h1><p>{results_psql}</p>"
 
