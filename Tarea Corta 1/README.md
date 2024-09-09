@@ -110,6 +110,9 @@ Once you enter Grafana you can see the different dashboards that are available, 
 
 
 
+To test correctly all this databases we use gatling, a load testing tool that is used to simulate user behavior and measure the performance of the application under different conditions, in this case we have 4 different tests, check the gatling README in case you want to learn more about them. To start this gatling tests you just need to go to the gatling folder, open src\test\java and then run the engine.java aplication, for this you need to especifically have the java version 17 which you can download in the following link https://www.oracle.com/uk/java/technologies/downloads/. After running it the test will automatically start since there are no other configurations inside the folder.   
+
+
 # Recommendations and Conclusions
 
 ## Recommendations
@@ -252,6 +255,9 @@ Each table in the database is loaded with historical data through CSV files that
 ## Gatling
 
 Gatling is an open-source load testing tool that is used to simulate user behavior and measure the performance of the application under different conditions. Gatling allows users to create scenarios that simulate real-world user interactions, such as browsing web pages, submitting forms, and making API requests. It generates load on the system by sending multiple requests concurrently and measures the response times, throughput, and error rates. Gatling provides detailed reports and metrics that help users analyze the performance of the application and identify bottlenecks or areas for optimization. In this project, Gatling is used to test the performance of the API under varying loads and analyze the system's behavior in terms of resource usage and query performance. The load tests are designed to simulate different scenarios, such as multiple users accessing the API simultaneously, querying large datasets, and performing complex operations. The results of the load tests are used to evaluate the performance of the application and identify areas that need improvement. Gatling is configured to run load tests against the API and measure key metrics, such as response times, throughput, and error rates. The load tests are executed in a controlled environment, allowing users to analyze the impact of different loads on the system and make informed decisions based on the data.
+
+
+If you want to know more about the gatling configuration of this project it is recommended to check the README inside the gatling folder.
 
 ## Prometheus
 
