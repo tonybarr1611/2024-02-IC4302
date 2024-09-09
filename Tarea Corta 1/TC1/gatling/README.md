@@ -95,3 +95,4 @@ Test 4 (Ramp-Up/Ramp-Down Test): Gradually ramps up 10 users over 300 seconds an
 ## 5. How to use
 
 To execute the tests you need to run the Engine.java this will automatically run the file since there is no more gatling configuration files.
+

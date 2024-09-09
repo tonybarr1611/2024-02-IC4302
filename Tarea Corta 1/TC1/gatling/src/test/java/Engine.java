@@ -12,4 +12,3 @@ public class Engine {
     Gatling.fromMap(props.build());
   }
 }
-
