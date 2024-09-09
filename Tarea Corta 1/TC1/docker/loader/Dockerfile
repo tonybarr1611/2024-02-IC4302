@@ -16,6 +16,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 # RUN mysql -u root -pmysecretpassword < /docker-entrypoint-initdb.d/MariaDB.sql
 # RUN psql -U postgres -f /docker-entrypoint-initdb.d/postgreSQL.sql
 
-EXPOSE 5000
-
-CMD [ "flask",  "--app", "app", "run" ]
+CMD [ "python", "-u", "./app.py" ]
