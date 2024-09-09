@@ -91,7 +91,7 @@ In case you need to access the debug pod to check the logs or execute some comma
 # How to Test
 
 To test the whole project together, you can follow the next steps:
-First you need to do the build and install steps, after that to verify that the project is working correctly you can follow the next steps:
+First you need to do the build and install steps, in this time you have to choose the flasks that will be used for this you have to change in TC1\charts\app\values.yaml  , after that to verify that the project is working correctly you can follow the next steps:
 
 - Check Docker images are running, you can check this in the Docker Desktop application.
 In this area it is important to check the different images, you can check the logs of the images to see if there are any errors. You should check the logs of the FlaskApp, the MariaDB, PostgreSQL, Redis, Memcached, Prometheus, and Grafana images.
@@ -281,6 +281,38 @@ In this homework, talking specifically about Grafana we can find six main dashbo
 
 - **Flask API Dashboard:** This dashboard gives an overview of the Flask API's performance by tracking multiple key metrics like average response time, request count, and cache efficiency by collecting cache misses and hits. This helps users identify performance bottlenecks and optimize API response times.
 
+## Tests
+
+For the project we did the necessary tests to the databases now we are gonna show the results based on grafana dashboards:
+# MariaDB
+## Without cache
+
+![Prueba](Tests/maria1.jpeg) 
+![Prueba](Tests/maria2.jpeg)
+![Prueba](Tests/maria3.jpeg)
+![Prueba](Tests/maria4.jpeg)
+![Prueba](Tests/maria5.jpeg)
+![Prueba](Tests/maria6.jpeg)
+
+
+## PostgreSQl
+
+![Prueba](Tests/pos1.jpeg) 
+![Prueba](Tests/pos2.jpeg)
+
+The following pictures are proof the dashboards implementation in grafana 
+
+## Memcached
+
+![Prueba](Tests/memcached.jpeg)
+
+## Prometheus 
+
+![Prueba](Tests/prometheus.jpeg)
+
+## Elastic search
+
+![Prueba](Tests/elastic.jpeg)
 
 # References
 
