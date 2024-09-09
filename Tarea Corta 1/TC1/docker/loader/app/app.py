@@ -24,18 +24,18 @@ insert_queries = {
     # "constructor_results": "INSERT INTO CONSTRUCTOR_RESULT (constructorResultId, raceId, constructorId, points, status) VALUES (%s, %s, %s, %s, %s)",
     # "constructor_standings": "INSERT INTO CONSTRUCTOR_STANDING (constructorStandingsId, raceId, constructorId, points, position, positionText, wins) VALUES (%s, %s, %s, %s, %s, %s, %s)",
     # "driver_standings": "INSERT INTO DRIVER_STANDING (driverStandingsId, raceId, driverId, points, position, positionText, wins) VALUES (%s, %s, %s, %s, %s, %s, %s)",
-    "lap_times": "INSERT INTO LAP_TIME (raceId, driverId, lap, position, timeObtained, milliseconds) VALUES (%s, %s, %s, %s, %s, %s)",
+    # "lap_times": "INSERT INTO LAP_TIME (raceId, driverId, lap, position, timeObtained, milliseconds) VALUES (%s, %s, %s, %s, %s, %s)",
     # "pit_stops": "INSERT INTO PIT_STOP (raceId, driverId, stop, lap, timeObtained, duration, milliseconds) VALUES (%s, %s, %s, %s, %s, %s, %s)",
     # "qualifying": "INSERT INTO QUALIFYING (qualifyId, raceId, driverId, constructorId, assignedNumber, position, q1, q2, q3) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
     # "sprint_results": "INSERT INTO SPRINT_RESULT (resultId, raceId, driverId, constructorId, assignedNumber, grid, position, positionText, positionOrder, points, laps, timeObtained, milliseconds, fastestLap, fastestLapTime, statusId) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 }
 
 insert_queries_postgres = {
-    "circuits": "INSERT INTO circuit (circuitId, circuitRef, name, location, country, lat, lng, alt, url) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
-    "constructors": "INSERT INTO constructor (constructorId, constructorRef, name, nationality, url) VALUES (%s, %s, %s, %s, %s)",
-    "drivers": "INSERT INTO driver (driverId, driverRef, assignedNumber, code, forename, surname, dob, nationality, url) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
-    "races": "INSERT INTO race (raceId, year, round, circuitId, name, calendarDate, timeObtained, url, fp1_date, fp1_time, fp2_date, fp2_time, fp3_date, fp3_time, quali_date, quali_time, sprint_date, sprint_time) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-    "lap_times": "INSERT INTO LAP_TIME (raceId, driverId, lap, position, timeObtained, milliseconds) VALUES (%s, %s, %s, %s, %s, %s)",
+    "circuits": "INSERT INTO CIRCUIT (circuitId, circuitRef, name, location, country, lat, lng, alt, url) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
+    "constructors": "INSERT INTO CONSTRUCTOR (constructorId, constructorRef, name, nationality, url) VALUES (%s, %s, %s, %s, %s)",
+    "drivers": "INSERT INTO DRIVER (driverId, driverRef, assignedNumber, code, forename, surname, dob, nationality, url) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
+    "races": "INSERT INTO RACE (raceId, year, round, circuitId, name, calendarDate, timeObtained, url, fp1_date, fp1_time, fp2_date, fp2_time, fp3_date, fp3_time, quali_date, quali_time, sprint_date, sprint_time) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+    # "lap_times": "INSERT INTO LAP_TIME (raceId, driverId, lap, position, timeObtained, milliseconds) VALUES (%s, %s, %s, %s, %s, %s)",
 }
 
 # Directory where the CSV files are located
@@ -155,9 +155,7 @@ def execute_script(pool: mariadb.ConnectionPool):
                     cursor.execute(statement)
                     print(f"Executed statement: {statement}")
                 except mariadb.Error as e:
-                    print(f"Error executing statement: {e}")
-                    print(f"Failed statement: {statement}")
-                    exit(1)
+                    print(f"The table already exists: {statement} \n {e}")
         cursor.close()
     except mariadb.Error as e:
         print(f"Error executing script: {e}")
@@ -324,13 +322,7 @@ def execute_elasticsearch():
     load_elasticsearch(elasticsearch_connection)
     print("Data loaded into Elasticsearch")
 
-def testConnection():
-    create_connection_pool()
-    create_postgres_connection_pool()
-    create_elasticsearch_connection()
-
 if __name__ == "__main__":
-    testConnection()
     execute_mariadb()
     execute_postgres()
     execute_elasticsearch()

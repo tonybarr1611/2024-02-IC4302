@@ -29,7 +29,7 @@ CREATE TABLE CONSTRUCTOR (
 );
 
 CREATE TABLE DRIVER (
-    driverId INT, PRIMARY KEY,
+    driverId INT PRIMARY KEY,
     driverRef VARCHAR(255),
     assignedNumber VARCHAR(255),
     code VARCHAR(255),
