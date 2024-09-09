@@ -1,4 +1,3 @@
 flask
 psycopg2-binary
-pandas
 psycopg2

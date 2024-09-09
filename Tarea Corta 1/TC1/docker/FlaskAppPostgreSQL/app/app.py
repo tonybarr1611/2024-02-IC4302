@@ -1,8 +1,6 @@
 # Flask App for PostgreSQL
 from flask import Flask
 from os import getenv
-import pandas as pd
-import csv
 import psycopg2
 from psycopg2 import pool
 
