@@ -1,0 +1,7 @@
+namespaces:
+  - bootstrap
+  - application
+  - webapp
+  - databases
+  - grafana-config
+  - monitoring

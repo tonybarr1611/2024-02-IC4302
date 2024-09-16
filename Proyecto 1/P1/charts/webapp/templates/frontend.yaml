@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.config.producer.name }}
+  labels:
+    app: {{ .Values.config.producer.name }}
+spec:
+  replicas: {{ .Values.config.producer.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.config.producer.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.config.producer.name }}
+    spec:
+      containers:
+      - name: {{ .Values.config.producer.name }}
+        image: {{ .Values.config.docker_registry }}/{{ .Values.config.producer.image }}
