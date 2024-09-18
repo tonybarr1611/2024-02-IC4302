@@ -1,36 +1,47 @@
 import os
 import sys
-import pika
-import mariadb
-import boto3
 import csv
+import pika
+import boto3
+import mariadb
 import requests
-
-
+from io import StringIO
+from elasticsearch.helpers import bulk
+from elasticsearch import Elasticsearch
 
 XPATH=os.getenv('XPATH')
 DATA=os.getenv('DATAFROMK8S')
+
 RABBIT_MQ=os.getenv('RABBITMQ')
 RABBIT_MQ_PASSWORD=os.getenv('RABBITMQ_PASS')
 QUEUE_NAME=os.getenv('RABBITMQ_QUEUE')
+
 MARIADB_USER = os.getenv('MARIADB_USER')
 MARIADB_PASS = os.getenv('MARIADB_PASS')
 MARIADB = os.getenv('MARIADB')
 MARIADB_DB = os.getenv('MARIADB_DB')
 MARIADB_TABLE = os.getenv('MARIADB_TABLE')
+
 ACCESS_KEY = os.getenv('AWS_ACCESS_KEY')
 SECRET_KEY = os.getenv('AWS_SECRET_KEY')
-S3_BUCKET = os.getenv('S3_BUCKET')
-HUGGINGFACE_API = "https://api-inference.huggingface.co/models/sentence-transformers/all-mpnet-base-v2"
+S3_BUCKET_NAME = '2024-02-ic4302-gr1'
+S3_OBJECT_PATH = 'spotify/'
 
+ELASTIC_URL = os.getenv('ELASTIC_URL')
+ELASTIC_USER = os.getenv('ELASTIC_USER')
+ELASTIC_PASS = os.getenv('ELASTIC_PASS')
+index_name = 'songs'
+doc_type = '_doc'
 
+HUGGINGFACE_API = ""
 
-
-def S3_BUCKET():
+# S3 client
+def create_s3_client():
     try:
         if ACCESS_KEY and SECRET_KEY:
-            s3_client = boto3.client('s3', aws_access_key_id=ACCESS_KEY, aws_secret_access_key=SECRET_KEY)
+            client = boto3.client('s3', aws_access_key_id=ACCESS_KEY, aws_secret_access_key=SECRET_KEY)
             print("S3 client configured")
+            return client
         else:
             print("AWS credentials not configured")
             sys.exit(1)
@@ -38,8 +49,46 @@ def S3_BUCKET():
         print(f"Error configuring S3 client: {e}")
         sys.exit(1)
 
-s3_client = S3_BUCKET()
+s3_client = create_s3_client()
 
+def find_object(bucket_name, file_name, prefix=''):
+    try:
+        response = s3_client.list_objects_v2(Bucket=bucket_name, Prefix=prefix)
+        if 'Contents' in response:
+            for obj in response['Contents']:
+                if obj['Key'].endswith(file_name):
+                    print(f"Found file: {obj['Key']}")
+                    return obj['Key']
+        print("File not found")
+        return None
+    except Exception as e:
+        print(f"Error listing objects: {e}")
+        sys.exit(1)
+
+def read_csv_from_s3(bucket_name, file_key):
+    try:
+        response = s3_client.get_object(Bucket=bucket_name, Key=file_key)
+        csv_content = response['Body'].read().decode('utf-8')
+        csv_reader = csv.reader(StringIO(csv_content))
+
+        return [row for row in csv_reader]
+    except Exception as e:
+        print(f"Error reading CSV file: {e}")
+        sys.exit(1)
+
+# CSV 
+
+def process_csv_file(bucket_name, file_name, prefix=''):
+    file_key = find_object(bucket_name, file_name, prefix)
+    print('File key ' + file_key)
+    if file_key:
+        csv_data = read_csv_from_s3(bucket_name, file_key)
+        return csv_data
+    else:
+        print(f"File {file_name} not found in bucket {bucket_name} with prefix {prefix}.")
+        return []
+    
+# MariaDB
 
 def create_connection_pool():
     pool = mariadb.ConnectionPool(
@@ -70,14 +119,11 @@ def execute_query(query, params=None):
         if conn:
             conn.close()
 
-def download_from_s3(bucket,s3_key):
-    try:
-        response = s3_client.get_object(Bucket=bucket, Key=s3_key)
-        content= response['Body'].read().decode('utf-8')
-        return content
-    except Exception as e:
-        print(f"Error downloading from S3: {e}")
-        return None
+def mark_as_processed(job_id):
+    query = "UPDATE objects SET processed = 1 WHERE ID = %s"
+    execute_query(query, [job_id])
+
+# Embeddings
     
 def get_embeddings(text):
     try:
@@ -87,20 +133,27 @@ def get_embeddings(text):
     except Exception as e:
         print(f"Error getting embeddings: {e}")
         return None
+    
+# Elasticsearch
 
-def process_csv(s3_data):
-    rows = []
-    csv_reader = csv.DictReader(s3_data.splitlines())
-    for row in csv_reader:
-        embedding = get_embeddings(row['lyrics'])
-        if embedding:
-            row['embeddings'] = embedding
-            rows.append(row)
-    return rows
+if ELASTIC_USER and ELASTIC_PASS:
+    es = Elasticsearch(
+        ELASTIC_URL,
+        http_auth=(ELASTIC_USER, ELASTIC_PASS),
+        verify_certs=False
+    )
+else: es = Elasticsearch(ELASTIC_URL, verify_certs=False)
 
-def mark_as_processed(job_id):
-    query = "UPDATE objects SET processed = 1 WHERE ID = %s"
-    execute_query(query, [job_id])
+def format_data_for_indexing(data):
+    for doc in data:
+        yield {
+            "_index": index_name,
+            "_type": doc_type,
+            "_id": doc['song_id'],
+            "_source": doc
+        }
+
+bulk(es, format_data_for_indexing(data))
     
 """
 def mark_object_as_processed(job_id):
@@ -122,8 +175,8 @@ def mark_object_as_processed(job_id):
 
 
 def callback(ch, method, properties, body):
-    job_id = body.decode('utf-8')
-    print(f"Received message: {job_id}")
+    job_key = body.decode('utf-8')
+    print(f"Received message: {job_key}")
     
     # Query to check if the job has already been processed (commented out for now)
     """
