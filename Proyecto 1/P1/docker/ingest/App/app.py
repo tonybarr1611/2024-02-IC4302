@@ -9,6 +9,7 @@ import logging
 from io import StringIO
 from elasticsearch.helpers import bulk
 from elasticsearch import Elasticsearch
+from prometheus_client import Counter, Histogram, start_http_server
 
 
 XPATH=os.getenv('XPATH')
@@ -37,6 +38,18 @@ doc_type = '_doc'
 
 HUGGINGFACE_API = ""
 
+REQUEST_COUNT = Counter('app_requests_count', 'Número de requests totales')
+REQUEST_LATENCY = Histogram('app_request_latency_seconds', 'Latencia de requests')
+
+maximum_object = Counter('maximum_processing_time_object', 'Tiempo máximo de procesamiento de un objeto')
+minimum_object = Counter('minimum_processing_time_object', 'Tiempo mínimo de procesamiento de un objeto')
+
+maximum_row = Counter('maximum_processing_time_row', 'Tiempo máximo de procesamiento de una fila')
+minimum_row = Counter('minimum_processing_time_row', 'Tiempo mínimo de procesamiento de una fila')
+
+objects_processed = Counter('objects_processed', 'Cantidad de objetos procesados')
+rows_processed = Counter('rows_processed', 'Cantidad de filas procesados')
+rows_error = Counter('rows_error', 'Cantidad de filas con error')
 
 # Logging
 logging.basicConfig(
@@ -219,6 +232,7 @@ def callback(ch, method, properties, body):
         logger.error(f"Error processing job {job_id}")
 
 
+start_http_server(8000)
 credentials = pika.PlainCredentials('user', RABBIT_MQ_PASSWORD)
 parameters = pika.ConnectionParameters(host=RABBIT_MQ, credentials=credentials) 
 connection = pika.BlockingConnection(parameters)
