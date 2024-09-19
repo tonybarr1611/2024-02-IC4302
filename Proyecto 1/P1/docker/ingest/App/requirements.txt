@@ -1,0 +1,5 @@
+pika
+boto3
+mariadb
+requests
+elasticsearch
