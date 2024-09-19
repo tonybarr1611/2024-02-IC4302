@@ -15,10 +15,13 @@ logging.basicConfig(
         logging.StreamHandler(sys.stdout)  # show logs in console
     ]
 )
-
 logger = logging.getLogger(__name__)
 
-# Configuración mediante variables de entorno
+# Define the Prometheus metrics 
+OBJECT_COUNT = Counter('s3_object_count', 'Cantidad de objetos procesados')
+PROCESSING_TIME = Gauge('s3_processing_time_seconds', 'Tiempo total de procesamiento en segundos')
+
+# Configuration  env variables
 BUCKET_NAME = os.getenv('S3_BUCKET')
 KEY_PREFIX = os.getenv('S3_KEY_PREFIX')
 AWS_ACCESS_KEY = os.getenv('AWS_ACCESS_KEY_ID')
@@ -27,10 +30,6 @@ AWS_SECRET_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
 RABBIT_MQ=os.getenv('RABBITMQ')
 RABBIT_MQ_PASSWORD=os.getenv('RABBITMQ_PASS')
 QUEUE_NAME=os.getenv('RABBITMQ_QUEUE')
-
-# Definir métricas de Prometheus
-OBJECT_COUNT = Counter('s3_object_count', 'Cantidad de objetos procesados')
-PROCESSING_TIME = Gauge('s3_processing_time_seconds', 'Tiempo total de procesamiento en segundos')
 
 # Validación de variables de entorno
 if not all([BUCKET_NAME, KEY_PREFIX, AWS_ACCESS_KEY, AWS_SECRET_KEY]):
@@ -45,11 +44,19 @@ s3_client = boto3.client(
 
 )
 
+if not s3_client:
+    logger.error("Error setting S3 client.")
+    sys.exit(1)
+
 #Conexion a rabbitmq
-credentials = pika.PlainCredentials('user', RABBIT_MQ_PASSWORD)
-parameters = pika.ConnectionParameters(host=RABBIT_MQ, credentials=credentials) 
-connection = pika.BlockingConnection(parameters)
-channel = connection.channel()
+try :
+    credentials = pika.PlainCredentials('user', RABBIT_MQ_PASSWORD)
+    parameters = pika.ConnectionParameters(host=RABBIT_MQ, credentials=credentials) 
+    connection = pika.BlockingConnection(parameters)
+    channel = connection.channel()
+except Exception as e:
+    logger.error("Error setting RabbitMQ client. " + e)
+    sys.exit(1)
 
 # Función para listar todos los objetos en el bucket S3, de forma recursiva
 def list_s3_objects(bucket, prefix):
@@ -71,12 +78,11 @@ def list_s3_objects(bucket, prefix):
     
     return objects
 
-# Configurar la conexión a RabbitMQ
+# Función para enviar un mensaje a RabbitMQ
 def send_to_rabbitmq(message):
     try:
         # Asegurarse que la cola existe
         channel.queue_declare(queue=QUEUE_NAME)
-
         # Publicar el mensaje
         channel.basic_publish(exchange='', routing_key=QUEUE_NAME, body=message)
         logger.info(f"Mensaje enviado a RabbitMQ: {message}")
@@ -104,6 +110,7 @@ def main():
     # Enviar cada objeto a RabbitMQ
     for obj_key in s3_objects:
         send_to_rabbitmq(obj_key)
+
 
     end_time = time.time()
     total_time = end_time - start_time
