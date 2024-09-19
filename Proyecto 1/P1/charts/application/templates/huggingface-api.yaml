@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.config.huggingface-api.name }}
+  labels:
+    app: {{ .Values.config.huggingface-api.name }}
+spec:
+  replicas: {{ .Values.config.huggingface-api.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.config.huggingface-api.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.config.huggingface-api.name }}
+    spec:
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: data
+      containers:
+      - name: {{ .Values.config.huggingface-api.name }}
+        volumeMounts:
+          - mountPath: "/data"
+            name: data
+        image: {{ .Values.config.docker_registry }}/{{ .Values.config.huggingface-api.image }}
+        env:
