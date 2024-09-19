@@ -5,9 +5,11 @@ import pika
 import boto3
 import mariadb
 import requests
+import logging
 from io import StringIO
 from elasticsearch.helpers import bulk
 from elasticsearch import Elasticsearch
+
 
 XPATH=os.getenv('XPATH')
 DATA=os.getenv('DATAFROMK8S')
@@ -35,18 +37,31 @@ doc_type = '_doc'
 
 HUGGINGFACE_API = ""
 
+
+# Logging
+logging.basicConfig(
+    level=logging.INFO,  # Nivel de logging
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',  # Formato del mensaje
+    handlers=[
+        logging.FileHandler("application.log"),  # Guardar los logs en un archivo llamado application.log
+        logging.StreamHandler(sys.stdout)  # show logs in console
+    ]
+)
+
+logger = logging.getLogger(__name__)
+
 # S3 client
 def create_s3_client():
     try:
         if ACCESS_KEY and SECRET_KEY:
             client = boto3.client('s3', aws_access_key_id=ACCESS_KEY, aws_secret_access_key=SECRET_KEY)
-            print("S3 client configured")
+            logger.info("S3 client configured")
             return client
         else:
-            print("AWS credentials not configured")
+            logger.error("AWS credentials not provided")
             sys.exit(1)
     except Exception as e:
-        print(f"Error configuring S3 client: {e}")
+        logger.error(f"Error creating S3 client: {e}")
         sys.exit(1)
 
 s3_client = create_s3_client()
@@ -57,12 +72,13 @@ def find_object(bucket_name, file_name, prefix=''):
         if 'Contents' in response:
             for obj in response['Contents']:
                 if obj['Key'].endswith(file_name):
-                    print(f"Found file: {obj['Key']}")
+                    logger.info(f"File {file_name} found in bucket {bucket_name}")
+                    logger.info(f"Key: {obj['Key']}")
                     return obj['Key']
         print("File not found")
         return None
     except Exception as e:
-        print(f"Error listing objects: {e}")
+        logger.error(f"Error finding object: {e}")
         sys.exit(1)
 
 def read_csv_from_s3(bucket_name, file_key):
@@ -73,19 +89,19 @@ def read_csv_from_s3(bucket_name, file_key):
 
         return [row for row in csv_reader]
     except Exception as e:
-        print(f"Error reading CSV file: {e}")
+        logger.error(f"Error reading CSV from S3: {e}")
         sys.exit(1)
 
 # CSV 
 
 def process_csv_file(bucket_name, file_name, prefix=''):
     file_key = find_object(bucket_name, file_name, prefix)
-    print('File key ' + file_key)
+    logger.info(f"Processing file {file_name} from bucket {bucket_name} with key {file_key}")
     if file_key:
         csv_data = read_csv_from_s3(bucket_name, file_key)
         return csv_data
     else:
-        print(f"File {file_name} not found in bucket {bucket_name} with prefix {prefix}.")
+        logger.error(f"File {file_name} not found in bucket {bucket_name} with prefix {prefix}.")
         return []
     
 # MariaDB
@@ -114,7 +130,7 @@ def execute_query(query, params=None):
                 return cursor.fetchall()
             conn.commit()
     except mariadb.Error as e:
-        print(f"Error executing query: {e}")
+        logger.error(f"Error executing query: {e}")
     finally:
         if conn:
             conn.close()
@@ -131,7 +147,7 @@ def get_embeddings(text):
         if response.status_code == 200:
             return response.json()['embeddings']
     except Exception as e:
-        print(f"Error getting embeddings: {e}")
+        logger.error(f"Error getting embeddings: {e}")
         return None
     
 # Elasticsearch
@@ -176,7 +192,7 @@ def mark_object_as_processed(job_id):
 
 def callback(ch, method, properties, body):
     job_key = body.decode('utf-8')
-    print(f"Received message: {job_key}")
+    logger.info(f"Received job {job_key}")
     
     # Query to check if the job has already been processed (commented out for now)
     """
@@ -198,9 +214,9 @@ def callback(ch, method, properties, body):
         # Uncomment this line to index the processed data into Elasticsearch
         # index_in_elasticsearch(processed_data)
         mark_as_processed(job_id)
-        print(f"Job {job_id} processed and indexed.")
+        logger.info(f"Job {job_id} processed successfully.")
     else:
-        print(f"Job {job_id} failed to download data from S3.")
+        logger.error(f"Error processing job {job_id}")
 
 
 credentials = pika.PlainCredentials('user', RABBIT_MQ_PASSWORD)
