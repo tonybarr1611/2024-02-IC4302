@@ -27,6 +27,7 @@ MARIADB_TABLE = os.getenv('MARIADB_TABLE')
 
 ACCESS_KEY = os.getenv('AWS_ACCESS_KEY')
 SECRET_KEY = os.getenv('AWS_SECRET_KEY')
+BUCKET = os.getenv('BUCKET')
 S3_BUCKET_NAME = '2024-02-ic4302-gr1'
 S3_OBJECT_PATH = 'spotify/'
 
@@ -239,5 +240,26 @@ connection = pika.BlockingConnection(parameters)
 channel = connection.channel()
 channel.queue_declare(queue=QUEUE_NAME)
 channel.basic_consume(queue=QUEUE_NAME, on_message_callback=callback, auto_ack=True)
+print("RABBIT_MQ: " + RABBIT_MQ)
+print("RABBIT_MQ_PASSWORD: " + RABBIT_MQ_PASSWORD)
+print("QUEUE_NAME: " + QUEUE_NAME)
+
+print("MARIADB_USER: " + MARIADB_USER)
+print("MARIADB_PASS: " + MARIADB_PASS)
+print("MARIADB: " + MARIADB)
+print("MARIADB_DB: " + MARIADB_DB)
+print("MARIADB_TABLE: " + MARIADB_TABLE)
+
+print("ACCESS_KEY: " + ACCESS_KEY)
+print("SECRET_KEY: " + SECRET_KEY)
+print("BUCKET: " + BUCKET)
+
+print("ELASTIC_URL: " + ELASTIC_URL)
+print("ELASTIC_USER: " + ELASTIC_USER)
+print("ELASTIC_USER: " + ELASTIC_USER)
+
+
 print(' [*] Waiting for messages. To exit press CTRL+C')
+
+
 channel.start_consuming()
