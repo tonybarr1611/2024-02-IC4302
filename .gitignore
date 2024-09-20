@@ -2,3 +2,7 @@
 .metals/
 
 .vscode/
+
+*.lock
+
+*.tgz
