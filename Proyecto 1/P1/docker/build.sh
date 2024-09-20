@@ -14,7 +14,7 @@ cd ../huggingface-api
 docker build -t $1/huggingface-api .
 docker push $1/huggingface-api
 
-cd ../ingest
+cd ./ingest
 docker build -t $1/ingest .
 docker push $1/ingest
 
