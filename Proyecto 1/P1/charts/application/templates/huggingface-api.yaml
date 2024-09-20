@@ -1,27 +1,105 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: data
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+      
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.config.huggingface-api.name }}
+  name: {{ .Values.config.huggingfaceApi.name }}
   labels:
-    app: {{ .Values.config.huggingface-api.name }}
+    app: {{ .Values.config.huggingfaceApi.name }}
 spec:
-  replicas: {{ .Values.config.huggingface-api.replicas }}
+  replicas: {{ .Values.config.huggingfaceApi.replicas }}
   selector:
     matchLabels:
-      app: {{ .Values.config.huggingface-api.name }}
+      app: {{ .Values.config.huggingfaceApi.name }}
   template:
     metadata:
       labels:
-        app: {{ .Values.config.huggingface-api.name }}
+        app: {{ .Values.config.huggingfaceApi.name }}
     spec:
       volumes:
       - name: data
         persistentVolumeClaim:
           claimName: data
       containers:
-      - name: {{ .Values.config.huggingface-api.name }}
+      - name: {{ .Values.config.huggingfaceApi.name }}
         volumeMounts:
           - mountPath: "/data"
             name: data
-        image: {{ .Values.config.docker_registry }}/{{ .Values.config.huggingface-api.image }}
+        image: {{ .Values.config.docker_registry }}/{{ .Values.config.huggingfaceApi.image }}
         env:
+          - name: DATAFROMK8S
+            value: "Hey"
+          - name: AWS_ACCESS_KEY_ID
+            value: {{ .Values.config.access_key }}
+          - name: AWS_SECRET_ACCESS_KEY
+            value: {{ .Values.config.secret_key }}
+          - name: BUCKET
+            value: {{ .Values.config.bucket }}
+          - name: RABBITMQ
+            value: "databases-rabbitmq"
+          - name: RABBITMQ_QUEUE
+            value: "queue"
+          - name: RABBITMQ_USER
+            value: "user"
+          - name: XPATH
+            value: "/data"
+          - name: RABBITMQ_PASS
+            valueFrom:
+              secretKeyRef:
+                name: databases-rabbitmq
+                key: rabbitmq-password
+                optional: false
+          - name: MARIADB
+            value: "databases-mariadb"
+          - name: MARIADB_TABLE
+            value: "objects"
+          - name: MARIADB_DB
+            value: "control"
+          - name: MARIADB_USER
+            value: "root"
+          - name: MARIADB_PASS
+            valueFrom:
+              secretKeyRef:
+                name: databases-mariadb
+                key: mariadb-root-password
+                optional: false
+          - name: ELASTIC_USER
+            value: "elastic"
+          - name: ELASTIC_PASS
+            valueFrom:
+              secretKeyRef:
+                name: ic4302-es-elastic-user
+                key: elastic
+                optional: false
+          - name: ELASTIC
+            value: "ic4302-es-http"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: huggingface-api
+spec:
+  selector:
+    app: huggingface-api
+  ports:
+    - name: http  # Nombre para el puerto de la API
+      protocol: TCP
+      port: 5000  # Puerto del servicio
+      targetPort: 5000  # Puerto del contenedor
+    - name: prometheus  # Nombre para el puerto de Prometheus
+      protocol: TCP
+      port: 8000  # Puerto para métricas de Prometheus
+      targetPort: 8000  # Puerto del contenedor
+  type: ClusterIP  # O NodePort/LoadBalancer según lo necesites
+
