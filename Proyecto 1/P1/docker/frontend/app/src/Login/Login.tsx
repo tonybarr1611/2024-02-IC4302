@@ -25,6 +25,11 @@ function Login(): React.JSX.Element {
     setShowPassword(!showPassword);
   };
 
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    console.log("Login");
+  };
+
   return (
     <Container className="d-flex justify-content-center align-items-center container-login">
       {/* Toast container for notifications */}
@@ -37,7 +42,8 @@ function Login(): React.JSX.Element {
             <h1 className="h4">Sign In</h1>
           </div>
           {/* Form for user login */}
-          <Form onSubmit={() => console.log("login")}>
+
+          <Form onSubmit={handleSubmit}>
             <Form.Group className="mb-3 leftText" controlId="formBasicEmail">
               <Form.Label>Email address</Form.Label>
               <Form.Control
@@ -45,7 +51,9 @@ function Login(): React.JSX.Element {
                 placeholder="Enter email"
                 name="email"
                 value={credentials.email}
-                onChange={() => console.log("email")} // Placeholder for email change handler
+                onChange={(e) =>
+                  setCredentials({ ...credentials, email: e.target.value })
+                }
               />
             </Form.Group>
             <Form.Group className="mb-3 leftText" controlId="formBasicPassword">
@@ -56,9 +64,13 @@ function Login(): React.JSX.Element {
                   placeholder="Password"
                   name="password"
                   value={credentials.password}
-                  onChange={() => console.log("password")} // Placeholder for password change handler
+                  onChange={(e) =>
+                    setCredentials({
+                      ...credentials,
+                      password: e.target.value,
+                    })
+                  }
                 />
-                {/* Button to toggle password visibility */}
                 <Button
                   variant="primary"
                   onClick={handleClickShowPassword}
@@ -68,13 +80,11 @@ function Login(): React.JSX.Element {
                 </Button>
               </div>
             </Form.Group>
-            {/* Submit button for the form */}
             <Button variant="primary" type="submit" className="w-100 mb-3">
               Sign In
             </Button>
             <Row>
               <Col className="text-end">
-                {/* Link to continue as guest */}
                 <span
                   className="guest-login"
                   onClick={() =>
