@@ -33,6 +33,7 @@ S3_BUCKET = os.getenv('S3_BUCKET')
 S3_KEY_PREFIX = os.getenv('S3_KEY_PREFIX')
 
 ELASTIC_URL = os.getenv('ELASTIC')
+print(ELASTIC_URL)
 ELASTIC_USER = os.getenv('ELASTIC_USER')
 ELASTIC_PASS = os.getenv('ELASTIC_PASS')
 index_name = 'songs'
@@ -177,24 +178,15 @@ def get_embeddings(text):
     
 # Elasticsearch
 
-def create_Elastic_client():
-    try:
-        if ELASTIC_USER and ELASTIC_PASS:
-            es = Elasticsearch(
-                ELASTIC_URL,
-                http_auth=(ELASTIC_USER, ELASTIC_PASS),
-                verify_certs=False
-            )
-            logger.info("Elasticsearch client configured with authentication")
-        else:
-            es = Elasticsearch(ELASTIC_URL, verify_certs=False)
-            logger.info("Elasticsearch client configured without authentication")
-        return es
-    except Exception as e:
-        logger.error(f"Error creating Elasticsearch client: {e}")
-        sys.exit(1)
-
-elastic_client = None #create_Elastic_client()
+elastic_client = None
+try:
+    elastic_client = Elasticsearch(
+        [ELASTIC_URL], 
+        basic_auth=(ELASTIC_USER, ELASTIC_PASS)  
+    )
+except Exception as e:
+    logger.error(f"Error connecting to Elasticsearch: {e}")
+    exit(1)
 
 def create_index_if_not_exists():
     mapping = {
@@ -204,7 +196,7 @@ def create_index_if_not_exists():
                 "artist": {"type": "text"},
                 "embeddings": {
                     "type": "dense_vector",
-                    "dims": 5
+                    "dims": 768
                 }
             }
         }
@@ -215,7 +207,7 @@ def create_index_if_not_exists():
     else:
         print(f"Index '{index_name}' already exists.")
 
-#create_index_if_not_exists()
+create_index_if_not_exists()
 
 def store_embedding(title, artist, embeddings):
     document = {
@@ -238,7 +230,7 @@ def callback(ch, method, properties, body):
             embedding = get_embeddings(song[16])
             print(f"Song id: {song[0]} read. Embeddings {embedding}")
             # TODO Call Elasticsearch function
-            # store_embedding(song[0], song[3], embedding)
+            store_embedding(song[0], song[3], embedding)
 
         mark_object_processed(key)
         logger.info(f"{key} processed")
@@ -253,5 +245,6 @@ connection = pika.BlockingConnection(parameters)
 channel = connection.channel()
 channel.queue_declare(queue=QUEUE_NAME)
 channel.basic_consume(queue=QUEUE_NAME, on_message_callback=callback, auto_ack=True)
+channel.basic_publish(exchange='', routing_key=QUEUE_NAME, body='part-00075-77fbec1f-53bd-48e0-9790-c733ee82f211-c000.csv')
 print(' [*] Waiting for messages. To exit press CTRL+C')
 channel.start_consuming()
