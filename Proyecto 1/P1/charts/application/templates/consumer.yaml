@@ -25,12 +25,14 @@ spec:
             name: data
         image: {{ .Values.config.docker_registry }}/{{ .Values.config.consumer.image }}
         env:
-          - name: AWS_ACCESS_KEY_ID
+          - name: AWS_ACCESS_KEY
             value: {{ .Values.config.access_key }}
           - name: AWS_SECRET_ACCESS_KEY
             value: {{ .Values.config.secret_key }}
-          - name: BUCKET
-            value: {{ .Values.config.bucket }}
+          - name: S3_KEY_PREFIX 
+            value: "spotify/"
+          - name: S3_BUCKET
+            value: "2024-02-ic4302-gr1"
           - name: RABBITMQ
             value: "databases-rabbitmq"
           - name: RABBITMQ_QUEUE
@@ -59,3 +61,17 @@ spec:
                 name: databases-mariadb
                 key: mariadb-root-password
                 optional: false
+          - name: ELASTIC_USER
+            value: "elastic"
+          - name: ELASTIC
+            value: "http://ic4302-es-http:9200"
+          - name: ELASTIC_PASS
+            valueFrom:
+              secretKeyRef:
+                name: ic4302-es-elastic-user
+                key: elastic
+                optional: false
+          - name: ELASTIC_INDEX_NAME
+            value: 'songs'
+          - name: HUGGING_FACE_API
+            value: "http://huggingfaceapi:5000/"
