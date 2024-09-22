@@ -1,5 +1,5 @@
 :root {
-  --dark_background: #363A3F;
+  --dark_background: #15202B;
   --light_background: #E9ECEF;
 } 
 
@@ -8,7 +8,7 @@ html, body {
   background-color: var(--dark_background);
   height: 100%;
   margin: 0;
-  font-family: 'Roboto', sans-serif;
+  font-family: "Inria Sans", sans-serif;
 }
 
 .text-end {
