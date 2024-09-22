@@ -1,11 +1,13 @@
 import os
 import sys
 import csv
+import time
 import pika
 import boto3
 import mariadb
-import requests
 import logging
+import requests
+import datetime
 from io import StringIO
 from elasticsearch.helpers import bulk
 from elasticsearch import Elasticsearch
@@ -25,19 +27,17 @@ MARIADB = os.getenv('MARIADB')
 MARIADB_DB = os.getenv('MARIADB_DB')
 MARIADB_TABLE = os.getenv('MARIADB_TABLE')
 
-ACCESS_KEY = os.getenv('AWS_ACCESS_KEY')
-SECRET_KEY = os.getenv('AWS_SECRET_KEY')
-BUCKET = os.getenv('BUCKET')
-S3_BUCKET_NAME = '2024-02-ic4302-gr1'
-S3_OBJECT_PATH = 'spotify/'
+AWS_ACCESS_KEY = os.getenv('AWS_ACCESS_KEY')
+AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+S3_BUCKET = os.getenv('S3_BUCKET')
+S3_KEY_PREFIX = os.getenv('S3_KEY_PREFIX')
 
-ELASTIC_URL = os.getenv('ELASTIC_URL')
+ELASTIC_URL = os.getenv('ELASTIC')
 ELASTIC_USER = os.getenv('ELASTIC_USER')
 ELASTIC_PASS = os.getenv('ELASTIC_PASS')
 index_name = 'songs'
-doc_type = '_doc'
 
-HUGGINGFACE_API = ""
+HUGGING_FACE_API = os.getenv('HUGGING_FACE_API')
 
 REQUEST_COUNT = Counter('app_requests_count', 'Número de requests totales')
 REQUEST_LATENCY = Histogram('app_request_latency_seconds', 'Latencia de requests')
@@ -67,8 +67,8 @@ logger = logging.getLogger(__name__)
 # S3 client
 def create_s3_client():
     try:
-        if ACCESS_KEY and SECRET_KEY:
-            client = boto3.client('s3', aws_access_key_id=ACCESS_KEY, aws_secret_access_key=SECRET_KEY)
+        if AWS_ACCESS_KEY and AWS_SECRET_ACCESS_KEY:
+            client = boto3.client('s3', aws_access_key_id=AWS_ACCESS_KEY, aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
             logger.info("S3 client configured")
             return client
         else:
@@ -109,13 +109,17 @@ def read_csv_from_s3(bucket_name, file_key):
 # CSV 
 
 def process_csv_file(bucket_name, file_name, prefix=''):
-    file_key = find_object(bucket_name, file_name, prefix)
-    logger.info(f"Processing file {file_name} from bucket {bucket_name} with key {file_key}")
-    if file_key:
-        csv_data = read_csv_from_s3(bucket_name, file_key)
-        return csv_data
-    else:
-        logger.error(f"File {file_name} not found in bucket {bucket_name} with prefix {prefix}.")
+    try:
+        file_key = find_object(bucket_name, file_name, prefix)
+        logger.info(f"Processing file {file_name} from bucket {bucket_name} with key {file_key}")
+        if file_key:
+            csv_data = read_csv_from_s3(bucket_name, file_key)
+            return csv_data
+        else:
+            logger.error(f"File {file_name} not found in bucket {bucket_name} with prefix {prefix}.")
+            return []
+    except Exception as e:
+        logger.error(f"Error reading CSV from S3: {e}")
         return []
     
 # MariaDB
@@ -149,88 +153,97 @@ def execute_query(query, params=None):
         if conn:
             conn.close()
 
-def mark_as_processed(job_id):
-    query = "UPDATE objects SET processed = 1 WHERE ID = %s"
-    execute_query(query, [job_id])
+def object_processed(key):
+    query = "SELECT object_key FROM processed_objects WHERE object_key = %s"
+    results = execute_query(query, [key])
+
+    if results: return True 
+    else: return False
+
+def mark_object_processed(key):
+    query = "INSERT INTO processed_objects (object_key, processed_at) VALUES (%s, %s) "
+    execute_query(query, [key, datetime.datetime.now()])
 
 # Embeddings
     
 def get_embeddings(text):
     try:
-        response = requests.post(HUGGINGFACE_API, json={'text': text})
+        response = requests.post(f"{HUGGING_FACE_API}encode", json={'text': text})
         if response.status_code == 200:
-            return response.json()['embeddings']
+            return response.json()['embedding']
     except Exception as e:
         logger.error(f"Error getting embeddings: {e}")
         return None
     
 # Elasticsearch
 
-if ELASTIC_USER and ELASTIC_PASS:
-    es = Elasticsearch(
-        ELASTIC_URL,
-        http_auth=(ELASTIC_USER, ELASTIC_PASS),
-        verify_certs=False
-    )
-else: es = Elasticsearch(ELASTIC_URL, verify_certs=False)
-
-def format_data_for_indexing(data):
-    for doc in data:
-        yield {
-            "_index": index_name,
-            "_type": doc_type,
-            "_id": doc['song_id'],
-            "_source": doc
-        }
-
-bulk(es, format_data_for_indexing(data))
-    
-"""
-def mark_object_as_processed(job_id):
-    mariadb_conn, cursor = mariadb_connection()
+def create_Elastic_client():
     try:
-        cursor.callproc('MarkObjectAsProcessed', [job_id])
-        mariadb_conn.commit()
-    except mariadb.Error as e:
-        print(f"Error calling stored procedure MarkObjectAsProcessed: {e}")
-    finally:
-        cursor.close()
-        mariadb_conn.close()
-"""
+        if ELASTIC_USER and ELASTIC_PASS:
+            es = Elasticsearch(
+                ELASTIC_URL,
+                http_auth=(ELASTIC_USER, ELASTIC_PASS),
+                verify_certs=False
+            )
+            logger.info("Elasticsearch client configured with authentication")
+        else:
+            es = Elasticsearch(ELASTIC_URL, verify_certs=False)
+            logger.info("Elasticsearch client configured without authentication")
+        return es
+    except Exception as e:
+        logger.error(f"Error creating Elasticsearch client: {e}")
+        sys.exit(1)
 
+elastic_client = None #create_Elastic_client()
 
-"""def index_in_elasticsearch(data):
-    for doc in data:
-        es.index(index='songs', body=doc)"""
+def create_index_if_not_exists():
+    mapping = {
+        "mappings": {
+            "properties": {
+                "title": {"type": "text"},
+                "artist": {"type": "text"},
+                "embeddings": {
+                    "type": "dense_vector",
+                    "dims": 5
+                }
+            }
+        }
+    }
+    if not elastic_client.indices.exists(index=index_name):
+        elastic_client.indices.create(index=index_name, body=mapping)
+        print(f"Index '{index_name}' created successfully.")
+    else:
+        print(f"Index '{index_name}' already exists.")
 
+#create_index_if_not_exists()
+
+def store_embedding(title, artist, embeddings):
+    document = {
+        "title": title,
+        "artist": artist,
+        "embeddings": embeddings
+    }
+    response = elastic_client.index(index=index_name, document=document)
+    
+    return response
 
 def callback(ch, method, properties, body):
-    job_key = body.decode('utf-8')
-    logger.info(f"Received job {job_key}")
+    key = body.decode('utf-8')
+    logger.info(f"Received job {key}")
     
-    # Query to check if the job has already been processed (commented out for now)
-    """
-    query = "SELECT processed, s3_key FROM objects WHERE ID = %s"
-    result = execute_query(query, [job_id])
+    if not object_processed(key):
+        songsList = process_csv_file(S3_BUCKET, key, S3_KEY_PREFIX)
 
-    if result and result[0][0] == 1:
-        print(f"Job {job_id} already processed. Skipping.")
-        return
+        for song in songsList[1:]:
+            embedding = get_embeddings(song[16])
+            print(f"Song id: {song[0]} read. Embeddings {embedding}")
+            # TODO Call Elasticsearch function
+            # store_embedding(song[0], song[3], embedding)
 
-    s3_key = result[0][1]
-    """
-
-    s3_key = job_id  # Using job_id as the s3_key directly for now
-    s3_data = download_from_s3(S3_BUCKET, s3_key)
-
-    if s3_data:
-        processed_data = process_csv(s3_data)
-        # Uncomment this line to index the processed data into Elasticsearch
-        # index_in_elasticsearch(processed_data)
-        mark_as_processed(job_id)
-        logger.info(f"Job {job_id} processed successfully.")
+        mark_object_processed(key)
+        logger.info(f"{key} processed")
     else:
-        logger.error(f"Error processing job {job_id}")
+        logger.info(f"{key} already processed")
 
 
 start_http_server(8000)
@@ -240,26 +253,5 @@ connection = pika.BlockingConnection(parameters)
 channel = connection.channel()
 channel.queue_declare(queue=QUEUE_NAME)
 channel.basic_consume(queue=QUEUE_NAME, on_message_callback=callback, auto_ack=True)
-print("RABBIT_MQ: " + RABBIT_MQ)
-print("RABBIT_MQ_PASSWORD: " + RABBIT_MQ_PASSWORD)
-print("QUEUE_NAME: " + QUEUE_NAME)
-
-print("MARIADB_USER: " + MARIADB_USER)
-print("MARIADB_PASS: " + MARIADB_PASS)
-print("MARIADB: " + MARIADB)
-print("MARIADB_DB: " + MARIADB_DB)
-print("MARIADB_TABLE: " + MARIADB_TABLE)
-
-print("ACCESS_KEY: " + ACCESS_KEY)
-print("SECRET_KEY: " + SECRET_KEY)
-print("BUCKET: " + BUCKET)
-
-print("ELASTIC_URL: " + ELASTIC_URL)
-print("ELASTIC_USER: " + ELASTIC_USER)
-print("ELASTIC_USER: " + ELASTIC_USER)
-
-
 print(' [*] Waiting for messages. To exit press CTRL+C')
-
-
 channel.start_consuming()
