@@ -55,3 +55,26 @@
 .like-btn {
     all: unset;
 }
+
+.friend {
+    width: 100%;
+    height: 100%;
+    border: 1px solid #d3d3d3;
+}
+
+.friend-info {
+    width: 100%;
+    height: 100%;
+    padding: 10px;
+    margin-bottom: 2%;
+    border-radius: 5px;
+    color: #ffffff;
+    border: 1px solid #ffffff;
+    background-color: #FFFFFF00;
+}
+
+.friend-buttons {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
