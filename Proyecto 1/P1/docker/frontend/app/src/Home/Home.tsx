@@ -1,6 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 import Sidebar from "./Sidebar/Sidebar";
 import Ask from "./Panels/Ask";
+import Search from "./Panels/Search";
 import "./Home.css";
 
 function Home() {
@@ -15,7 +16,7 @@ function Home() {
           <Routes>
             <Route path="/" element={<h1>Home</h1>} />
             <Route path="ask" element={<Ask />} />
-            <Route path="search" element={<h1>Search prompts</h1>} />
+            <Route path="search" element={<Search />} />
             <Route path="find" element={<h1>Find friends</h1>} />
             <Route path="friends" element={<h1>Friends</h1>} />
             <Route path="profile" element={<h1>Profile</h1>} />

@@ -28,7 +28,7 @@ function Ask(): JSX.Element {
   };
 
   return (
-    <div className="ask-panel">
+    <div className="askandsearch-panel">
       <ToastContainer position="top-right" />
       <h1>Ask PrompTunes</h1>
       <p className="subtitles">We will give you a song based on your needs!</p>
@@ -40,7 +40,7 @@ function Ask(): JSX.Element {
           name="prompt"
           placeholder="Type your prompt here"
           cols={30}
-          rows={4}
+          rows={3}
           className="ask-input"
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
@@ -56,6 +56,7 @@ function Ask(): JSX.Element {
               PostPrompt={prompt}
               PostAnswer={answer}
               PostLikes={0}
+              hasBeenPosted={false}
             />
             <Button
               variant="primary"

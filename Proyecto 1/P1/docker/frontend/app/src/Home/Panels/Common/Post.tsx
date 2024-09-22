@@ -56,20 +56,27 @@ function Post({
           </p>
         </Card.Text>
         <Card.Footer>
-          <p className="text-muted">
-            <button className="like-btn" type="button" onClick={handleLike}>
-              {hasLiked ? (
-                <HandThumbsUpFill size={34} className="mr-3" color="#FFFFFF" />
-              ) : (
-                <HandThumbsUp size={34} className="mr-3" color="#FFFFFF" />
-              )}
-            </button>
-            Likes: {likes}
-          </p>
+          {hasBeenPosted && (
+            <p className="text-muted">
+              <button className="like-btn" type="button" onClick={handleLike}>
+                {hasLiked ? (
+                  <HandThumbsUpFill
+                    size={34}
+                    className="mr-3"
+                    color="#FFFFFF"
+                  />
+                ) : (
+                  <HandThumbsUp size={34} className="mr-3" color="#FFFFFF" />
+                )}
+              </button>
+              Likes: {likes}
+            </p>
+          )}
         </Card.Footer>
       </Card.Body>
     </Card>
   );
 }
 
+export type { PostProps };
 export default Post;

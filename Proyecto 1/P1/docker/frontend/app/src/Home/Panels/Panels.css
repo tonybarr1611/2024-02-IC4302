@@ -1,4 +1,4 @@
-.ask-panel {
+.askandsearch-panel {
     margin-top: 1%;
     margin-bottom: 2%;
     padding: 20px;
@@ -36,7 +36,7 @@
 }
 
 .post-content {
-    height: 20vh;
+    height: 15vh;
     margin-bottom: 2%;
     overflow: auto;
 }
