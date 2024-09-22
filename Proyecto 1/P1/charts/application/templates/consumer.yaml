@@ -71,5 +71,7 @@ spec:
                 name: ic4302-es-elastic-user
                 key: elastic
                 optional: false
+          - name: ELASTIC_INDEX_NAME
+            value: 'songs'
           - name: HUGGING_FACE_API
             value: "http://huggingfaceapi:5000/"

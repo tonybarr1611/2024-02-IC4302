@@ -33,10 +33,9 @@ S3_BUCKET = os.getenv('S3_BUCKET')
 S3_KEY_PREFIX = os.getenv('S3_KEY_PREFIX')
 
 ELASTIC_URL = os.getenv('ELASTIC')
-print(ELASTIC_URL)
 ELASTIC_USER = os.getenv('ELASTIC_USER')
 ELASTIC_PASS = os.getenv('ELASTIC_PASS')
-index_name = 'songs'
+ELASTIC_INDEX_NAME = os.getenv('ELASTIC_INDEX_NAME')
 
 HUGGING_FACE_API = os.getenv('HUGGING_FACE_API')
 
@@ -192,6 +191,7 @@ def create_index_if_not_exists():
     mapping = {
         "mappings": {
             "properties": {
+                "id": {"type": "text"},
                 "title": {"type": "text"},
                 "artist": {"type": "text"},
                 "embeddings": {
@@ -201,21 +201,22 @@ def create_index_if_not_exists():
             }
         }
     }
-    if not elastic_client.indices.exists(index=index_name):
-        elastic_client.indices.create(index=index_name, body=mapping)
-        print(f"Index '{index_name}' created successfully.")
+    if not elastic_client.indices.exists(index=ELASTIC_INDEX_NAME):
+        elastic_client.indices.create(index=ELASTIC_INDEX_NAME, body=mapping)
+        print(f"Index '{ELASTIC_INDEX_NAME}' created successfully.")
     else:
-        print(f"Index '{index_name}' already exists.")
+        print(f"Index '{ELASTIC_INDEX_NAME}' already exists.")
 
 create_index_if_not_exists()
 
-def store_embedding(title, artist, embeddings):
+def store_embedding(id, title, artist, embeddings):
     document = {
+        "id": id,
         "title": title,
         "artist": artist,
         "embeddings": embeddings
     }
-    response = elastic_client.index(index=index_name, document=document)
+    response = elastic_client.index(index=ELASTIC_INDEX_NAME, document=document)
     
     return response
 
@@ -229,8 +230,7 @@ def callback(ch, method, properties, body):
         for song in songsList[1:]:
             embedding = get_embeddings(song[16])
             print(f"Song id: {song[0]} read. Embeddings {embedding}")
-            # TODO Call Elasticsearch function
-            store_embedding(song[0], song[3], embedding)
+            store_embedding(song[0], song[1], song[3], embedding)
 
         mark_object_processed(key)
         logger.info(f"{key} processed")
