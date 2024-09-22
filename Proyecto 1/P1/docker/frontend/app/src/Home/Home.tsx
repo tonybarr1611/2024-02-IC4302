@@ -3,6 +3,7 @@ import Sidebar from "./Sidebar/Sidebar";
 import Ask from "./Panels/Ask";
 import Search from "./Panels/Search";
 import "./Home.css";
+import Feed from "./Panels/Common/Feed";
 
 function Home() {
   return (
@@ -14,7 +15,7 @@ function Home() {
         <div className="div-padding" />
         <div className="panels-div">
           <Routes>
-            <Route path="/" element={<h1>Home</h1>} />
+            <Route path="/" element={<Feed />} />
             <Route path="ask" element={<Ask />} />
             <Route path="search" element={<Search />} />
             <Route path="find" element={<h1>Find friends</h1>} />

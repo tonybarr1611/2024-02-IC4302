@@ -28,7 +28,7 @@ function Ask(): JSX.Element {
   };
 
   return (
-    <div className="askandsearch-panel">
+    <div className="panel">
       <ToastContainer position="top-right" />
       <h1>Ask PrompTunes</h1>
       <p className="subtitles">We will give you a song based on your needs!</p>

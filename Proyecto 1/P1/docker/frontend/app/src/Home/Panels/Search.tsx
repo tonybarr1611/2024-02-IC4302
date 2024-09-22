@@ -30,7 +30,7 @@ function Search(): JSX.Element {
     setResults(mockResults);
   };
   return (
-    <div className="askandsearch-panel">
+    <div className="panel">
       <h1>Search PrompTunes</h1>
       <p className="subtitles">Search for prompts and songs!</p>
       <form className="width-full">
