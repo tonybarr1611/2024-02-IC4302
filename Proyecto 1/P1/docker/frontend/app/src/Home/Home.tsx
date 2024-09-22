@@ -5,6 +5,7 @@ import Search from "./Panels/Search";
 import "./Home.css";
 import Feed from "./Panels/Common/Feed";
 import Find from "./Panels/Find";
+import Profile from "./Panels/Profile";
 
 function Home() {
   return (
@@ -21,7 +22,7 @@ function Home() {
             <Route path="search" element={<Search />} />
             <Route path="find" element={<Find />} />
             <Route path="friends" element={<h1>Friends</h1>} />
-            <Route path="profile" element={<h1>Profile</h1>} />
+            <Route path="profile" element={<Profile />} />
           </Routes>
         </div>
       </div>

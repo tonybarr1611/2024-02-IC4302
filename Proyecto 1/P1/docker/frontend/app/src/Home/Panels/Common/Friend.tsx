@@ -8,6 +8,7 @@ type FriendProps = {
   bio: string;
   friends: number;
   isFriend: boolean;
+  isSelf?: boolean;
 };
 
 function Friend(props: FriendProps): JSX.Element {
@@ -39,15 +40,17 @@ function Friend(props: FriendProps): JSX.Element {
           </p>
         </Card.Text>
         <Card.Footer>
-          <p className="text-muted">
-            <button className="like-btn" type="button" onClick={handleFollow}>
-              {follow ? (
-                <PersonFillAdd size={34} className="mr-3" color="#FFFFFF" />
-              ) : (
-                <PersonAdd size={34} className="mr-3" color="#FFFFFF" />
-              )}
-            </button>
-          </p>
+          {!props.isSelf && (
+            <p className="text-muted">
+              <button className="like-btn" type="button" onClick={handleFollow}>
+                {follow ? (
+                  <PersonFillAdd size={34} className="mr-3" color="#FFFFFF" />
+                ) : (
+                  <PersonAdd size={34} className="mr-3" color="#FFFFFF" />
+                )}
+              </button>
+            </p>
+          )}
         </Card.Footer>
       </Card.Body>
     </Card>
