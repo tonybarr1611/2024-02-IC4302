@@ -1,0 +1,67 @@
+{{ if .Values.config.flask.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.config.flask.name }}
+  labels:
+    app: {{ .Values.config.flask.name }}
+spec:
+  replicas: {{ .Values.config.flask.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.config.flask.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.config.flask.name }}
+    spec:
+      containers:
+      - name: {{ .Values.config.flask.name }}
+        image: {{ .Values.config.flask.image }}
+        ports:
+        - containerPort: 5000
+        env:
+        - name: POSTGRES
+          value: "databases-postgresql"
+        - name: POSTGRES_USER
+          value: "postgres"
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: databases-postgresql
+              key: postgres-password
+              optional: false
+        - name: MARIADB
+          value: "databases-mariadb"
+        - name: MARIADB_USER
+          value: "root"
+        - name: MARIADB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: databases-mariadb
+              key: mariadb-root-password
+              optional: false
+        - name: ELASTIC_USER
+          value: "elastic"
+        - name: ELASTIC_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: ic4302-es-elastic-user
+              key: elastic
+              optional: false
+        - name: ELASTIC
+          value: "http://ic4302-es-http:9200"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.config.flask.name }}
+spec:
+  selector:
+    app: {{ .Values.config.flask.name }}
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000
+  type: LoadBalancer
+{{ end }}
