@@ -13,7 +13,6 @@ from elasticsearch.helpers import bulk
 from elasticsearch import Elasticsearch
 from prometheus_client import Counter, Histogram, start_http_server
 
-
 XPATH=os.getenv('XPATH')
 DATA=os.getenv('DATAFROMK8S')
 
@@ -33,10 +32,9 @@ S3_BUCKET = os.getenv('S3_BUCKET')
 S3_KEY_PREFIX = os.getenv('S3_KEY_PREFIX')
 
 ELASTIC_URL = os.getenv('ELASTIC')
-print(ELASTIC_URL)
 ELASTIC_USER = os.getenv('ELASTIC_USER')
 ELASTIC_PASS = os.getenv('ELASTIC_PASS')
-index_name = 'songs'
+ELASTIC_INDEX_NAME = os.getenv('ELASTIC_INDEX_NAME')
 
 HUGGING_FACE_API = os.getenv('HUGGING_FACE_API')
 
@@ -55,11 +53,11 @@ rows_error = Counter('rows_error', 'Cantidad de filas con error')
 
 # Logging
 logging.basicConfig(
-    level=logging.INFO,  # Nivel de logging
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',  # Formato del mensaje
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler("application.log"),  # Guardar los logs en un archivo llamado application.log
-        logging.StreamHandler(sys.stdout)  # show logs in console
+        logging.FileHandler("application.log"),
+        logging.StreamHandler(sys.stdout)
     ]
 )
 
@@ -90,7 +88,7 @@ def find_object(bucket_name, file_name, prefix=''):
                     logger.info(f"File {file_name} found in bucket {bucket_name}")
                     logger.info(f"Key: {obj['Key']}")
                     return obj['Key']
-        print("File not found")
+        logger.warning('File not found')
         return None
     except Exception as e:
         logger.error(f"Error finding object: {e}")
@@ -192,6 +190,7 @@ def create_index_if_not_exists():
     mapping = {
         "mappings": {
             "properties": {
+                "id": {"type": "text"},
                 "title": {"type": "text"},
                 "artist": {"type": "text"},
                 "embeddings": {
@@ -201,21 +200,22 @@ def create_index_if_not_exists():
             }
         }
     }
-    if not elastic_client.indices.exists(index=index_name):
-        elastic_client.indices.create(index=index_name, body=mapping)
-        print(f"Index '{index_name}' created successfully.")
+    if not elastic_client.indices.exists(index=ELASTIC_INDEX_NAME):
+        elastic_client.indices.create(index=ELASTIC_INDEX_NAME, body=mapping)
+        logger.info(f"Index '{ELASTIC_INDEX_NAME}' created successfully.")
     else:
-        print(f"Index '{index_name}' already exists.")
+        logger.warning(f"Index '{ELASTIC_INDEX_NAME}' already exists.")
 
 create_index_if_not_exists()
 
-def store_embedding(title, artist, embeddings):
+def store_embedding(id, title, artist, embeddings):
     document = {
+        "id": id,
         "title": title,
         "artist": artist,
         "embeddings": embeddings
     }
-    response = elastic_client.index(index=index_name, document=document)
+    response = elastic_client.index(index=ELASTIC_INDEX_NAME, document=document)
     
     return response
 
@@ -228,9 +228,8 @@ def callback(ch, method, properties, body):
 
         for song in songsList[1:]:
             embedding = get_embeddings(song[16])
-            print(f"Song id: {song[0]} read. Embeddings {embedding}")
-            # TODO Call Elasticsearch function
-            store_embedding(song[0], song[3], embedding)
+            logger.info(f"Song id: {song[0]} read.")
+            store_embedding(song[0], song[1], song[3], embedding)
 
         mark_object_processed(key)
         logger.info(f"{key} processed")
