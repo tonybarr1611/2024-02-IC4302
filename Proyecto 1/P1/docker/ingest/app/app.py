@@ -13,7 +13,6 @@ from elasticsearch.helpers import bulk
 from elasticsearch import Elasticsearch
 from prometheus_client import Counter, Histogram, start_http_server
 
-
 XPATH=os.getenv('XPATH')
 DATA=os.getenv('DATAFROMK8S')
 
@@ -39,14 +38,12 @@ ELASTIC_INDEX_NAME = os.getenv('ELASTIC_INDEX_NAME')
 
 HUGGING_FACE_API = os.getenv('HUGGING_FACE_API')
 
-REQUEST_COUNT = Counter('app_requests_count', 'Número de requests totales')
-REQUEST_LATENCY = Histogram('app_request_latency_seconds', 'Latencia de requests')
 
-maximum_object = Counter('maximum_processing_time_object', 'Tiempo máximo de procesamiento de un objeto')
-minimum_object = Counter('minimum_processing_time_object', 'Tiempo mínimo de procesamiento de un objeto')
 
-maximum_row = Counter('maximum_processing_time_row', 'Tiempo máximo de procesamiento de una fila')
-minimum_row = Counter('minimum_processing_time_row', 'Tiempo mínimo de procesamiento de una fila')
+object_processing_time = Histogram('object_processing_time_seconds', 'Time taken to process an object', buckets=[0.01, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 2, 5, 10, 30, 60, 120, 300])
+
+row_processing_time = Histogram('row_processing_time_seconds', 'Time taken to process a row', buckets=[0.01, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 2, 5, 10, 30, 60, 120, 300])
+
 
 objects_processed = Counter('objects_processed', 'Cantidad de objetos procesados')
 rows_processed = Counter('rows_processed', 'Cantidad de filas procesados')
@@ -54,11 +51,11 @@ rows_error = Counter('rows_error', 'Cantidad de filas con error')
 
 # Logging
 logging.basicConfig(
-    level=logging.INFO,  # Nivel de logging
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',  # Formato del mensaje
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler("application.log"),  # Guardar los logs en un archivo llamado application.log
-        logging.StreamHandler(sys.stdout)  # show logs in console
+        logging.FileHandler("application.log"),
+        logging.StreamHandler(sys.stdout)
     ]
 )
 
@@ -89,7 +86,7 @@ def find_object(bucket_name, file_name, prefix=''):
                     logger.info(f"File {file_name} found in bucket {bucket_name}")
                     logger.info(f"Key: {obj['Key']}")
                     return obj['Key']
-        print("File not found")
+        logger.warning('File not found')
         return None
     except Exception as e:
         logger.error(f"Error finding object: {e}")
@@ -203,9 +200,9 @@ def create_index_if_not_exists():
     }
     if not elastic_client.indices.exists(index=ELASTIC_INDEX_NAME):
         elastic_client.indices.create(index=ELASTIC_INDEX_NAME, body=mapping)
-        print(f"Index '{ELASTIC_INDEX_NAME}' created successfully.")
+        logger.info(f"Index '{ELASTIC_INDEX_NAME}' created successfully.")
     else:
-        print(f"Index '{ELASTIC_INDEX_NAME}' already exists.")
+        logger.warning(f"Index '{ELASTIC_INDEX_NAME}' already exists.")
 
 create_index_if_not_exists()
 
@@ -225,14 +222,18 @@ def callback(ch, method, properties, body):
     logger.info(f"Received job {key}")
     
     if not object_processed(key):
-        songsList = process_csv_file(S3_BUCKET, key, S3_KEY_PREFIX)
+        with object_processing_time.time():
+            songsList = process_csv_file(S3_BUCKET, key, S3_KEY_PREFIX)
 
         for song in songsList[1:]:
-            embedding = get_embeddings(song[16])
-            print(f"Song id: {song[0]} read. Embeddings {embedding}")
-            store_embedding(song[0], song[1], song[3], embedding)
+            with row_processing_time.time():
+                embedding = get_embeddings(song[16])
+                logger.info(f"Song id: {song[0]} read.")
+                store_embedding(song[0], song[1], song[3], embedding)
+                rows_processed.inc()
 
         mark_object_processed(key)
+        objects_processed.inc()
         logger.info(f"{key} processed")
     else:
         logger.info(f"{key} already processed")
