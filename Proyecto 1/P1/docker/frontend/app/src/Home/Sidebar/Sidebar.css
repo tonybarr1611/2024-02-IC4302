@@ -1,0 +1,18 @@
+.menu-option {
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    width: 80%;
+    cursor: pointer;
+    margin-left: auto;
+    padding-left: 6%;
+    padding-right: 6%;
+    padding-top: 2%;
+    padding-bottom: 2%;
+    border-radius: 40px;
+}
+
+.hover-option:hover {
+    /* Change the shade of the color */
+    background-color: #101921;
+}

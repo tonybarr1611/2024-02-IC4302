@@ -55,7 +55,7 @@ try :
     connection = pika.BlockingConnection(parameters)
     channel = connection.channel()
 except Exception as e:
-    logger.error("Error setting RabbitMQ client. " + e)
+    logger.error("Error setting RabbitMQ client.")
     sys.exit(1)
 
 # Función para listar todos los objetos en el bucket S3, de forma recursiva
