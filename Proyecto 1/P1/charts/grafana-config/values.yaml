@@ -17,3 +17,11 @@ dashboards:
     name: ingest
     file: ingest.json
     enable: true
+  huggingface:
+    name: huggingface
+    file: huggingface.json
+    enable: true
+  s3spider:
+    name: s3spider
+    file: s3spider.json
+    enable: true
