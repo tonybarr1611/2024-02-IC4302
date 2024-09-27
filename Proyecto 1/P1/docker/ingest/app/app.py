@@ -191,6 +191,7 @@ def create_index_if_not_exists():
                 "id": {"type": "text"},
                 "title": {"type": "text"},
                 "artist": {"type": "text"},
+                "lyrics": {"type": "text"},
                 "embeddings": {
                     "type": "dense_vector",
                     "dims": 768
@@ -206,11 +207,12 @@ def create_index_if_not_exists():
 
 create_index_if_not_exists()
 
-def store_embedding(id, title, artist, embeddings):
+def store_embedding(id, title, artist, lyrics, embeddings):
     document = {
         "id": id,
         "title": title,
         "artist": artist,
+        "lyrics": lyrics,
         "embeddings": embeddings
     }
     response = elastic_client.index(index=ELASTIC_INDEX_NAME, document=document)
@@ -229,7 +231,7 @@ def callback(ch, method, properties, body):
             with row_processing_time.time():
                 embedding = get_embeddings(song[16])
                 logger.info(f"Song id: {song[0]} read.")
-                store_embedding(song[0], song[1], song[3], embedding)
+                store_embedding(song[0], song[1], song[3], song[16], embedding)
                 rows_processed.inc()
 
         mark_object_processed(key)
