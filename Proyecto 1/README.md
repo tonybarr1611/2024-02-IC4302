@@ -141,55 +141,53 @@ To successfully complete the project, the following recommendations are provided
     - **Recommendation**: Familiarize yourself with the data schema and relationships between tables to write efficient queries.
     - **Reason**: Understanding the data schema helps optimize queries and ensures accurate results when fetching data from the databases.
 
-8. **Understand the Endpoints**
-    - **Recommendation**: Learn how to use the endpoints to query data from the databases and understand the responses.
-    - **Reason**: Understanding the endpoints helps you retrieve specific data from the databases and analyze the results effectively.
-  
-9.  **Familizarize with Gatling**
-    - **Recommendation**: Learn how to use Gatling to run load tests and analyze the performance of the application under different conditions.
-    - **Reason**: Gatling helps evaluate the performance of the application and identify potential bottlenecks or areas for optimization, by simulating real-world scenarios with varying loads.
+8.  **Learn How to Use RabbitMQ**
+    - **Recommendation**: Learn how to use RabbitMQ, which is used generate messages and communicate between components.
+    - **Reason**: Understanding how to use RabbitMQ will help you send messages to the Ingest service and process data efficiently.
 
-10. **Understand Prometheus and how to use it**
+9.  **Understand Prometheus and how to use it**
     - **Recommendation**: Learn how to use Prometheus to monitor the different components of the project and how to scrape the metrics.
     - **Reason**: Prometheus is a key component of the project as it captures the metrics of the different components and stores them in its database. 
 
-11. **Understand Grafana and the consequent Dashboards**
+10. **Understand Grafana and the consequent Dashboards**
     - **Recommendation**: Learn how to use Grafana to visualize the metrics of the different components of the project.
     - **Reason**: Grafana is a key component of the project as it allows you to see the metrics of the different components and see how they are performing in real time.
 
-12. **Understand Memcached**
+11. **Understand Memcached**
     - **Recommendation**: Learn how to use Memcached, which is used as a cache system in the project.
     - **Reason**: Understanding how to use Memcached will help you cache data and understand how it impacts the performance of the application.
+
+12. **Understand React**
+    - **Recommendation**: Learn how to use React, which is used to create the frontend of the project.
+    - **Reason**: Understanding how to use React will help you interact with the UI and understand how the frontend interacts with the backend.
   
-13. **Understand the loading scripts**
-    - **Recommendation**: Understand how the loading scripts work and how they are used to load data into the databases.
-    - **Reason**: The loading scripts are essential for the way the databases are loaded with data, and understanding how they work will help you manage the data effectively and understand the structure of the databases. Please note that the information is loaded from CSV files.
 
 ## Conclusions 
 
-1. The structure of the relational database is designed to make queries efficient, with tables separated by categories. This allows searches using indexes and foreign keys.
+1. Optimal Technology Integration: The integration of diverse technologies, helps create a application that uses optimal solutions for different tasks, such as data storage, retrieval, caching, and monitoring. Various components permit the application to develop different functionalities and using the best technology for each task.
 
-2. The use of MariaDB allows handling large volumes of data. Additionally, integrating Elasticsearch into the project provides options for fast and scalable searches in even larger or distributed databases.
+2. Containerized Scalability: The use of Kubernetes allows the system to scale horizontally, adding or removing instances as needed to handle varying loads. This ensures that the project can support high levels of concurrency and data throughput, essential for real-time applications.
 
-3. The API offers direct and simple access to data through well-structured SQL queries. The relationships between tables allow obtaining details of races, times, and rankings, which is essential for analyzing the performance of drivers and constructors.
+3. Efficient Data Handling: The use of MariaDB allows handling large volumes of data. Additionally, integrating Elasticsearch into the project provides options for fast and scalable searches in even larger or distributed databases.
+   
+4. Advanced Observability and Metrics: The integration with Prometheus and Grafana allows for observability of the system's performance metrics, including object and row processing times, error rates, and system loads. This level of monitoring is essential for maintaining high system reliability and optimizing resource usage.
 
-4. The database and API are designed in a way that facilitates the incorporation of new data (future drivers, additional circuits, etc.) without interrupting current operations.
+5. Interactive User Interface: The project provides a user-friendly interface for users to interact with the system, including features such as user registration, login, and social feed. Users can submit prompts to query songs using vector search on Elasticsearch, follow friends, and manage their profiles and posts. Vector search is a very powerful algorithm that allows users to search for songs based on the similarity of the lyrics, providing a unique and efficient way to discover new music.
 
-5. The data source is configured to connect to Prometheus using an internal URL and is set as the default and editable data source, making it easy to adjust in the environment.
+6. Efficient Embedding Generation: The project incorporates Hugging Face's API to generate embeddings for song lyrics, making the use of machine learning models practical for vector-based searches. This brings advanced AI-driven functionality to the project, enhancing search precision and user experience.
 
-6. The dashboard-loader.yaml configuration allows the automatic creation of dashboards for multiple services (Elasticsearch, MariaDB and Memcached).
+7. Scalable and Reliable Caching: The project uses Memcached as a caching system to store frequently accessed data, reducing the load on the databases and improving response times. Caching is essential for optimizing performance and ensuring a smooth user experience, especially for read-heavy applications.
+   
+8. Efficient Data Handling: The project effectively manages data from external sources, such as S3 buckets. It ensures that data is processed, embedded with vector search capabilities, and seamlessly stored in Elasticsearch, maintaining data integrity and scalability.
 
-7. Each of these dashboards is enabled or disabled through the values.yaml file, allowing for flexible deployment based on monitoring needs.
+9. Flexible and Extensible Design: The application's architecture allows for easy integration of new features or components. Whether it's adding more data sources, expanding the Elasticsearch index, or integrating additional APIs, the design supports continuous development and flexibility.
 
-8. The dashboards are based on pre-existing Grafana configurations, making it easier to adopt best practices for monitoring.
+10. Logging Usage: The project uses logging to track the performance of the different components, helping to identify issues and optimize the system. Logging is essential in the real world for monitoring the system's behavior and ensuring that it operates efficiently. It provides valuable information for troubleshooting and performance tuning.
 
-9. The dashboards follow a standard Grafana structure, using panels like Graph and Singlestat, which are essential for metric visualizations and alerts.
+11. Real-Time Execution: The project is designed to process data in real time, ensuring that new data is ingested, processed, and stored efficiently. This real-time processing capability is essential for applications that require up-to-date information and fast response times.
 
-10. Each dashboard's JSON file defines inputs such as DS_PROMETHEUS to connect to the Prometheus data source.
-
-11. The project is designed to provide a comprehensive monitoring solution for the different components, allowing users to visualize key metrics and identify performance bottlenecks or areas for optimization.
-
-12. The integration of diverse technologies, helps create a application that uses optimal solutions for different tasks, such as data storage, retrieval, caching, and monitoring.
+12. Connectivity and Component Interaction: The project demonstrates effective communication between components, such as RabbitMQ messages in the S3 Crawler triggering data processing in the Ingest service which connects to the Hugging Face API to generate embeddings. Also, the frontend interacts with the backend API to perform various tasks, such as querying the database, processing text, and caching results. This seamless interaction between components ensures that the system functions as a cohesive unit, delivering the desired functionality to users.
+   
 
 # Components
 
@@ -209,7 +207,12 @@ The structure of the databases is designed to store data related to songs, users
 
 MariaDB has the following tables:
 
-# ADD TABLES
+- **processed_objects**: Stores information about processed objects, including the `object_key` and the `processed` status.
+- **users**: Contains user-related information such as `user_id`, `name`, `username`, `password`, `friends`, `email`, `biography`, `created_at`, and `updated_at`.
+- **friends**: Manages friendships between users, storing `friend_id`, `user_id`, `friend_user_id`, `created_at`, and `updated_at`.
+- **prompts**: Holds data about user prompts, including `prompt_id`, `user_id`, `likes`, `prompt`, `created_at`, and `updated_at`.
+- **likes**: Keeps track of likes on prompts, storing `like_id`, `user_id`, `prompt_id`, and `created_at`.
+
 
 ## Data Loading Scripts:
 
@@ -244,13 +247,15 @@ The Ingest application is a Python component responsible for processing data fro
 
 ## UI:
 
-## Prometheus
+
+
+## Prometheus:
 
 Prometheus is an open-source monitoring and alerting software that is used to collect and store metrics from various components of the project. Prometheus scrapes metrics from the different components, such as databases, API, cache systems, and monitoring tools, and stores them in a time-series database. It provides a specific query language, called PromQL, to retrieve and analyze metrics, enabling users to monitor the performance and health of the system. Prometheus offers features like service discovery, multi-dimensional data model, and powerful queries, making it suitable for monitoring complex environments. In this case Prometheus is used to monitor the different components of the project and store the metrics in its database. It is configured to scrape the metrics with the goal of visualizing them in Grafana. It is configured with automatic service discovery due to the use of technologies like MariaDB which for example count with an integrated exporter that allows Prometheus to scrape the metrics of the databases automatically. In the route TC1/charts/databases/values.yaml you can see the configuration of the databases to be scraped by Prometheus. The servicemonitor resource is used to configure the scraping of the metrics of the different components of the project. As this is enabled in the Helm chart, Prometheus will automatically scrape the metrics of the different components of the project.
 
-## Grafana
+## Grafana:
 
-Grafana is an open-source analytics and monitoring platform that is used to visualize the metrics collected by Prometheus. Grafana provides a user-friendly interface to create dashboards and panels that display the metrics in a visually appealing way. It offers a wide range of visualization options, such as graphs, tables, and gauges, allowing users to customize the dashboards according to their needs. Grafana supports various data sources, including Prometheus, Elasticsearch, and InfluxDB, making it versatile for monitoring different systems. In this project, Grafana is used to create dashboards that display the metrics of the different components, such as databases, API and  cache systems. The dashboards provide insights into the performance and health of the system, allowing users to identify bottlenecks, anomalies, or areas for optimization. Grafana is configured to connect to Prometheus as a data source, enabling it to retrieve the metrics stored in the Prometheus database and visualize them in the dashboards. The dashboards are designed to display key performance indicators, such as HTTP request counts, query response times, cache efficiency, and resource usage, helping users monitor the system in real time and make informed decisions based on the data.
+Grafana is an open-source analytics and monitoring platform that is used to visualize the metrics collected by Prometheus. Grafana provides a user-friendly interface to create dashboards and panels that display the metrics in a visually appealing way. It offers a wide range of visualization options, such as graphs, tables, and gauges, allowing users to customize the dashboards according to their needs. Grafana supports various data sources but basis in Prometheus. In this project, Grafana is used to create dashboards that display the metrics of the different components, such as databases, API and  cache systems. The dashboards provide insights into the performance and health of the system, allowing users to identify bottlenecks, anomalies, or areas for optimization. Grafana is configured to connect to Prometheus as a data source, enabling it to retrieve the metrics stored in the Prometheus database and visualize them in the dashboards. The dashboards are designed to display key performance indicators, such as HTTP request counts, query response times, cache efficiency, and resource usage, helping users monitor the system in real time and make informed decisions based on the data.
 
 In this project, talking specifically about Grafana we can find seven main dashboards, which are:
 
@@ -270,9 +275,10 @@ In this project, talking specifically about Grafana we can find seven main dashb
 
 ## Tests
 
-For the project we did the necessary tests to the databases now we are gonna show the results based on grafana dashboards:
-# MariaDB
-## Without cache
+The following tests were performed to evaluate the performance of the different components of the project. The tests focused on key metrics such as response times, request counts, object processing times, and cache efficiency. The results of the tests were visualized in Grafana dashboards, providing insights into the performance of the different components.
+
+
+## MariaDB 
 
 ![Prueba](Tests/maria1.jpeg) 
 ![Prueba](Tests/maria2.jpeg)
@@ -281,28 +287,33 @@ For the project we did the necessary tests to the databases now we are gonna sho
 ![Prueba](Tests/maria5.jpeg)
 ![Prueba](Tests/maria6.jpeg)
 
-The following pictures are proof the dashboards implementation in grafana 
 
 ## Memcached
 
 ![Prueba](Tests/memcached.jpeg)
 
-## Prometheus 
-
-![Prueba](Tests/prometheus.jpeg)
-
-## Elastic search
+## ElasticSearch
 
 ![Prueba](Tests/elastic.jpeg)
 
+## S3 Crawler
+
+## Hugging Face API
+
+## Ingest
+
+## Backend API
+
 # References
 
-- [1] "Dockerfile reference," Docker Documentation. [Online]. Available: https://docs.docker.com/reference/dockerfile/#overview. [Accessed: Sep. 4, 2024].
+- [1] "Dockerfile reference," Docker Documentation. [Online]. Available: https://docs.docker.com/reference/dockerfile/#overview. [Accessed: Sep. 20, 2024].
 
-- [2] "kubectl commands," Kubernetes Documentation. [Online]. Available: https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands. [Accessed: Sep. 4, 2024].
+- [2] "kubectl commands," Kubernetes Documentation. [Online]. Available: https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands. [Accessed: Sep. 20, 2024].
 
-- [3] "MariaDB Documentation," MariaDB Knowledge Base. [Online]. Available: https://mariadb.com/kb/en/documentation/. [Accessed: Sep. 4, 2024].
+- [3] "MariaDB Documentation," MariaDB Knowledge Base. [Online]. Available: https://mariadb.com/kb/en/documentation/. [Accessed: Sep. 20, 2024].
 
-- [4] "Elasticsearch Documentation," Elasticsearch Documentation. [Online]. Available: https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html. [Accessed: Sep. 4, 2024].
+- [4] "Elasticsearch Documentation," Elasticsearch Documentation. [Online]. Available: https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html. [Accessed: Sep. 20, 2024].
 
-- [5] "Grafana Documentation," Grafana Documentation. [Online]. Available: https://grafana.com/docs/. [Accessed: Sep. 4, 2024].
+- [5] "Grafana Documentation," Grafana Documentation. [Online]. Available: https://grafana.com/docs/. [Accessed: Sep. 22, 2024].
+
+- [6] "Custom Bootstrap Build," Bootstrap Build. [Online]. Available: https://bootstrap.build/app/project/MjrwgQJtoYUV [Accessed: Sep. 22, 2024].
