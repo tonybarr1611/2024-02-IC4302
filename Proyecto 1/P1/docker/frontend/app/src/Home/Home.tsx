@@ -8,6 +8,10 @@ import Find from "./Panels/Find";
 import Profile from "./Panels/Profile";
 
 function Home() {
+  // Redirect to login if user_id is not set
+  if (localStorage.getItem("user_id") === null) {
+    window.location.href = "/login";
+  }
   return (
     <div className="main-container">
       <div className="main-div">

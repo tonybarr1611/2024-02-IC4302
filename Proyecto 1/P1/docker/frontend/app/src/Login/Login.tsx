@@ -3,11 +3,41 @@ import { Button, Card, Col, Container, Form, Row } from "react-bootstrap";
 import { ToastContainer, toast } from "react-toastify";
 import { EyeFill, EyeSlashFill, PersonLock } from "react-bootstrap-icons";
 import "./Login.css";
+import { Link } from "react-router-dom";
+import axios from "axios";
 
 // Define the shape of the credentials object
 interface Credentials {
   email: string;
   password: string;
+}
+
+interface LoginResponse {
+  result: string;
+}
+
+async function sendLogin(
+  email: string,
+  password: string
+): Promise<LoginResponse> {
+  const url = "http://localhost:31000/login";
+  try {
+    const response = await axios.post(url, {
+      email: email,
+      password: password,
+    });
+
+    if (!response.data.user_id.toString()) {
+      return { result: "error" };
+    } else {
+      localStorage.setItem("user_id", response.data.user_id.toString());
+      localStorage.setItem("email", email);
+      return response.data;
+    }
+  } catch (error) {
+    console.error(error);
+    return { result: "error" };
+  }
 }
 
 function Login(): React.JSX.Element {
@@ -25,10 +55,25 @@ function Login(): React.JSX.Element {
     setShowPassword(!showPassword);
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    console.log("Login");
+    const response = await sendLogin(credentials.email, credentials.password);
+    if (response.result === "error") {
+      toast.error("Invalid email or password", {
+        autoClose: 1500,
+        theme: "colored",
+      });
+      setCredentials({ email: "", password: "" });
+    } else {
+      toast.success("Logged in successfully", {
+        autoClose: 1500,
+        theme: "colored",
+      });
+      window.location.href = "/home";
+    }
   };
+
+  localStorage.clear();
 
   return (
     <Container className="d-flex justify-content-center align-items-center container-login">
@@ -83,21 +128,23 @@ function Login(): React.JSX.Element {
             <Button variant="primary" type="submit" className="w-100 mb-3">
               Sign In
             </Button>
-            <Row>
-              <Col className="text-end">
-                <span
-                  className="guest-login"
-                  onClick={() =>
-                    toast.success("Logged in as guest", {
-                      autoClose: 1500,
-                      theme: "colored",
-                    })
-                  }
-                >
-                  Continue as Guest
-                </span>
-              </Col>
-            </Row>
+            <Link to={"register"}>
+              <Row>
+                <Col className="text-end">
+                  <span
+                    className="guest-login"
+                    onClick={() =>
+                      toast.success("Logged in as guest", {
+                        autoClose: 1500,
+                        theme: "colored",
+                      })
+                    }
+                  >
+                    Register
+                  </span>
+                </Col>
+              </Row>
+            </Link>
           </Form>
         </Card.Body>
       </Card>
