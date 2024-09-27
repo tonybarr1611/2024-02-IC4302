@@ -7,9 +7,6 @@ function Search(): JSX.Element {
   const [results, setResults] = useState<PostProps[]>([]);
 
   const handleSearch = () => {
-    const searchElement = document.getElementsByName(
-      "search"
-    )[0] as HTMLTextAreaElement;
     // Create a mock object using the search term and PostProps interface
     // interface PostProps {
     //   PostUser: string;
