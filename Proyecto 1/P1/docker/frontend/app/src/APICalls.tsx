@@ -105,12 +105,8 @@ async function sendPost(prompt: string): Promise<StandardResponse> {
   }
 }
 
-async function getFeedPosts(): Promise<PostProps[]> {
-  const url = `${API_URL}/feed`;
-  const response = await axios.post(url, {
-    user_id: localStorage.getItem("user_id"),
-  });
-  const data = response.data.posts.map((post: any) => {
+function mapPostToPostProps(posts: any): PostProps[] {
+  return posts.map((post: any) => {
     return {
       PostID: post[0],
       PostUser: post[1],
@@ -120,12 +116,9 @@ async function getFeedPosts(): Promise<PostProps[]> {
       hasBeenPosted: true,
     };
   });
-  return data;
 }
 
-async function getFeed(): Promise<PostProps[]> {
-  const posts = await getFeedPosts();
-
+async function fillPostsWithAnswers(posts: PostProps[]): Promise<PostProps[]> {
   for (let i = 0; i < posts.length; i++) {
     const post = posts[i];
     const urlPrompt = `${API_URL}/prompt`;
@@ -144,5 +137,42 @@ async function getFeed(): Promise<PostProps[]> {
   return posts;
 }
 
+async function getFeedPosts(): Promise<PostProps[]> {
+  const url = `${API_URL}/feed`;
+  const response = await axios.post(url, {
+    user_id: localStorage.getItem("user_id"),
+  });
+  const data = mapPostToPostProps(response.data.posts);
+  return data;
+}
+
+async function getFeed(): Promise<PostProps[]> {
+  const posts = await getFeedPosts();
+
+  const postsWithAnswers = await fillPostsWithAnswers(posts);
+
+  return postsWithAnswers;
+}
+
+async function search(query: string): Promise<PostProps[]> {
+  const url = `${API_URL}/search`;
+  const response = await axios.post(url, {
+    query: query,
+  });
+  const posts = mapPostToPostProps(response.data.posts);
+
+  const postsWithAnswers = await fillPostsWithAnswers(posts);
+
+  return postsWithAnswers;
+}
+
 export type { PromptResponse };
-export { sendLogin, sendRegister, askPrompt, sendLike, sendPost, getFeed };
+export {
+  sendLogin,
+  sendRegister,
+  askPrompt,
+  sendLike,
+  sendPost,
+  getFeed,
+  search,
+};

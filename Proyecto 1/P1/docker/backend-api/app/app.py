@@ -313,19 +313,6 @@ def search():
     # Get the posts that match the query or are from the matching users
     posts = executeQuery(f"SELECT P.prompt_id, U.username, P.likes, P.prompt, P.created_at FROM prompts P LEFT JOIN users U on P.user_id = U.user_id WHERE P.prompt LIKE '%{query}%' OR P.user_id IN ({user_ids_str})")
     
-
-    for post in posts:
-        print(post)
-        try:
-            print(post[3])
-            print(type(post[3]))
-        except:
-            pass
-        print(type(post))
-        postList = list(post)
-        postList.append(processPrompt(post[3]))
-            
-    print(posts)
     # Return the posts
     return jsonify({
         'posts': posts
