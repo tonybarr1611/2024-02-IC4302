@@ -6,30 +6,43 @@ import {
 } from "react-bootstrap-icons";
 import "../Panels.css";
 import { useState } from "react";
+import { PromptResponse, sendLike } from "../../../APICalls";
 
 interface PostProps {
+  PostID?: string;
   PostUser: string;
   PostTime: string;
   PostPrompt: string;
-  PostAnswer: string;
+  PostAnswer?: PromptResponse[];
   PostLikes: number;
   hasBeenPosted?: boolean;
+  hasUserLiked?: boolean;
 }
 
 function Post({
+  PostID,
   PostUser,
   PostTime,
   PostPrompt,
   PostAnswer,
   PostLikes,
   hasBeenPosted,
+  hasUserLiked,
 }: PostProps): JSX.Element {
-  const [hasLiked, setHasLiked] = useState(false);
+  const [hasLiked, setHasLiked] = useState(hasUserLiked || false);
   const [likes, setLikes] = useState(PostLikes);
-  const handleLike = () => {
-    setHasLiked(!hasLiked);
-    setLikes(likes + (hasLiked ? -1 : 1));
+  console.log(PostID);
+
+  const handleLike = async () => {
+    console.log(PostID);
+    const response = await sendLike(PostID || "");
+
+    if (response.result !== "error") {
+      setHasLiked(!hasLiked);
+      setLikes(likes + (hasLiked ? -1 : 1));
+    }
   };
+
   return (
     <Card className="post-card">
       <Card.Body>
@@ -46,13 +59,19 @@ function Post({
         </Card.Text>
         <Card.Text className="post-content">
           <p>
-            <span className="bold">Song:</span>{" "}
-            <h3>{PostAnswer.split("\n")[0]}</h3>
-            <p
-              dangerouslySetInnerHTML={{
-                __html: PostAnswer.split("\n").slice(1).join("<br>"),
-              }}
-            />
+            <span className="bold">Answer:</span>{" "}
+            {PostAnswer &&
+              PostAnswer.map((answer, index) => (
+                <div key={index}>
+                  <h3>{answer.artist}</h3>
+                  <h4>{answer.title}</h4>
+                  <p
+                    dangerouslySetInnerHTML={{
+                      __html: answer.lyrics.split("\n").slice(1).join("<br>"),
+                    }}
+                  />
+                </div>
+              ))}
           </p>
         </Card.Text>
         <Card.Footer>

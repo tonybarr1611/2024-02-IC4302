@@ -34,5 +34,17 @@ spec:
                 name: databases-mariadb
                 key: mariadb-root-password
                 optional: false
-          - name: huggingface
+          - name: HUGGINGFACE
             value: huggingfaceapi
+          - name: ELASTIC_USER
+            value: "elastic"
+          - name: ELASTIC_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: ic4302-es-elastic-user
+                key: elastic
+                optional: false
+          - name: ELASTIC
+            value: "http://ic4302-es-http:9200"
+          - name: ELASTIC_INDEX_NAME
+            value: 'songs'

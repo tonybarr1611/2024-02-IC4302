@@ -19,9 +19,12 @@ function Search(): JSX.Element {
     const mockResults: PostProps[] = Array.from({ length: 20 }, () => ({
       PostUser: "MockUser",
       PostTime: new Date().toISOString(),
-      PostPrompt: searchTerm,
-      PostAnswer: "This is a mock result",
-      PostLikes: 0,
+      PostPrompt: "This is a mock prompt",
+      PostAnswer: [
+        { id: "1", title: "test", artist: "artist", lyrics: "lyrics" },
+        { id: "2", title: "prueba", artist: "artista", lyrics: "letra" },
+      ],
+      PostLikes: 1,
       hasBeenPosted: true,
     }));
     setResults(mockResults);

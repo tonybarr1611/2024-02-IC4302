@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { Button, Card, Col, Container, Form, Row } from "react-bootstrap";
-import { ToastContainer } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import { EyeFill, EyeSlashFill, PersonPlus } from "react-bootstrap-icons";
 import "./Register.css";
 import { Link } from "react-router-dom";
+import { sendRegister } from "../APICalls";
 
 // Define the shape of the registration details object
 interface RegistrationDetails {
@@ -30,9 +31,28 @@ function Register(): React.JSX.Element {
     setShowPassword(!showPassword);
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    console.log("Register");
+    const response = await sendRegister(
+      details.name,
+      details.username,
+      details.email,
+      details.password
+    );
+
+    if (response.result === "error") {
+      toast.error("Registration failed", {
+        autoClose: 1500,
+        theme: "colored",
+      });
+      setDetails({ name: "", username: "", email: "", password: "" });
+    } else {
+      toast.success("Registered successfully", {
+        autoClose: 1500,
+        theme: "colored",
+      });
+      window.location.href = "/home";
+    }
   };
 
   return (

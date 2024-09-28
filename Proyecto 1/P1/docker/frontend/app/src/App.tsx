@@ -6,6 +6,8 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./Home/Home";
 import Register from "./Login/Register";
 
+const API_URL = "http://localhost:31000";
+
 function App() {
   return (
     <div className="background">
@@ -20,4 +22,5 @@ function App() {
   );
 }
 
+export { API_URL };
 export default App;

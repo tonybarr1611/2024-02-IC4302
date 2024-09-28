@@ -199,7 +199,6 @@ initdbScripts:
         user_id INT NOT NULL,
         likes INT NOT NULL,
         prompt VARCHAR(255) NOT NULL,
-        answer VARCHAR(512) NOT NULL,
         created_at DATETIME NOT NULL,
         updated_at DATETIME NOT NULL,
         FOREIGN KEY (user_id) REFERENCES users(user_id)

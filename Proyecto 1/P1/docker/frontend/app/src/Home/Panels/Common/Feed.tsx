@@ -1,23 +1,18 @@
 import { useEffect, useState } from "react";
 import Post, { PostProps } from "./Post";
+import { getFeed } from "../../../APICalls";
 
 function Feed(): JSX.Element {
   const [posts, setPosts] = useState<PostProps[]>([]);
 
-  const fillPostsWithMockData = () => {
-    const mockResults: PostProps[] = Array.from({ length: 20 }, () => ({
-      PostUser: "MockUser",
-      PostTime: new Date().toISOString(),
-      PostPrompt: "This is a mock prompt",
-      PostAnswer: "This is a mock result",
-      PostLikes: 1,
-      hasBeenPosted: true,
-    }));
-    setPosts(mockResults);
-  };
   useEffect(() => {
-    fillPostsWithMockData();
+    const fetchData = async () => {
+      const data = await getFeed();
+      setPosts(data);
+    };
+    fetchData();
   }, []);
+
   return (
     <div className="panel">
       <h1>Feed</h1>
@@ -26,12 +21,14 @@ function Feed(): JSX.Element {
         <div className="mt-1">
           <Post
             key={index}
+            PostID={post.PostID}
             PostUser={post.PostUser}
             PostTime={post.PostTime}
             PostPrompt={post.PostPrompt}
             PostAnswer={post.PostAnswer}
             PostLikes={post.PostLikes}
             hasBeenPosted={post.hasBeenPosted}
+            hasUserLiked={post.hasUserLiked}
           />
         </div>
       ))}
