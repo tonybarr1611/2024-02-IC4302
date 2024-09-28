@@ -1,7 +1,6 @@
 import os
 import sys
 import csv
-import time
 import pika
 import boto3
 import mariadb
@@ -9,27 +8,27 @@ import logging
 import requests
 import datetime
 from io import StringIO
-from elasticsearch.helpers import bulk
 from elasticsearch import Elasticsearch
 from prometheus_client import Counter, Histogram, start_http_server
 
+# Variables
 XPATH=os.getenv('XPATH')
 DATA=os.getenv('DATAFROMK8S')
 
 RABBIT_MQ=os.getenv('RABBITMQ')
-RABBIT_MQ_PASSWORD=os.getenv('RABBITMQ_PASS')
 QUEUE_NAME=os.getenv('RABBITMQ_QUEUE')
+RABBIT_MQ_PASSWORD=os.getenv('RABBITMQ_PASS')
 
-MARIADB_USER = os.getenv('MARIADB_USER')
-MARIADB_PASS = os.getenv('MARIADB_PASS')
 MARIADB = os.getenv('MARIADB')
 MARIADB_DB = os.getenv('MARIADB_DB')
+MARIADB_USER = os.getenv('MARIADB_USER')
+MARIADB_PASS = os.getenv('MARIADB_PASS')
 MARIADB_TABLE = os.getenv('MARIADB_TABLE')
 
-AWS_ACCESS_KEY = os.getenv('AWS_ACCESS_KEY')
-AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
 S3_BUCKET = os.getenv('S3_BUCKET')
 S3_KEY_PREFIX = os.getenv('S3_KEY_PREFIX')
+AWS_ACCESS_KEY = os.getenv('AWS_ACCESS_KEY')
+AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
 
 ELASTIC_URL = os.getenv('ELASTIC')
 ELASTIC_USER = os.getenv('ELASTIC_USER')
@@ -38,12 +37,9 @@ ELASTIC_INDEX_NAME = os.getenv('ELASTIC_INDEX_NAME')
 
 HUGGING_FACE_API = os.getenv('HUGGING_FACE_API')
 
-
-
+# Prometheus
 object_processing_time = Histogram('object_processing_time_seconds', 'Time taken to process an object', buckets=[0.01, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 2, 5, 10, 30, 60, 120, 300])
-
 row_processing_time = Histogram('row_processing_time_seconds', 'Time taken to process a row', buckets=[0.01, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 2, 5, 10, 30, 60, 120, 300])
-
 
 objects_processed = Counter('objects_processed', 'Cantidad de objetos procesados')
 rows_processed = Counter('rows_processed', 'Cantidad de filas procesados')
@@ -240,8 +236,7 @@ def callback(ch, method, properties, body):
     else:
         logger.info(f"{key} already processed")
 
-
-start_http_server(8000)
+start_http_server(9100)
 credentials = pika.PlainCredentials('user', RABBIT_MQ_PASSWORD)
 parameters = pika.ConnectionParameters(host=RABBIT_MQ, credentials=credentials) 
 connection = pika.BlockingConnection(parameters)
@@ -249,5 +244,5 @@ channel = connection.channel()
 channel.queue_declare(queue=QUEUE_NAME)
 channel.basic_consume(queue=QUEUE_NAME, on_message_callback=callback, auto_ack=True)
 channel.basic_publish(exchange='', routing_key=QUEUE_NAME, body='part-00075-77fbec1f-53bd-48e0-9790-c733ee82f211-c000.csv')
-print(' [*] Waiting for messages. To exit press CTRL+C')
+logger.info("Ingest waiting for messages")
 channel.start_consuming()

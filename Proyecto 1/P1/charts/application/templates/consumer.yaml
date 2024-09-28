@@ -75,3 +75,41 @@ spec:
             value: 'songs'
           - name: HUGGING_FACE_API
             value: "http://huggingfaceapi:5000/"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ingest
+  namespace: default
+  labels:                                                                   
+    app: ingest
+spec:
+  ports:
+    - name: metrics
+      protocol: TCP
+      port: 9100
+      targetPort: 9100  
+  selector:
+    app: ingest
+  type: NodePort
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ingest-monitor
+  labels:
+    app: ingest
+  namespace: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: ingest
+  endpoints:
+  - port: metrics
+    path: metrics
+    interval: 15s
+  namespaceSelector:
+    matchNames:
+    - default
