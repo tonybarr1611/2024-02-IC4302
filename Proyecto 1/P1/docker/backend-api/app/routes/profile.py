@@ -18,14 +18,10 @@ def profile():
     if not user_id: return jsonify(errResult)
     
     # Get the user's information
-    user = executeQuery(f"SELECT * FROM users WHERE user_id = {user_id}")
+    user = executeQuery(f"SELECT user_id, name, username, biography, friends FROM users WHERE user_id = {user_id}")
     
     # Get the user's posts
-    posts = executeQuery(f"SELECT * FROM prompts WHERE user_id = {user_id}")
-    
-    # Add a field 'answer' to each post by sending it to the function encode_prompt
-    for post in posts:
-        post['answer'] = processPrompt(post['prompt'])
+    posts = executeQuery(f"SELECT P.prompt_id, U.username, P.likes, P.prompt, P.created_at FROM prompts P LEFT JOIN users U on P.user_id = U.user_id WHERE P.user_id = {user_id} ORDER BY P.created_at DESC")
     
     return jsonify({
         'user': user,

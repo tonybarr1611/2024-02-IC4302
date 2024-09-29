@@ -20,6 +20,11 @@ interface PromptResponse {
   lyrics: string;
 }
 
+interface ProfileResponse {
+  user: FriendProps;
+  posts: PostProps[];
+}
+
 async function sendLogin(
   email: string,
   password: string
@@ -226,17 +231,13 @@ async function findFriends(findQuery: string): Promise<FriendProps[]> {
     query: findQuery,
   });
 
-  console.log(response.data.posts);
   const data = mapFriendToFriendProps(response.data.users);
   // Filter out user's own profile
   const filteredData = data.filter((friend) => {
     return friend.id.toString() !== localStorage.getItem("user_id");
   });
 
-  console.log(filteredData);
   const friends = await checkFriendship(filteredData);
-
-  console.log(friends);
 
   return friends;
 }
@@ -253,6 +254,38 @@ async function getFriends(): Promise<FriendProps[]> {
   return friends;
 }
 
+async function getProfile(): Promise<ProfileResponse> {
+  const url = `${API_URL}/profile`;
+  const response = await axios.post(url, {
+    user_id: localStorage.getItem("user_id"),
+  });
+
+  const user = mapFriendToFriendProps(response.data.user)[0];
+  user.isSelf = true;
+
+  const posts = mapPostToPostProps(response.data.posts);
+  const postsWithAnswers = await fillPostsWithAnswers(posts);
+
+  return {
+    user: user,
+    posts: postsWithAnswers,
+  };
+}
+
+async function deletePost(post_id: string): Promise<StandardResponse> {
+  const url = `${API_URL}/deletePrompt`;
+  try {
+    const response = await axios.post(url, {
+      prompt_id: post_id,
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    return { result: "error" };
+  }
+}
+
 export type { PromptResponse };
 export {
   sendLogin,
@@ -265,4 +298,6 @@ export {
   followUser,
   findFriends,
   getFriends,
+  getProfile,
+  deletePost,
 };

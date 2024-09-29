@@ -178,6 +178,8 @@ def deletePrompt():
     
     if not prompt_id: return jsonify(errResult)
     
+    # Delete likes associated with the prompt to avoid foreign key constraint
+    executeQuery(f"DELETE FROM likes WHERE prompt_id = {prompt_id}")
     # Delete the prompt
     executeQuery(f"DELETE FROM prompts WHERE prompt_id = {prompt_id}")
     
