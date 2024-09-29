@@ -172,6 +172,51 @@ initdbScripts:
         processed_at DATETIME NOT NULL
     );
 
+    CREATE TABLE IF NOT EXISTS users (
+        user_id INT PRIMARY KEY AUTO_INCREMENT,
+        name VARCHAR(255) NOT NULL,
+        username VARCHAR(255) NOT NULL,
+        password VARCHAR(255) NOT NULL,
+        friends INT NOT NULL,
+        email VARCHAR(255) NOT NULL,
+        biography VARCHAR(512) NOT NULL,
+        created_at DATETIME NOT NULL,
+        updated_at DATETIME NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS friends (
+        friend_id INT PRIMARY KEY AUTO_INCREMENT,
+        user_id INT NOT NULL,
+        friend_user_id INT NOT NULL,
+        created_at DATETIME NOT NULL,
+        updated_at DATETIME NOT NULL,
+        FOREIGN KEY (user_id) REFERENCES users(user_id),
+        FOREIGN KEY (friend_user_id) REFERENCES users(user_id)
+    );
+
+    CREATE TABLE IF NOT EXISTS prompts (
+        prompt_id INT PRIMARY KEY AUTO_INCREMENT,
+        user_id INT NOT NULL,
+        likes INT NOT NULL,
+        prompt VARCHAR(255) NOT NULL,
+        answer VARCHAR(512) NOT NULL,
+        created_at DATETIME NOT NULL,
+        updated_at DATETIME NOT NULL,
+        FOREIGN KEY (user_id) REFERENCES users(user_id)
+    );
+
+    CREATE TABLE IF NOT EXISTS likes (
+        like_id INT PRIMARY KEY AUTO_INCREMENT,
+        user_id INT NOT NULL,
+        prompt_id INT NOT NULL,
+        created_at DATETIME NOT NULL,
+        FOREIGN KEY (user_id) REFERENCES users(user_id),
+        FOREIGN KEY (prompt_id) REFERENCES prompts(prompt_id)
+    );
+
+
+    
+
 
 
 ## @section MariaDB Primary parameters

@@ -1,5 +1,6 @@
 config:
-  docker_registry: pavelca04
+  docker_registry: tonybarr16
+
   access_key: AKIAQ2VOGXQDTWAX4PUY
   secret_key: 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
   bucket: 2024-02-ic4302-gr1

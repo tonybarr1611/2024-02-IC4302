@@ -1,24 +1,29 @@
-.leftText{
+.leftText {
     text-align: left;
 }
 
-.container-login {
+.container-register {
     height: 94vh;
     width: 100%;
 }
 
-.card-login {
+.card-register {
     width: 26rem;
-    height: 40%;
+    height: 55%;
     display: flex;
     background-color: var(--light_background);
 }
 
-.icon-login {
+.icon-register {
     color: #1A485B;
 }
 
-.guest-login {
+.register-button {
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.guest-register {
     color: #e3deec;
     cursor: pointer;
 }

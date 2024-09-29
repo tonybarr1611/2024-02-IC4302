@@ -18,4 +18,4 @@ spec:
       - name: {{ .Values.config.frontend.name }}
         image: {{ .Values.config.docker_registry }}/{{ .Values.config.frontend.image }}
         ports:
-          - containerPort: 80   # Correct indentation for the ports field
+          - containerPort: 80 

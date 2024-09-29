@@ -1,10 +1,12 @@
 # Proyecto 1 - IC4302 Bases de Datos II
 
 ## Introduction
-Following you can find the documentation for the 'Proyecto 1' of the course IC4302 - Databases II. 
-This project assignment for the Databases II course involves developing an application that interacts with multiple database systems, including MariaDB, and Elasticsearch. The application is designed to load a dataset into these databases and expose consistent API endpoints for querying the data, regardless of the underlying database technology. To optimize performance, the application includes caching capabilities using Memcached, and it is instrumented with Prometheus to monitor key metrics such as HTTP request counts, query response times, and cache efficiency.
+Following is the documentation for 'Proyecto 1' of the course IC4302 - Databases II.
+This project assignment focuses on developing an application that integrates multiple technologies, including MariaDB, Elasticsearch, RabbitMQ, and the Hugging Face API. The application is designed to handle various tasks such as loading and processing datasets, generating text embeddings, and interacting with these databases. To optimize performance, the system includes caching using Memcached, and it is instrumented with Prometheus to monitor critical metrics such as HTTP request counts, query response times, object processing times, and cache efficiency.
 
-The application is deployed in a Kubernetes environment using Helm Charts, ensuring scalability and manageability. Docker images are created to package only the necessary components, depending on the specific database interactions and caching mechanisms. To evaluate the performance under different conditions, load tests are conducted using Gatling, which measures the system's behavior in terms of resource usage and query performance. The results of these tests and the metris provided can be visualized using Grafana dashboards, which display key performance indicators and help identify bottlenecks or areas for optimization. In conclusion, this project provides hands-on experience in integrating diverse technologies, deploying containerized applications, and optimizing performance in a real-world scenario.
+The application is deployed in a Kubernetes environment using Helm Charts, ensuring scalability, manageability, and observability. Each component is containerized using Docker, packaging only the necessary dependencies and database interactions. For performance evaluation, the system collects Prometheus metrics and displays them on Grafana dashboards, enabling real-time monitoring and analysis of the system's performance under different workloads.
+
+Additionally, a React-based UI is implemented, allowing users to interact with the system in a user-friendly way. The UI supports functionality such as user registration and login, submitting prompts to query songs using vector search on Elasticsearch, and interacting with friends through a social feed. Users can search for song-related prompts, follow friends, and manage their profiles and posts. The UI is deployed as a Kubernetes Deployment and exposed via NodePort for external access. The UI interacts with the backend API to perform various tasks, such as querying the database, processing text, and caching results.
 
 ## Team Members
 - Victor Aymerich
@@ -63,7 +65,7 @@ cd ./TC1/charts
 ./install.sh
 ```
 
-Here we are installing the components in the Kubernetes cluster. The script will install the database, the API, the cache, and the monitoring components. It is important to have the DockerHub username set correctly in the script to ensure the correct components are installed.
+Here we are installing the components in the Kubernetes cluster. The script will install the databases, the API, the cache, the backend and fronted, plus the monitoring components. It is important to have the DockerHub username set correctly in the script to ensure the correct components are installed.
 
 ### Uninstall
 
@@ -90,27 +92,20 @@ In case you need to access the debug pod to check the logs or execute some comma
 # How to Test
 
 To test the whole project together, you can follow the next steps:
-First you need to do the build and install steps, in this time you have to choose the flasks that will be used for this you have to change in TC1\charts\app\values.yaml  , after that to verify that the project is working correctly you can follow the next steps:
+First you need to do the build and install steps, in this time you have to choose the components that will be used for this you have to change in TC1\charts\app\values.yaml, after that to verify that the project is working correctly you can follow the next steps:
 
-- Check Docker images are running, you can check this in the Docker Desktop application.
-In this area it is important to check the different images, you can check the logs of the images to see if there are any errors. You should check the logs of the FlaskApp, the MariaDB, Memcached, Prometheus, and Grafana images.
-
-
-Atter that you can check in Lens that the pods are running correctly, here you can check the logs of the pods to see if there are any errors and the status of the pods.
+- Check Docker images are running, you can check this in the Docker Desktop application. In this area it is important to check the different images, you can check the logs of the images to see if there are any errors. You should check the logs of the S3 Crawler, Backend API, Hugging Face API, Ingest, the MariaDB, Memcached, Prometheus, and Grafana images. You can check the logs of the images by clicking on the image and then clicking on the logs button. Y
 
 
+- After that you can check in Lens that the pods are running correctly, here you can check the logs of the pods to see if there are any errors and the status of the pods.
 
 
-Once you have checked all the logs and the data is being processed correctly, you can consider to go to Grafana to see the metrics of the project. To do this you should forward the port of the Grafana service called **grafana-deployment-6d4544597-stfnn** to you local machine. From here you can access the Grafana dashboards by going to http://localhost: (Port you decide) and logging in with the credentials **admin** and the password found in the GF_SECURITY_ADMIN_PASSWORD variable which can be found while observing the logs of the Grafana pod.
+- Once you have checked all the logs and the data is being processed correctly, you can consider to go to Grafana to see the metrics of the project. To do this you should forward the port of the Grafana service called **grafana-deployment** to you local machine. From here you can access the Grafana dashboards by going to http://localhost: (Port you decide) and logging in with the credentials **admin** and the password found in the GF_SECURITY_ADMIN_PASSWORD variable which can be found while observing the logs of the Grafana pod.
 
 
+- Once you enter Grafana, you can see various dashboards displaying metrics for different components of the project. The databases being monitored include MariaDB, Elasticsearch, and Memcached, all of which are critical to the system's performance. These metrics provide insights into the behavior and efficiency of the databases and caching systems. Additionally, each of the Python components, such as the Hugging Face API, S3 Crawler, Backend API and Ingest service, have dedicated dashboards that track their respective metrics. These include the number of requests, object processing times, and error rates, providing full visibility into how each part of the system is functioning. This allows for thorough monitoring of all the critical processes in real time. These metrics are made possible by Prometheus, which continuously scrapes data from the components, stores it in its internal database, and then feeds this information to Grafana for visualization. Monitoring is a crucial part of this project, as it helps identify potential bottlenecks and areas for optimization, offering a real-time overview of the system's performance.
 
-Once you enter Grafana you can see the different dashboards that are available, you can see the metrics of the different monitored databases, these databases are MariaDB, and Elasticsearch, plus Memcached. These metrics are important to see the performance of the databases and the cache systems. You can also see the metrics of the Flask API, which is the main component of the project. The metrics are all available due to the Prometheus component that is monitoring the different components of the project. Prometheus is scraping the metrics of the different components and storing them in its database, which is then used by Grafana to display the metrics in the dashboards. This is a very important part of the project as it allows you to see the performance of the different components and see if there are any bottlenecks or areas that need to be optimized. Together all these components allow you to have a complete overview of the project and see how it is performing in real time.
-
-
-
-To test correctly all this databases we use gatling, a load testing tool that is used to simulate user behavior and measure the performance of the application under different conditions, in this case we have 4 different tests, check the gatling README in case you want to learn more about them. To start this gatling tests you just need to go to the gatling folder, open src\test\java and then run the engine.java aplication, for this you need to especifically have the java version 17 which you can download in the following link https://www.oracle.com/uk/java/technologies/downloads/. After running it the test will automatically start since there are no other configurations inside the folder.   
-
+- The frontend is also available for testing, you can access it by forwarding the port of the frontend service called **frontend-deployment** to your local machine. From here you can access the frontend by going to http://localhost: (Port you decide) and interact with the UI. The frontend provides a user-friendly interface for users to interact with the system, including features such as user registration, login, and social feed. Users can submit prompts to query songs using vector search on Elasticsearch, follow friends, and manage their profiles and posts. The frontend interacts with the backend API to perform various tasks, such as querying the database, processing text, and caching results. 
 
 # Recommendations and Conclusions
 
@@ -162,7 +157,7 @@ To successfully complete the project, the following recommendations are provided
     - **Recommendation**: Learn how to use Grafana to visualize the metrics of the different components of the project.
     - **Reason**: Grafana is a key component of the project as it allows you to see the metrics of the different components and see how they are performing in real time.
 
-12. **Understand the Cache Systems**
+12. **Understand Memcached**
     - **Recommendation**: Learn how to use Memcached, which is used as a cache system in the project.
     - **Reason**: Understanding how to use Memcached will help you cache data and understand how it impacts the performance of the application.
   
@@ -198,7 +193,31 @@ To successfully complete the project, the following recommendations are provided
 
 # Components
 
-## API
+## Databases:
+
+The databases used in the project are MariaDB and ElasticSearch. These databases are widely used in the industry and offer features for storing and managing data. 
+
+MariaDB is a popular open-source relational database management system that is compatible with MySQL. It provides excellent performance, scalability, and reliability. MariaDB ensures data integrity and consistency. It also offers advanced features such as replication, clustering, and high availability, making it suitable for handling large volumes of data.
+
+Elasticsearch is also a popular NoSQL database that is used for full-text search and analytics. It is designed for real-time search and analysis of large volumes of data. It offers features like full-text search, aggregations, and spatial search, making it suitable for handling complex data structures and performing advanced queries.
+
+MariaDB is well-suited for handling complex data structures and performing complex queries. They offer strong data consistency, reliability, and security. The choice between the two databases depends on specific project requirements, familiarity with the technology, and the need for specific features or compatibility with existing systems. On the other hand, Elasticsearch is ideal for full-text search and analytics, providing fast and scalable search capabilities for large volumes of data.
+
+Overall, the combination of MariaDB and ElasticSearch in this project ensures efficient and reliable data storage and retrieval, enabling the application to handle large amounts of data effectively.
+
+The structure of the databases is designed to store data related to songs, users, and objects. The MariaDB database stores user information and object data, while the Elasticsearch database stores song titles, artists, and lyrics. 
+
+MariaDB has the following tables:
+
+# ADD TABLES
+
+## Data Loading Scripts:
+
+As mentioned before, Elasticsearch and MariaDB are populated with certain data each. Elasticsearch is populated with songs and MariaDB is populated with Users and Objects data. The data inserting scripts are written in Python and use the Elasticsearch and MariaDB Python libraries to interact with the databases. Elasticsearch is populated with song data, which includes song titles, artists, and lyrics, allowing for efficient retrieval and search capabilities. In contrast, MariaDB is populated with user and object data, such as login information, user profiles, and object details.The scripts encharge of loading the data into the databases are optimized to handle large volumes of data efficiently, ensuring data integrity throughout the loading process. The scripts help assure that both databases are populated with the necessary data for the application to function correctly.
+
+## S3 Crawler: 
+
+## Hugging Face API: (MODIFY)
 
 The API developed in Flask allows users to access Formula 1 data stored in MariaDB databases. Routes are built that execute SQL queries on various tables related to races, drivers, teams, circuits, and Formula 1 events. The main routes include:
 
@@ -217,40 +236,13 @@ The API developed in Flask allows users to access Formula 1 data stored in Maria
 /driver/<int:id>/total_races: Returns the total number of races a specific driver has participated in.
 /driver/<int:id>/pitstops: Details the pit stops of a driver in different races.
 
-## Databases:
+## Ingest:
 
-The databases used in the project are MariaDB and ElasticSearch. These databases are widely used in the industry and offer features for storing and managing data. 
+The Ingest application is a Python component responsible for processing data from RabbitMQ messages. When it receives a message, it first checks MariaDB to see if the object has been previously processed; if so, the message is ignored. If the object is new, it downloads the data from an S3 bucket and processes it as a CSV file. For each row in the CSV, an embedding for the “lyrics” field is generated using the Hugging Face API and added to each row as a new field named “embeddings,” formatted as a dense vector for Elasticsearch. The document, including the embeddings, is then added to Elasticsearch in the index named “songs,” and MariaDB is updated to indicate that the object has been processed. This application runs as a Kubernetes deployment and all necessary configurations are injected as environment variables. Additionally, it exposes various metrics for Prometheus monitoring, including the maximum, minimum, and average processing times for both objects and rows, as well as the total number of objects and rows processed, and the number of rows with errors.The ingest is a critical component of the project, as it processes incoming data from RabbitMQ messages, generates embeddings for the lyrics field using the Hugging Face API, and updates the data in both Elasticsearch and MariaDB. The ingest ensures that new data is processed efficiently and accurately, enabling users to search and retrieve song data effectively. 
 
-MariaDB is a popular open-source relational database management system that is compatible with MySQL. It provides excellent performance, scalability, and reliability. MariaDB ensures data integrity and consistency. It also offers advanced features such as replication, clustering, and high availability, making it suitable for handling large volumes of data.
+## Backend API:
 
-Elasticsearch is also a popular NoSQL database that is used for full-text search and analytics. It is designed for real-time search and analysis of large volumes of data. It offers features like full-text search, aggregations, and spatial search, making it suitable for handling complex data structures and performing advanced queries.
-
-MariaDB is well-suited for handling complex data structures and performing complex queries. They offer strong data consistency, reliability, and security. The choice between the two databases depends on specific project requirements, familiarity with the technology, and the need for specific features or compatibility with existing systems. On the other hand, Elasticsearch is ideal for full-text search and analytics, providing fast and scalable search capabilities for large volumes of data.
-
-Overall, the combination of MariaDB and ElasticSearch in this homework ensures efficient and reliable data storage and retrieval, enabling the application to handle large amounts of data effectively.
-
-The structure of the databases is designed to store historical Formula 1 data. The database consists of several tables related to each other through foreign keys, allowing for queries between the data. The main tables are:
-
-1. CIRCUIT: Contains information about the circuits where the races take place, such as geographical location and name.
-
-2. CONSTRUCTOR, DRIVER: Store detailed information about the teams and drivers who have participated in F1 seasons, including their nationality and name.
-
-3. RACE, RESULT: Include details of each race, such as date, circuit, and results for each driver, along with the corresponding constructor, rankings, times, and points earned.
-
-4. LAP_TIME, PIT_STOP: The tables store information about the lap times of each driver and the details of pit stops during races.
-
-5. DRIVER_STANDING, CONSTRUCTOR_STANDING: The standings tables record the points earned by drivers and constructors during each race and season.
-
-## Data Loading Scripts:
-
-Each table in the database is loaded with historical data through CSV files that contain information about Formula 1. 
-
-## Gatling
-
-Gatling is an open-source load testing tool that is used to simulate user behavior and measure the performance of the application under different conditions. Gatling allows users to create scenarios that simulate real-world user interactions, such as browsing web pages, submitting forms, and making API requests. It generates load on the system by sending multiple requests concurrently and measures the response times, throughput, and error rates. Gatling provides detailed reports and metrics that help users analyze the performance of the application and identify bottlenecks or areas for optimization. In this project, Gatling is used to test the performance of the API under varying loads and analyze the system's behavior in terms of resource usage and query performance. The load tests are designed to simulate different scenarios, such as multiple users accessing the API simultaneously, querying large datasets, and performing complex operations. The results of the load tests are used to evaluate the performance of the application and identify areas that need improvement. Gatling is configured to run load tests against the API and measure key metrics, such as response times, throughput, and error rates. The load tests are executed in a controlled environment, allowing users to analyze the impact of different loads on the system and make informed decisions based on the data.
-
-
-If you want to know more about the gatling configuration of this project it is recommended to check the README inside the gatling folder.
+## UI:
 
 ## Prometheus
 
@@ -260,7 +252,7 @@ Prometheus is an open-source monitoring and alerting software that is used to co
 
 Grafana is an open-source analytics and monitoring platform that is used to visualize the metrics collected by Prometheus. Grafana provides a user-friendly interface to create dashboards and panels that display the metrics in a visually appealing way. It offers a wide range of visualization options, such as graphs, tables, and gauges, allowing users to customize the dashboards according to their needs. Grafana supports various data sources, including Prometheus, Elasticsearch, and InfluxDB, making it versatile for monitoring different systems. In this project, Grafana is used to create dashboards that display the metrics of the different components, such as databases, API and  cache systems. The dashboards provide insights into the performance and health of the system, allowing users to identify bottlenecks, anomalies, or areas for optimization. Grafana is configured to connect to Prometheus as a data source, enabling it to retrieve the metrics stored in the Prometheus database and visualize them in the dashboards. The dashboards are designed to display key performance indicators, such as HTTP request counts, query response times, cache efficiency, and resource usage, helping users monitor the system in real time and make informed decisions based on the data.
 
-In this homework, talking specifically about Grafana we can find six main dashboards, which are:
+In this project, talking specifically about Grafana we can find seven main dashboards, which are:
 
 - **MariaDB Dashboard:** This dashboard provides a comprehensive view of MariaDB's performance and health. It tracks various metrics, helping users monitor database activity, identify potential bottlenecks, and optimize overall efficiency.
 
@@ -268,7 +260,13 @@ In this homework, talking specifically about Grafana we can find six main dashbo
 
 - **Memcached Dashboard:** Focused on the health of the Memcached system, this dashboard offers a variety of performance metrics, enabling users to monitor and enhance caching effectiveness.
 
-- **Flask API Dashboard:** This dashboard gives an overview of the Flask API's performance by tracking multiple key metrics like average response time, request count, and cache efficiency by collecting cache misses and hits. This helps users identify performance bottlenecks and optimize API response times.
+- **Hugging Face API Dashboard:** This dashboard provides a detailed view of the Hugging Face API's performance, including request count and maximum, minimum, and average embedding generation time.
+
+- **S3 Crawler Dashboard:** This dashboard tracks the performance of the S3 Crawler, displaying metrics such as total processing time and objects processed. 
+
+- **Backend API Dashboard:** This dashboard offers insights into the Backend API's performance, including cache hits, cache misses, maximum, minimum, and average request processing time, and total request count per endpoint.
+
+- **Ingest Service Dashboard:** This dashboard provides a detailed view of the Ingest Service's performance, including object and row processing times, request counts, and error rates.
 
 ## Tests
 
