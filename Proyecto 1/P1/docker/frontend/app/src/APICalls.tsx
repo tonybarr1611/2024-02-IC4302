@@ -307,6 +307,24 @@ async function updateProfile(
   }
 }
 
+async function updatePost(
+  post_id: string,
+  prompt: string
+): Promise<StandardResponse> {
+  const url = `${API_URL}/editPrompt`;
+  try {
+    const response = await axios.post(url, {
+      prompt_id: post_id,
+      prompt: prompt,
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    return { result: "error" };
+  }
+}
+
 export type { PromptResponse };
 export {
   sendLogin,
@@ -322,4 +340,5 @@ export {
   getProfile,
   deletePost,
   updateProfile,
+  updatePost,
 };

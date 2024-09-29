@@ -3,6 +3,7 @@ import { Button, Card } from "react-bootstrap";
 import {
   PersonCircle,
   PersonAdd,
+  PersonDash,
   PersonFillAdd,
   Pencil,
 } from "react-bootstrap-icons";
@@ -26,14 +27,17 @@ function Friend(FriendProp: FriendProps): JSX.Element {
 
   const handleFollow = async () => {
     const response = await followUser(FriendProp.id);
-    console.log(response);
-    console.log(response.result);
     if (response.result === "error") {
       return;
     } else {
       setFollow(response.doesFollow);
       setFriends(response.friends);
     }
+  };
+
+  const handleSignOut = () => {
+    localStorage.clear();
+    window.location.assign("/");
   };
 
   const handleEdit = () => {
@@ -70,6 +74,9 @@ function Friend(FriendProp: FriendProps): JSX.Element {
             <div className="ml-auto">
               <Button variant="link" onClick={handleEdit}>
                 <Pencil color="#FFFFFF" size={28} />
+              </Button>
+              <Button variant="link" onClick={handleSignOut}>
+                <PersonDash color="#FFFFFF" size={28} />
               </Button>
               <EditProfileModal
                 curr_name={FriendProp.name}

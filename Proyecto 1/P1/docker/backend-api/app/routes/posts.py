@@ -36,7 +36,7 @@ def feed():
     print(friends_str)
     
     # Get the posts from the user's friends
-    posts = executeQuery(f"SELECT P.prompt_id, U.username, P.likes, P.prompt, P.created_at FROM prompts P LEFT JOIN users U on P.user_id = U.user_id WHERE P.user_id IN ({friends_str}) ORDER BY P.created_at DESC")
+    posts = executeQuery(f"SELECT P.prompt_id, U.username, P.likes, P.prompt, P.updated_at FROM prompts P LEFT JOIN users U on P.user_id = U.user_id WHERE P.user_id IN ({friends_str}) ORDER BY P.created_at DESC")
     
     # Return the posts
     return jsonify({
@@ -61,7 +61,7 @@ def search():
     user_ids_str = ','.join(user_ids) if user_ids else 'NULL'
     
     # Get the posts that match the query or are from the matching users
-    posts = executeQuery(f"SELECT P.prompt_id, U.username, P.likes, P.prompt, P.created_at FROM prompts P LEFT JOIN users U on P.user_id = U.user_id WHERE P.prompt LIKE '%{query}%' OR P.user_id IN ({user_ids_str})")
+    posts = executeQuery(f"SELECT P.prompt_id, U.username, P.likes, P.prompt, P.updated_at FROM prompts P LEFT JOIN users U on P.user_id = U.user_id WHERE P.prompt LIKE '%{query}%' OR P.user_id IN ({user_ids_str})")
     
     # Return the posts
     return jsonify({

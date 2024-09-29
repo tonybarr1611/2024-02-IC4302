@@ -1,14 +1,31 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "react-bootstrap";
 import "./Panels.css";
 import Post from "./Common/Post";
 import { ToastContainer, toast } from "react-toastify";
-import { PromptResponse, askPrompt, sendPost } from "../../APICalls";
+import {
+  PromptResponse,
+  askPrompt,
+  sendPost,
+  updatePost,
+} from "../../APICalls";
 
-function Ask(): JSX.Element {
+interface AskProps {
+  id?: string;
+  curr_prompt?: string;
+}
+
+function Ask({ id, curr_prompt }: AskProps): JSX.Element {
   const [hasAsked, setHasAsked] = useState(false);
   const [prompt, setPrompt] = useState("");
   const [answer, setAnswer] = useState<PromptResponse[]>([]);
+
+  useEffect(() => {
+    if (id && curr_prompt) {
+      setHasAsked(true);
+      setPrompt(curr_prompt);
+    }
+  }, []);
 
   const handleAsk = async () => {
     setHasAsked(true);
@@ -39,10 +56,28 @@ function Ask(): JSX.Element {
     }
   };
 
+  const handleUpdate = async () => {
+    const response = await updatePost(id || "", prompt);
+    if (response.result === "error") {
+      toast.error("Update failed", {
+        autoClose: 1500,
+        theme: "colored",
+      });
+    } else {
+      toast.success("Updated successfully!");
+      window.location.assign("/home/profile");
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setPrompt(e.target.value);
+    setHasAsked(false);
+  };
+
   return (
     <div className="panel">
       <ToastContainer position="top-right" />
-      <h1>Ask PrompTunes</h1>
+      {id && curr_prompt ? <h1>Edit your prompt</h1> : <h1>Ask PrompTunes</h1>}
       <p className="subtitles">We will give you a song based on your needs!</p>
       <form className="width-full">
         <label className="mt-4">
@@ -55,7 +90,7 @@ function Ask(): JSX.Element {
           rows={3}
           className="ask-input"
           value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
+          onChange={handleChange}
         />
         <Button variant="primary" className="w-100 mb-3" onClick={handleAsk}>
           Ask!
@@ -73,7 +108,7 @@ function Ask(): JSX.Element {
             <Button
               variant="primary"
               className="w-100 mb-3"
-              onClick={handlePost}
+              onClick={id ? handleUpdate : handlePost}
             >
               Post!
             </Button>
@@ -83,5 +118,7 @@ function Ask(): JSX.Element {
     </div>
   );
 }
+
+export type { AskProps };
 
 export default Ask;

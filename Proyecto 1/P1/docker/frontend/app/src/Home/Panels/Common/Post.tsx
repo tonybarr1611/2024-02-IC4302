@@ -10,6 +10,7 @@ import "../Panels.css";
 import { useState } from "react";
 import { deletePost, PromptResponse, sendLike } from "../../../APICalls";
 import DeletePostModal from "./DeletePostModal";
+import { useNavigate } from "react-router-dom";
 
 interface PostProps {
   PostID?: string;
@@ -37,10 +38,10 @@ function Post({
   const [hasLiked, setHasLiked] = useState(hasUserLiked || false);
   const [likes, setLikes] = useState(PostLikes);
   const [showDeletePostModal, setShowDeletePostModal] = useState(false);
-  console.log(PostID);
+
+  const navigate = useNavigate();
 
   const handleLike = async () => {
-    console.log(PostID);
     const response = await sendLike(PostID || "");
 
     if (response.result !== "error") {
@@ -50,7 +51,7 @@ function Post({
   };
 
   const handleEdit = () => {
-    console.log("edit");
+    navigate("/home/edit", { state: { id: PostID, curr_prompt: PostPrompt } });
   };
 
   const handleDelete = () => {

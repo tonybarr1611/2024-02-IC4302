@@ -7,6 +7,7 @@ import Feed from "./Panels/Common/Feed";
 import Find from "./Panels/Find";
 import Profile from "./Panels/Profile";
 import Friends from "./Panels/Friends";
+import Edit from "./Panels/Edit";
 
 function Home() {
   // Redirect to login if user_id is not set
@@ -28,6 +29,7 @@ function Home() {
             <Route path="find" element={<Find />} />
             <Route path="friends" element={<Friends />} />
             <Route path="profile" element={<Profile />} />
+            <Route path="edit" element={<Edit />} />
           </Routes>
         </div>
       </div>
