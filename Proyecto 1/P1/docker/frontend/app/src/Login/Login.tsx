@@ -2,42 +2,14 @@ import React, { useState } from "react";
 import { Button, Card, Col, Container, Form, Row } from "react-bootstrap";
 import { ToastContainer, toast } from "react-toastify";
 import { EyeFill, EyeSlashFill, PersonLock } from "react-bootstrap-icons";
-import "./Login.css";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import { sendLogin } from "../APICalls";
+import "./Login.css";
 
 // Define the shape of the credentials object
 interface Credentials {
   email: string;
   password: string;
-}
-
-interface LoginResponse {
-  result: string;
-}
-
-async function sendLogin(
-  email: string,
-  password: string
-): Promise<LoginResponse> {
-  const url = "http://localhost:31000/login";
-  try {
-    const response = await axios.post(url, {
-      email: email,
-      password: password,
-    });
-
-    if (!response.data.user_id.toString()) {
-      return { result: "error" };
-    } else {
-      localStorage.setItem("user_id", response.data.user_id.toString());
-      localStorage.setItem("email", email);
-      return response.data;
-    }
-  } catch (error) {
-    console.error(error);
-    return { result: "error" };
-  }
 }
 
 function Login(): React.JSX.Element {

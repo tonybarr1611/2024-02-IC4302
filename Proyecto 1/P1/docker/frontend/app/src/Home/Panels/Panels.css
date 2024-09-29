@@ -78,3 +78,39 @@
     display: flex;
     justify-content: space-between;
 }
+
+.dark-modal .modal-content {
+    background-color: var(--dark_background);
+    color: #FFFFFF99;
+    border-radius: 10px;
+}
+
+.btn-cancel {
+    background-color: #FFFFFF00;
+    color: #FFFFFF;
+    border: 3px solid #808080;
+}
+
+.btn-cancel:hover {
+    background-color: #808080;
+}
+
+.btn-delete {
+    background-color: #FFFFFF00;
+    color: #FFFFFF;
+    border: 3px solid #ff00004e;
+}
+
+.btn-delete:hover {
+    background-color: #ff00004e;
+}
+
+.btn-save {
+    background-color: #FFFFFF00;
+    color: #FFFFFF;
+    border: 3px solid #00ff004e;
+}
+
+.btn-save:hover {
+    background-color: #00ff004e;
+}
