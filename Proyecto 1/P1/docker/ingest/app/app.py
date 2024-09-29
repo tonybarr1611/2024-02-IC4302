@@ -229,6 +229,7 @@ def callback(ch, method, properties, body):
         for song in songsList[1:]:
             embedding = get_embeddings(song[16])
             logger.info(f"Song id: {song[0]} read.")
+
             store_embedding(song[0], song[1], song[3], embedding)
 
         mark_object_processed(key)
