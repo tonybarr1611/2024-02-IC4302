@@ -241,6 +241,18 @@ async function findFriends(findQuery: string): Promise<FriendProps[]> {
   return friends;
 }
 
+async function getFriends(): Promise<FriendProps[]> {
+  const url = `${API_URL}/friends`;
+  const response = await axios.post(url, {
+    user_id: localStorage.getItem("user_id"),
+  });
+
+  const data = mapFriendToFriendProps(response.data.profiles);
+  const friends = await checkFriendship(data);
+
+  return friends;
+}
+
 export type { PromptResponse };
 export {
   sendLogin,
@@ -252,4 +264,5 @@ export {
   search,
   followUser,
   findFriends,
+  getFriends,
 };

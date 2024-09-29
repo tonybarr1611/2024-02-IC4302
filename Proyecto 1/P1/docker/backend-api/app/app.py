@@ -280,7 +280,10 @@ def feed():
     # friends = executeQuery(f"SELECT friends FROM users WHERE user_id = {user_id}")[0]
     print(friends)
     if friends:
-        friends = list(friends[0])
+        friends_copy = friends.copy()
+        friends = []
+        for friend in friends_copy:
+            friends.append(friend[0])
     else:
         friends = []
     print(friends)
@@ -524,13 +527,13 @@ def getFriends():
     if not user_id: return jsonify(errResult)
     
     # Get the user's friends
-    friends = executeQuery(f"SELECT * FROM friends WHERE user_id = {user_id}")
+    friends = executeQuery(f"SELECT * FROM friends WHERE friend_user_id = {user_id}")
     
     profiles = []
     for friend in friends:
-        friend_user_id = friend[2]
-        profile = executeQuery(f"SELECT * FROM users WHERE user_id = {friend_user_id}")
-        profiles.append(profile)
+        friend_user_id = friend[1]
+        profile = executeQuery(f"SELECT user_id, name, username, biography, friends FROM users WHERE user_id = {friend_user_id}")
+        profiles.append(profile[0])
         
     return jsonify({
         'profiles': profiles

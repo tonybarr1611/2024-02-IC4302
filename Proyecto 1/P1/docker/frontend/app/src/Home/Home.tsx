@@ -6,11 +6,12 @@ import "./Home.css";
 import Feed from "./Panels/Common/Feed";
 import Find from "./Panels/Find";
 import Profile from "./Panels/Profile";
+import Friends from "./Panels/Friends";
 
 function Home() {
   // Redirect to login if user_id is not set
   if (localStorage.getItem("user_id") === null) {
-    window.location.href = "/login";
+    window.location.href = "/";
   }
   return (
     <div className="main-container">
@@ -25,7 +26,7 @@ function Home() {
             <Route path="ask" element={<Ask />} />
             <Route path="search" element={<Search />} />
             <Route path="find" element={<Find />} />
-            <Route path="friends" element={<h1>Friends</h1>} />
+            <Route path="friends" element={<Friends />} />
             <Route path="profile" element={<Profile />} />
           </Routes>
         </div>
