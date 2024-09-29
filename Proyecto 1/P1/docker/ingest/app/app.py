@@ -13,7 +13,6 @@ from elasticsearch.helpers import bulk
 from elasticsearch import Elasticsearch
 from prometheus_client import Counter, Histogram, start_http_server
 
-
 XPATH=os.getenv('XPATH')
 DATA=os.getenv('DATAFROMK8S')
 
@@ -54,11 +53,11 @@ rows_error = Counter('rows_error', 'Cantidad de filas con error')
 
 # Logging
 logging.basicConfig(
-    level=logging.INFO,  # Nivel de logging
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',  # Formato del mensaje
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler("application.log"),  # Guardar los logs en un archivo llamado application.log
-        logging.StreamHandler(sys.stdout)  # show logs in console
+        logging.FileHandler("application.log"),
+        logging.StreamHandler(sys.stdout)
     ]
 )
 
@@ -89,7 +88,7 @@ def find_object(bucket_name, file_name, prefix=''):
                     logger.info(f"File {file_name} found in bucket {bucket_name}")
                     logger.info(f"Key: {obj['Key']}")
                     return obj['Key']
-        print("File not found")
+        logger.warning('File not found')
         return None
     except Exception as e:
         logger.error(f"Error finding object: {e}")
@@ -203,9 +202,9 @@ def create_index_if_not_exists():
     }
     if not elastic_client.indices.exists(index=ELASTIC_INDEX_NAME):
         elastic_client.indices.create(index=ELASTIC_INDEX_NAME, body=mapping)
-        print(f"Index '{ELASTIC_INDEX_NAME}' created successfully.")
+        logger.info(f"Index '{ELASTIC_INDEX_NAME}' created successfully.")
     else:
-        print(f"Index '{ELASTIC_INDEX_NAME}' already exists.")
+        logger.warning(f"Index '{ELASTIC_INDEX_NAME}' already exists.")
 
 create_index_if_not_exists()
 
@@ -229,7 +228,8 @@ def callback(ch, method, properties, body):
 
         for song in songsList[1:]:
             embedding = get_embeddings(song[16])
-            print(f"Song id: {song[0]} read. Embeddings {embedding}")
+            logger.info(f"Song id: {song[0]} read.")
+
             store_embedding(song[0], song[1], song[3], embedding)
 
         mark_object_processed(key)
