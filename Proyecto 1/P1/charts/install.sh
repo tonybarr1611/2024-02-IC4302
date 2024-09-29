@@ -16,6 +16,7 @@ rm -rf Chart.lock
 helm dependency update
 cd ..
 helm upgrade --install databases databases
+sleep 90
 
 cd application
 rm -rf Chart.lock
