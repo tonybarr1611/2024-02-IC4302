@@ -9,6 +9,7 @@ function Profile(): JSX.Element {
         <div className="row">
           <div className="col mr-4 mb-5">
             <Friend
+              id={localStorage.getItem("userID") || "0"}
               name="Myself"
               username="MeUser"
               bio="Lorem ipsum dolor sit amet, consectetur adipiscing elit."

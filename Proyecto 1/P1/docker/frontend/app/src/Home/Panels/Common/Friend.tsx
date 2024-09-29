@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { Card } from "react-bootstrap";
 import { PersonCircle, PersonAdd, PersonFillAdd } from "react-bootstrap-icons";
+import { followUser } from "../../../APICalls";
 
 type FriendProps = {
+  id: string;
   name: string;
   username: string;
   bio: string;
@@ -11,13 +13,20 @@ type FriendProps = {
   isSelf?: boolean;
 };
 
-function Friend(props: FriendProps): JSX.Element {
-  const [follow, setFollow] = useState(props.isFriend);
-  const [friends, setFriends] = useState(props.friends);
+function Friend(FriendProp: FriendProps): JSX.Element {
+  const [follow, setFollow] = useState(FriendProp.isFriend);
+  const [friends, setFriends] = useState(FriendProp.friends);
 
-  const handleFollow = () => {
-    setFollow(!follow);
-    setFriends(follow ? friends - 1 : friends + 1);
+  const handleFollow = async () => {
+    const response = await followUser(FriendProp.id);
+    console.log(response);
+    console.log(response.result);
+    if (response.result === "error") {
+      return;
+    } else {
+      setFollow(response.doesFollow);
+      setFriends(response.friends);
+    }
   };
 
   return (
@@ -25,13 +34,13 @@ function Friend(props: FriendProps): JSX.Element {
       <Card.Body>
         <Card.Title className="width-full post-user">
           <PersonCircle size={56} className="mr-4 user" />
-          {props.name}
+          {FriendProp.name}
           {"  "}·{"  "}
-          <span className="text-muted">{props.username}</span>
+          <span className="text-muted">{FriendProp.username}</span>
         </Card.Title>
         <Card.Text>
-          <p>
-            <span className="bold">Biography:</span> {props.bio}
+          <p className="mt-4">
+            <span className="bold">Biography:</span> {FriendProp.bio}
           </p>
         </Card.Text>
         <Card.Text>
@@ -40,7 +49,7 @@ function Friend(props: FriendProps): JSX.Element {
           </p>
         </Card.Text>
         <Card.Footer>
-          {!props.isSelf && (
+          {!FriendProp.isSelf && (
             <p className="text-muted">
               <button className="like-btn" type="button" onClick={handleFollow}>
                 {follow ? (
@@ -57,4 +66,5 @@ function Friend(props: FriendProps): JSX.Element {
   );
 }
 
+export type { FriendProps };
 export default Friend;

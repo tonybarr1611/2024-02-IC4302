@@ -1,9 +1,16 @@
 import axios from "axios";
 import { PostProps } from "./Home/Panels/Common/Post";
+import { FriendProps } from "./Home/Panels/Common/Friend";
 import { API_URL } from "./App";
 
 interface StandardResponse {
   result: string;
+}
+
+interface FollowResponse {
+  result: string;
+  friends: number;
+  doesFollow: boolean;
 }
 
 interface PromptResponse {
@@ -166,6 +173,74 @@ async function search(query: string): Promise<PostProps[]> {
   return postsWithAnswers;
 }
 
+async function followUser(user_id: string): Promise<FollowResponse> {
+  const url = `${API_URL}/followOrUnfollow`;
+  try {
+    const response = await axios.post(url, {
+      user_id: localStorage.getItem("user_id"),
+      friend_user_id: user_id,
+    });
+
+    return {
+      result: response.data.result,
+      friends: response.data.friends,
+      doesFollow: response.data.doesFollow === 1 ? true : false,
+    };
+  } catch (error) {
+    console.error(error);
+    return { result: "error", friends: 0, doesFollow: false };
+  }
+}
+
+function mapFriendToFriendProps(friends: any): FriendProps[] {
+  return friends.map((friend: any) => {
+    return {
+      id: friend[0],
+      name: friend[1],
+      username: friend[2],
+      bio: friend[3],
+      friends: friend[4],
+      isFriend: false,
+    };
+  });
+}
+
+async function checkFriendship(friends: FriendProps[]): Promise<FriendProps[]> {
+  for (let i = 0; i < friends.length; i++) {
+    const friend = friends[i];
+    const url = `${API_URL}/isFriend`;
+    const response = await axios.post(url, {
+      user_id: localStorage.getItem("user_id"),
+      friend_user_id: friend.id,
+    });
+    // ParseInt is necessary because the response might be a string
+    friend.isFriend = response.data.doesFollow === 1 ? true : false;
+  }
+
+  return friends;
+}
+
+async function findFriends(findQuery: string): Promise<FriendProps[]> {
+  const url = `${API_URL}/find`;
+  const response = await axios.post(url, {
+    query: findQuery,
+  });
+
+  console.log(response.data.posts);
+  const data = mapFriendToFriendProps(response.data.users);
+  // Filter out user's own profile
+  const filteredData = data.filter((friend) => {
+    return friend.id.toString() !== localStorage.getItem("user_id");
+  });
+
+  console.log(filteredData);
+  const friends = await checkFriendship(filteredData);
+
+  console.log(friends);
+
+  return friends;
+}
+
 export type { PromptResponse };
 export {
   sendLogin,
@@ -175,4 +250,6 @@ export {
   sendPost,
   getFeed,
   search,
+  followUser,
+  findFriends,
 };

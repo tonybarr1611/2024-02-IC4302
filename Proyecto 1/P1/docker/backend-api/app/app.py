@@ -7,7 +7,7 @@ import os
 import hashlib
 
 '''
-CREATE TABLE IF NOT EXISTS users (
+    CREATE TABLE IF NOT EXISTS users (
         user_id INT PRIMARY KEY AUTO_INCREMENT,
         name VARCHAR(255) NOT NULL,
         username VARCHAR(255) NOT NULL,
@@ -276,13 +276,20 @@ def feed():
     if not user_id: return jsonify(errResult)
     
     # Get the user's friends
-    friends = executeQuery(f"SELECT friends FROM users WHERE user_id = {user_id}")[0]
-  
-    friends = list(friends)
+    friends = executeQuery(f"SELECT user_id FROM friends WHERE friend_user_id = {user_id}")
+    # friends = executeQuery(f"SELECT friends FROM users WHERE user_id = {user_id}")[0]
+    print(friends)
+    if friends:
+        friends = list(friends[0])
+    else:
+        friends = []
+    print(friends)
     friends.append(user_id)
+    print(friends)
     
     # Convert friends list to a string for SQL
     friends_str = ', '.join(str(friend) for friend in friends)  # Ensure all IDs are strings
+    print(friends_str)
     
     # Get the posts from the user's friends
     posts = executeQuery(f"SELECT P.prompt_id, U.username, P.likes, P.prompt, P.created_at FROM prompts P LEFT JOIN users U on P.user_id = U.user_id WHERE P.user_id IN ({friends_str}) ORDER BY P.created_at DESC")
@@ -328,10 +335,26 @@ def find():
     if not query: return jsonify(errResult)
     
     # Get the users with names and usernames that match the query
-    users = executeQuery(f"SELECT * FROM users WHERE name LIKE '%{query}%' OR username LIKE '%{query}%'")
+    users = executeQuery(f"SELECT user_id, name, username, biography, friends FROM users WHERE name LIKE '%{query}%' OR username LIKE '%{query}%'")
     
     return jsonify({
         'users': users
+    })
+    
+@app.post('/isFriend')
+def isFriend():
+    # Get the user_id and friend_user_id from the request
+    body = request.get_json()
+    
+    user_id = body.get('user_id')
+    friend_user_id = body.get('friend_user_id')
+    
+    if not user_id or not friend_user_id: return jsonify(errResult)
+    
+    result = executeQuery(f"SELECT * FROM friends WHERE user_id = {friend_user_id} AND friend_user_id = {user_id}")
+    
+    return jsonify({
+        'doesFollow': 1 if result else 0
     })
     
 @app.post('/profile')
@@ -413,31 +436,35 @@ def followOrUnfollow():
     # Get the user_id and friend_user_id from the request
     body = request.get_json()
     
-    user_id = body.get('user_id')
-    friend_user_id = body.get('friend_user_id')
+    user_id = int(body.get('user_id'))
+    friend_user_id = int(body.get('friend_user_id'))
     
     if not user_id or not friend_user_id: return jsonify(errResult)
     
+    friends = int(executeQuery(f"SELECT friends FROM users WHERE user_id = {friend_user_id}")[0][0])
     # Check if the user is already following the friend
-    if (executeQuery(f"SELECT * FROM friends WHERE user_id = {user_id} AND friend_user_id = {friend_user_id}")):
-        return unfollow(user_id, friend_user_id)
+    if (executeQuery(f"SELECT * FROM friends WHERE friend_user_id = {user_id} AND user_id = {friend_user_id}")):
+        return unfollow(user_id, friend_user_id, friends)
     else:
-        return follow(user_id, friend_user_id)
+        return follow(user_id, friend_user_id, friends)
     
-def follow(user_id: str, friend_user_id: str):
+def follow(user_id: int, friend_user_id: int, friends: int):
     # Update the user's friends and updated_at
-    executeQuery(f"UPDATE users SET friends = friends + 1, updated_at = NOW() WHERE user_id = {user_id}")
+    friends += 1
+    executeQuery(f"UPDATE users SET friends = {friends}, updated_at = NOW() WHERE user_id = {friend_user_id}")
     
-    executeQuery(f"INSERT INTO friends (user_id, friend_user_id, created_at) VALUES ({user_id}, {friend_user_id}, NOW())")
+    executeQuery(f"INSERT INTO friends (user_id, friend_user_id, created_at, updated_at) VALUES ({friend_user_id}, {user_id}, NOW(), NOW())")
     
-    return jsonify({'result': '200'})
+    return jsonify({'result': '200', 'friends': friends, 'doesFollow': 1})
 
-def unfollow(user_id: str, friend_user_id: str):
+def unfollow(user_id: int, friend_user_id: int, friends: int):
     # Unfollow the friend
-    executeQuery(f"DELETE FROM friends WHERE user_id = {user_id} AND friend_user_id = {friend_user_id}")
-    executeQuery(f"UPDATE users SET friends = friends - 1, updated_at = NOW() WHERE user_id = {user_id}")
-        
-    return jsonify({'result': '200'})
+    friends -= 1
+    executeQuery(f"UPDATE users SET friends = {friends}, updated_at = NOW() WHERE user_id = {friend_user_id}")
+    
+    executeQuery(f"DELETE FROM friends WHERE user_id = {friend_user_id} AND friend_user_id = {user_id}")
+
+    return jsonify({'result': '200', 'friends': friends, 'doesFollow': 0})
 
 @app.post('/updateProfile')
 def updateProfile():

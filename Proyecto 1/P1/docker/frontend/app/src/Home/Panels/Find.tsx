@@ -1,48 +1,23 @@
 import { Button } from "react-bootstrap";
-import Friend from "./Common/Friend";
+import Friend, { FriendProps } from "./Common/Friend";
 import { useState } from "react";
+import { findFriends } from "../../APICalls";
 
 function Find(): JSX.Element {
   const [searchTerm, setSearchTerm] = useState("");
   const [hasSearched, setHasSearched] = useState(false);
-  const friends = [
-    {
-      name: "Alice Smith",
-      username: "aliceswiftie",
-      bio: "✨ Taylor's version lover ✨ 🎤 Jamming to *Midnights* on repeat. 💖 Folklore and Evermore hit different. 🎶 Favorite lyrics: 'We could leave the Christmas lights up 'til January.' 🎤 Can't wait for the next tour! 📸 Sharing concert photos and my favorite merch. 💬 Let’s talk about Taylor's genius!",
-      friends: 15,
-      isFriend: true,
-    },
-    {
-      name: "Bob Johnson",
-      username: "swiftiebob",
-      bio: "🎸 Rocking out to *Red* (Taylor’s Version) since day one! 🎤 Passionate about uncovering hidden Easter eggs in her music. 🎶 Favorite song: 'All Too Well (10 Minute Version).' 💖 Proud to be a part of #SwiftieNation.",
-      friends: 20,
-      isFriend: false,
-    },
-    {
-      name: "Charlie Lee",
-      username: "charlielee_13",
-      bio: "🌟 #13Forever | Obsessed with *1989* vibes. 🎤 Favorite track: 'Style.' 💬 DM me for all things Taylor trivia! 🎶 Dreaming of a Taylor collab with Ed Sheeran. 🕰 Waiting for the next re-recorded album!",
-      friends: 12,
-      isFriend: true,
-    },
-    {
-      name: "Dana White",
-      username: "danataylorfan",
-      bio: "🎶 *Speak Now* on repeat since it dropped. 💖 Big fan of Taylor’s songwriting evolution. 🎤 Favorite lyrics: 'I go back to December all the time.' 🕰 Counting down to the next Taylor surprise drop! 📸 Always ready for a new Taylor Swift meme!",
-      friends: 8,
-      isFriend: false,
-    },
-  ];
+  // Stored as pairs of friends to display two per row
+  const [friendPairs, setFriendPairs] = useState<FriendProps[][]>([]);
 
   // Group friends in pairs (two per row)
-  const friendPairs = [];
-  for (let i = 0; i < friends.length; i += 2) {
-    friendPairs.push(friends.slice(i, i + 2));
-  }
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
+    const response = await findFriends(searchTerm);
+    const tempPairs: FriendProps[][] = [];
+    for (let i = 0; i < response.length; i += 2) {
+      tempPairs.push(response.slice(i, i + 2));
+    }
+    setFriendPairs(tempPairs);
     setHasSearched(true);
   };
 
@@ -76,7 +51,15 @@ function Find(): JSX.Element {
                 <div className="row" key={index}>
                   {pair.map((friend, subIndex) => (
                     <div className="col mr-4 mb-5" key={subIndex}>
-                      <Friend {...friend} />
+                      <Friend
+                        id={friend.id}
+                        name={friend.name}
+                        username={friend.username}
+                        bio={friend.bio}
+                        friends={friend.friends}
+                        isFriend={friend.isFriend}
+                        isSelf={false}
+                      />
                     </div>
                   ))}
                 </div>
