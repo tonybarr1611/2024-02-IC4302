@@ -50,10 +50,10 @@ spec:
       protocol: TCP
       port: 5000  # Puerto del servicio
       targetPort: 5000  # Puerto del contenedor
-    - name: prometheus  # Nombre para el puerto de Prometheus
+    - name: metrics  # Nombre para el puerto de Prometheus
       protocol: TCP
-      port: 8000  # Puerto para métricas de Prometheus
+      port: 9102  # Puerto para métricas de Prometheus
       targetPort: 8000  # Puerto del contenedor
-  type: ClusterIP    # O NodePort/LoadBalancer según lo necesites
+  type: NodePort    # O NodePort/LoadBalancer según lo necesites
 
 

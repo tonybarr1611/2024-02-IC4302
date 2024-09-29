@@ -38,14 +38,12 @@ ELASTIC_INDEX_NAME = os.getenv('ELASTIC_INDEX_NAME')
 
 HUGGING_FACE_API = os.getenv('HUGGING_FACE_API')
 
-REQUEST_COUNT = Counter('app_requests_count', 'Número de requests totales')
-REQUEST_LATENCY = Histogram('app_request_latency_seconds', 'Latencia de requests')
 
-maximum_object = Counter('maximum_processing_time_object', 'Tiempo máximo de procesamiento de un objeto')
-minimum_object = Counter('minimum_processing_time_object', 'Tiempo mínimo de procesamiento de un objeto')
 
-maximum_row = Counter('maximum_processing_time_row', 'Tiempo máximo de procesamiento de una fila')
-minimum_row = Counter('minimum_processing_time_row', 'Tiempo mínimo de procesamiento de una fila')
+object_processing_time = Histogram('object_processing_time_seconds', 'Time taken to process an object', buckets=[0.01, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 2, 5, 10, 30, 60, 120, 300])
+
+row_processing_time = Histogram('row_processing_time_seconds', 'Time taken to process a row', buckets=[0.01, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 2, 5, 10, 30, 60, 120, 300])
+
 
 objects_processed = Counter('objects_processed', 'Cantidad de objetos procesados')
 rows_processed = Counter('rows_processed', 'Cantidad de filas procesados')
@@ -224,15 +222,18 @@ def callback(ch, method, properties, body):
     logger.info(f"Received job {key}")
     
     if not object_processed(key):
-        songsList = process_csv_file(S3_BUCKET, key, S3_KEY_PREFIX)
+        with object_processing_time.time():
+            songsList = process_csv_file(S3_BUCKET, key, S3_KEY_PREFIX)
 
         for song in songsList[1:]:
-            embedding = get_embeddings(song[16])
-            logger.info(f"Song id: {song[0]} read.")
-
-            store_embedding(song[0], song[1], song[3], embedding)
+            with row_processing_time.time():
+                embedding = get_embeddings(song[16])
+                logger.info(f"Song id: {song[0]} read.")
+                store_embedding(song[0], song[1], song[3], embedding)
+                rows_processed.inc()
 
         mark_object_processed(key)
+        objects_processed.inc()
         logger.info(f"{key} processed")
     else:
         logger.info(f"{key} already processed")
