@@ -236,7 +236,7 @@ def callback(ch, method, properties, body):
     else:
         logger.info(f"{key} already processed")
 
-start_http_server(9100)
+start_http_server(9101)
 credentials = pika.PlainCredentials('user', RABBIT_MQ_PASSWORD)
 parameters = pika.ConnectionParameters(host=RABBIT_MQ, credentials=credentials) 
 connection = pika.BlockingConnection(parameters)

@@ -36,24 +36,43 @@ spec:
           - mountPath: "/data"
             name: data
         image: {{ .Values.config.docker_registry }}/{{ .Values.config.huggingfaceApi.image }}
+        ports:
+          - containerPort: 5000
 
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: huggingfaceapi
-spec:
-  selector:
+  namespace: default
+  labels:                                                                   
     app: huggingfaceapi
+spec:
   ports:
     - name: http  # Nombre para el puerto de la API
       protocol: TCP
       port: 5000  # Puerto del servicio
       targetPort: 5000  # Puerto del contenedor
-    - name: metrics  # Nombre para el puerto de Prometheus
-      protocol: TCP
-      port: 9102  # Puerto para métricas de Prometheus
-      targetPort: 8000  # Puerto del contenedor
-  type: NodePort    # O NodePort/LoadBalancer según lo necesites
+  selector:
+    app: huggingfaceapi
+  type: NodePort
 
-
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: huggingfaceapi-monitor
+  labels:
+    app: huggingfaceapi
+  namespace: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: huggingfaceapi
+  endpoints:
+  - port: http
+    path: metrics
+    interval: 15s
+  namespaceSelector:
+    matchNames:
+    - default
