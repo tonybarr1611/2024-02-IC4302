@@ -286,6 +286,27 @@ async function deletePost(post_id: string): Promise<StandardResponse> {
   }
 }
 
+async function updateProfile(
+  name: string,
+  username: string,
+  bio: string
+): Promise<StandardResponse> {
+  const url = `${API_URL}/updateProfile`;
+  try {
+    const response = await axios.post(url, {
+      user_id: localStorage.getItem("user_id"),
+      name: name,
+      username: username,
+      biography: bio,
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    return { result: "error" };
+  }
+}
+
 export type { PromptResponse };
 export {
   sendLogin,
@@ -300,4 +321,5 @@ export {
   getFriends,
   getProfile,
   deletePost,
+  updateProfile,
 };

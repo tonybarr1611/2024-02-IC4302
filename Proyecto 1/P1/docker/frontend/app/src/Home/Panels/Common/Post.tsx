@@ -1,4 +1,4 @@
-import { Button, Card, Modal } from "react-bootstrap";
+import { Button, Card } from "react-bootstrap";
 import {
   PersonCircle,
   HandThumbsUp,
@@ -9,6 +9,7 @@ import {
 import "../Panels.css";
 import { useState } from "react";
 import { deletePost, PromptResponse, sendLike } from "../../../APICalls";
+import DeletePostModal from "./DeletePostModal";
 
 interface PostProps {
   PostID?: string;
@@ -20,41 +21,6 @@ interface PostProps {
   hasBeenPosted?: boolean;
   hasUserLiked?: boolean;
   isOwnPost?: boolean;
-}
-
-interface DeleteModalProps {
-  show: boolean;
-  handleClose: () => void;
-  handleDelete: () => void;
-}
-
-function DeleteModal({
-  show,
-  handleClose,
-  handleDelete,
-}: DeleteModalProps): JSX.Element {
-  return (
-    <Modal
-      show={show}
-      onHide={handleClose}
-      backdrop="static"
-      keyboard={false}
-      className="dark-modal"
-    >
-      <Modal.Header closeButton>
-        <Modal.Title>Confirm Deletion</Modal.Title>
-      </Modal.Header>
-      <Modal.Body>Are you sure you want to delete this post?</Modal.Body>
-      <Modal.Footer>
-        <Button className="btn-cancel" variant="link" onClick={handleClose}>
-          Cancel
-        </Button>
-        <Button className="btn-delete" variant="link" onClick={handleDelete}>
-          Confirm Delete
-        </Button>
-      </Modal.Footer>
-    </Modal>
-  );
 }
 
 function Post({
@@ -70,7 +36,7 @@ function Post({
 }: PostProps): JSX.Element {
   const [hasLiked, setHasLiked] = useState(hasUserLiked || false);
   const [likes, setLikes] = useState(PostLikes);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showDeletePostModal, setShowDeletePostModal] = useState(false);
   console.log(PostID);
 
   const handleLike = async () => {
@@ -88,11 +54,11 @@ function Post({
   };
 
   const handleDelete = () => {
-    setShowDeleteModal(true);
+    setShowDeletePostModal(true);
   };
 
   const handleCloseDelete = () => {
-    setShowDeleteModal(false);
+    setShowDeletePostModal(false);
   };
 
   const handleDeleteConfirmed = async () => {
@@ -121,8 +87,8 @@ function Post({
               <Button variant="link" onClick={handleDelete}>
                 <Trash color="#FFFFFF" size={28} />
               </Button>
-              <DeleteModal
-                show={showDeleteModal}
+              <DeletePostModal
+                show={showDeletePostModal}
                 handleClose={handleCloseDelete}
                 handleDelete={handleDeleteConfirmed}
               />
