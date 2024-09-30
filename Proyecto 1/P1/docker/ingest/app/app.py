@@ -5,6 +5,7 @@ import pika
 import boto3
 import mariadb
 import logging
+import chardet
 import requests
 import datetime
 from io import StringIO
@@ -91,7 +92,13 @@ def find_object(bucket_name, file_name, prefix=''):
 def read_csv_from_s3(bucket_name, file_key):
     try:
         response = s3_client.get_object(Bucket=bucket_name, Key=file_key)
-        csv_content = response['Body'].read().decode('utf-8')
+        raw_content = response['Body'].read()
+        
+        encoding = chardet.detect(raw_content)['encoding']
+        logger.info(f"Encoding detected: {encoding}")
+        if encoding == None: return []
+        
+        csv_content = raw_content.decode('utf-8')
         csv_reader = csv.reader(StringIO(csv_content))
 
         return [row for row in csv_reader]
@@ -211,6 +218,8 @@ def store_embedding(id, title, artist, lyrics, embeddings):
         "lyrics": lyrics,
         "embeddings": embeddings
     }
+    logger.info(f"Storing embedding for song id: {id}")
+    logger.info(f"With document: {document}")
     response = elastic_client.index(index=ELASTIC_INDEX_NAME, document=document)
     
     return response
@@ -227,6 +236,7 @@ def callback(ch, method, properties, body):
             with row_processing_time.time():
                 embedding = get_embeddings(song[16])
                 logger.info(f"Song id: {song[0]} read.")
+                logger.info(f"Embedding: {embedding}")
                 store_embedding(song[0], song[1], song[3], song[16], embedding)
                 rows_processed.inc()
 
