@@ -1,6 +1,8 @@
-from flask import Blueprint, request, jsonify
+from metrics import total_requests
 from config import ELASTIC_INDEX_NAME
-from utils import executeQuery, getEmbeddings, getVectorSearchQuery, errResult, elasticsearch_connection
+from database import elasticsearch_connection
+from flask import Blueprint, request, jsonify
+from utils import executeQuery, getEmbeddings, getVectorSearchQuery, errResult, measure_processing_time
 
 posts_bp = Blueprint('posts', __name__)
 
@@ -8,7 +10,9 @@ posts_bp = Blueprint('posts', __name__)
 # Route localhost:31000/feed: Used to get the feed of posts from the user's friends and themselves
 ##################################################################################################
 @posts_bp.route('/feed', methods=['POST'])
+@measure_processing_time
 def feed():
+    total_requests.labels('feed').inc()
     # Get the user_id from the request
     body = request.get_json()
     
@@ -47,7 +51,9 @@ def feed():
 # Route localhost:31000/search: Used to search for posts based on a query
 #########################################################################
 @posts_bp.route('/search', methods=['POST'])
+@measure_processing_time
 def search():
+    total_requests.labels('search').inc()
     # Get the query from the request
     body = request.get_json()
     
@@ -72,7 +78,9 @@ def search():
 # Route localhost:31000/prompt: Used to get the top n results of a prompt
 #########################################################################
 @posts_bp.route('/prompt', methods=['POST'])
+@measure_processing_time
 def encode_prompt():
+    total_requests.labels('prompt').inc()
     # Get the prompt from the request arguments
     body = request.get_json()
     
@@ -134,7 +142,9 @@ def processPrompt(prompt):
 # Route localhost:31000/postPrompt: Used to post a prompt
 #########################################################
 @posts_bp.route('/postPrompt', methods=['POST'])
+@measure_processing_time
 def postPrompt():
+    total_requests.labels('postPrompt').inc()
     # Get the user_id and prompt from the request
     body = request.get_json()
     
@@ -152,7 +162,9 @@ def postPrompt():
 # Route localhost:31000/editPrompt: Used to edit a prompt
 #########################################################
 @posts_bp.route('/editPrompt', methods=['POST'])
+@measure_processing_time
 def editPrompt():
+    total_requests.labels('editPrompt').inc()
     # Get the prompt_id and prompt from the request
     body = request.get_json()
     
@@ -170,7 +182,9 @@ def editPrompt():
 # Route localhost:31000/deletePrompt: Used to delete a prompt
 #############################################################
 @posts_bp.route('/deletePrompt', methods=['POST'])
+@measure_processing_time
 def deletePrompt():
+    total_requests.labels('deletePrompt').inc()
     # Get the prompt_id from the request
     body = request.get_json()
     

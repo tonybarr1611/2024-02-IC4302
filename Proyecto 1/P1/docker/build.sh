@@ -10,9 +10,9 @@ cd ../frontend
 docker build -t $1/frontend .
 docker push $1/frontend
 
- cd ./huggingface-api
- docker build -t $1/huggingface-api .
- docker push $1/huggingface-api
+cd ../huggingface-api
+docker build -t $1/huggingface-api .
+docker push $1/huggingface-api
 
 cd ../ingest
 docker build -t $1/ingest .

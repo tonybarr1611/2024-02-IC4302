@@ -13,6 +13,10 @@ spec:
     metadata:
       labels:
         app: {{ .Values.config.backendapi.name }}
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '5000'
+        prometheus.io/path: '/metrics'
     spec:
       containers:
       - name: {{ .Values.config.backendapi.name }}
@@ -48,3 +52,23 @@ spec:
             value: "http://ic4302-es-http:9200"
           - name: ELASTIC_INDEX_NAME
             value: 'songs'
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ .Values.config.backendapi.name }}-monitor
+  labels:
+    app: {{ .Values.config.backendapi.name }}
+  namespace: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.config.backendapi.name }}
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+  namespaceSelector:
+    matchNames:
+      - default

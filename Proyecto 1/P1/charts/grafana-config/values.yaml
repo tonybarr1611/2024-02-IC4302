@@ -25,3 +25,7 @@ dashboards:
     name: s3spider
     file: s3spider.json
     enable: true
+  backendapi:
+    name: backendapi
+    file: backendapi.json
+    enable: true

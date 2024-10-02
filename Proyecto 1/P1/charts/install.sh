@@ -30,14 +30,8 @@ helm dependency update
 cd ..
 helm upgrade --install webapp webapp
 
-
 cd grafana-config
 rm -rf Chart.lock
 helm dependency update
 cd ..
 helm upgrade --install grafana-config grafana-config
-
-# kubectl expose backend-api-service with Port Forwarding from port 32000 to 31000
-sleep 60
-# Restart the port-forwarding if it fails
-kubectl port-forward svc/backend-api-service 31000:5000

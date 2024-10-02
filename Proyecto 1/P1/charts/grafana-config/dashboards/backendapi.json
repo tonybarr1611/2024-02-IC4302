@@ -1,0 +1,204 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "BackendAPI Metrics Dashboard",
+    "uid": "backend-api-metrics",
+    "timezone": "browser",
+    "schemaVersion": 36,
+    "version": 1,
+    "refresh": "5s",
+    "panels": [
+      {
+        "type": "graph",
+        "title": "Max Processing Time",
+        "gridPos": {
+          "x": 0,
+          "y": 8,
+          "w": 12,
+          "h": 8
+        },
+        "targets": [
+          {
+            "expr": "max_processing_time",
+            "interval": "",
+            "legendFormat": "{{instance}}",
+            "refId": "A"
+          }
+        ],
+        "datasource": null,
+        "xaxis": {
+          "show": true,
+          "mode": "time",
+          "name": null,
+          "values": []
+        },
+        "yaxis": {
+          "show": true,
+          "format": "s"
+        }
+      },
+      {
+        "type": "graph",
+        "title": "Min Processing Time",
+        "gridPos": {
+          "x": 12,
+          "y": 8,
+          "w": 12,
+          "h": 8
+        },
+        "targets": [
+          {
+            "expr": "min_processing_time",
+            "interval": "",
+            "legendFormat": "{{instance}}",
+            "refId": "A"
+          }
+        ],
+        "datasource": null,
+        "xaxis": {
+          "show": true,
+          "mode": "time",
+          "name": null,
+          "values": []
+        },
+        "yaxis": {
+          "show": true,
+          "format": "s"
+        }
+      },
+      {
+        "type": "graph",
+        "title": "Average Processing Time",
+        "gridPos": {
+          "x": 0,
+          "y": 16,
+          "w": 12,
+          "h": 8
+        },
+        "targets": [
+          {
+            "expr": "avg_processing_time",
+            "interval": "",
+            "legendFormat": "{{instance}}",
+            "refId": "A"
+          }
+        ],
+        "datasource": null,
+        "xaxis": {
+          "show": true,
+          "mode": "time",
+          "name": null,
+          "values": []
+        },
+        "yaxis": {
+          "show": true,
+          "format": "s"
+        }
+      },
+      {
+        "type": "graph",
+        "title": "Total Requests per Endpoint",
+        "gridPos": {
+          "x": 12,
+          "y": 16,
+          "w": 12,
+          "h": 8
+        },
+        "targets": [
+          {
+            "expr": "sum(total_requests) by (endpoint)",
+            "interval": "",
+            "legendFormat": "{{endpoint}}",
+            "refId": "A"
+          }
+        ],
+        "datasource": null,
+        "xaxis": {
+          "show": true,
+          "mode": "time",
+          "name": null,
+          "values": []
+        },
+        "yaxis": {
+          "show": true,
+          "format": "short"
+        }
+      }
+    ]
+  },
+  "panels": [
+    {
+      "type": "gauge",
+      "title": "Max Processing Time",
+      "targets": [
+        {
+          "expr": "max_processing_time",
+          "legendFormat": "Max Time",
+          "refId": "C"
+        }
+      ],
+      "datasource": "Prometheus",
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 0,
+        "y": 6
+      }
+    },
+    {
+      "type": "gauge",
+      "title": "Min Processing Time",
+      "targets": [
+        {
+          "expr": "min_processing_time",
+          "legendFormat": "Min Time",
+          "refId": "D"
+        }
+      ],
+      "datasource": "Prometheus",
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 6,
+        "y": 6
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Average Processing Time",
+      "targets": [
+        {
+          "expr": "processing_time_seconds_sum / processing_time_seconds_count",
+          "legendFormat": "Avg Time",
+          "refId": "E"
+        }
+      ],
+      "datasource": "Prometheus",
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 12
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Total Requests per Endpoint",
+      "targets": [
+        {
+          "expr": "sum by (exported_endpoint) (total_requests_total)",
+          "legendFormat": "{{exported_endpoint}}",
+          "refId": "F"
+        }
+      ],
+      "datasource": "Prometheus",
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 21
+      }
+    }
+  ],
+  "title": "BackendAPI Metrics Dashboard"
+}

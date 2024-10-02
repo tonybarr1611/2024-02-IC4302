@@ -1,7 +1,6 @@
+from metrics import total_requests
 from flask import Blueprint, request, jsonify
-from routes.posts import processPrompt
-from utils import executeQuery, errResult
-
+from utils import executeQuery, errResult, measure_processing_time
 
 profile_bp = Blueprint('profile', __name__)
 
@@ -9,7 +8,9 @@ profile_bp = Blueprint('profile', __name__)
 # Route localhost:31000/profile: Used to get a user's information and posts
 ###########################################################################
 @profile_bp.route('/profile', methods=['POST'])
+@measure_processing_time
 def profile():
+    total_requests.labels('profile').inc()
     # Get the user_id from the request
     body = request.get_json()
     
@@ -32,7 +33,9 @@ def profile():
 # Route localhost:31000/updateProfile: Used to update a user's information
 ##########################################################################
 @profile_bp.route('/updateProfile', methods=['POST'])
+@measure_processing_time
 def updateProfile():
+    total_requests.labels('updateProfile').inc()
     # Get the user_id, name, username, email, and biography from the request
     body = request.get_json()
     
