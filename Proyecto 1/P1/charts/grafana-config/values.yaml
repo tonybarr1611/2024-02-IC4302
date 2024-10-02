@@ -5,27 +5,23 @@ dashboards:
     name: elasticsearch
     file: elasticsearch.json
     enable: true
-  redis:
-    name: redis
-    file: redis.json
-    enable: true
   mariadb:
     name: mariadb
     file: mariadb.json
-    enable: true
-  postgresql:
-    name: postgresql
-    file: postgresql.json
     enable: true
   memcached:
     name: memcached
     file: memcached.json
     enable: true
-  mongodb:
-    name: mongodb
-    file: mongodb.json
+  ingest:
+    name: ingest
+    file: ingest.json
     enable: true
-  pythonprometheus:
-    name: pythonprometheus
-    file: pythonprometheus.json
+  huggingface:
+    name: huggingface
+    file: huggingface.json
+    enable: true
+  s3spider:
+    name: s3spider
+    file: s3spider.json
     enable: true

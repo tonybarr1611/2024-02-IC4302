@@ -1,20 +1,24 @@
 import React, { useState } from "react";
 import { Button, Card, Col, Container, Form, Row } from "react-bootstrap";
-import { ToastContainer, toast } from "react-toastify";
-import { EyeFill, EyeSlashFill, PersonLock } from "react-bootstrap-icons";
+import { toast, ToastContainer } from "react-toastify";
+import { EyeFill, EyeSlashFill, PersonPlus } from "react-bootstrap-icons";
+import "./Register.css";
 import { Link } from "react-router-dom";
-import { sendLogin } from "../APICalls";
-import "./Login.css";
+import { sendRegister } from "../APICalls";
 
-// Define the shape of the credentials object
-interface Credentials {
+// Define the shape of the registration details object
+interface RegistrationDetails {
+  name: string;
+  username: string;
   email: string;
   password: string;
 }
 
-function Login(): React.JSX.Element {
-  // State to hold the email and password
-  const [credentials, setCredentials] = useState<Credentials>({
+function Register(): React.JSX.Element {
+  // State to hold the registration details
+  const [details, setDetails] = useState<RegistrationDetails>({
+    name: "",
+    username: "",
     email: "",
     password: "",
   });
@@ -29,15 +33,21 @@ function Login(): React.JSX.Element {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const response = await sendLogin(credentials.email, credentials.password);
+    const response = await sendRegister(
+      details.name,
+      details.username,
+      details.email,
+      details.password
+    );
+
     if (response.result === "error") {
-      toast.error("Invalid email or password", {
+      toast.error("Registration failed", {
         autoClose: 1500,
         theme: "colored",
       });
-      setCredentials({ email: "", password: "" });
+      setDetails({ name: "", username: "", email: "", password: "" });
     } else {
-      toast.success("Logged in successfully", {
+      toast.success("Registered successfully", {
         autoClose: 1500,
         theme: "colored",
       });
@@ -45,31 +55,52 @@ function Login(): React.JSX.Element {
     }
   };
 
-  localStorage.clear();
-
   return (
-    <Container className="d-flex justify-content-center align-items-center container-login">
+    <Container className="d-flex justify-content-center align-items-center container-register">
       {/* Toast container for notifications */}
       <ToastContainer position="top-center" />
-      <Card className="card-login">
+      <Card className="card-register">
         <Card.Body>
           <div className="text-center mb-4">
-            {/* Icon and title for the login card */}
-            <PersonLock size={40} className="mb-3 icon-login" />
-            <h1 className="h4">Sign In</h1>
+            {/* Icon and title for the register card */}
+            <PersonPlus size={40} className="mb-3 icon-register" />
+            <h1 className="h4">Register</h1>
           </div>
-          {/* Form for user login */}
-
+          {/* Form for user registration */}
           <Form onSubmit={handleSubmit}>
+            <Form.Group className="mb-3 leftText" controlId="formBasicName">
+              <Form.Label>Name</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Enter name"
+                name="name"
+                value={details.name}
+                onChange={(e) =>
+                  setDetails({ ...details, name: e.target.value })
+                }
+              />
+            </Form.Group>
+            <Form.Group className="mb-3 leftText" controlId="formBasicUsername">
+              <Form.Label>Username</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Enter username"
+                name="username"
+                value={details.username}
+                onChange={(e) =>
+                  setDetails({ ...details, username: e.target.value })
+                }
+              />
+            </Form.Group>
             <Form.Group className="mb-3 leftText" controlId="formBasicEmail">
               <Form.Label>Email address</Form.Label>
               <Form.Control
                 type="email"
                 placeholder="Enter email"
                 name="email"
-                value={credentials.email}
+                value={details.email}
                 onChange={(e) =>
-                  setCredentials({ ...credentials, email: e.target.value })
+                  setDetails({ ...details, email: e.target.value })
                 }
               />
             </Form.Group>
@@ -80,10 +111,10 @@ function Login(): React.JSX.Element {
                   type={showPassword ? "text" : "password"}
                   placeholder="Password"
                   name="password"
-                  value={credentials.password}
+                  value={details.password}
                   onChange={(e) =>
-                    setCredentials({
-                      ...credentials,
+                    setDetails({
+                      ...details,
                       password: e.target.value,
                     })
                   }
@@ -98,21 +129,13 @@ function Login(): React.JSX.Element {
               </div>
             </Form.Group>
             <Button variant="primary" type="submit" className="w-100 mb-3">
-              Sign In
+              Register
             </Button>
-            <Link to={"register"}>
+            <Link to={"/"}>
               <Row>
                 <Col className="text-end">
-                  <span
-                    className="guest-login"
-                    onClick={() =>
-                      toast.success("Logged in as guest", {
-                        autoClose: 1500,
-                        theme: "colored",
-                      })
-                    }
-                  >
-                    Register
+                  <span className="guest-login">
+                    Already have an account? Sign In
                   </span>
                 </Col>
               </Row>
@@ -124,4 +147,4 @@ function Login(): React.JSX.Element {
   );
 }
 
-export default Login;
+export default Register;

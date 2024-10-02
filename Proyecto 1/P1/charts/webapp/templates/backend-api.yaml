@@ -1,22 +1,24 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.config.producer.name }}
+  name: {{ .Values.config.backendapi.name }}
   labels:
-    app: {{ .Values.config.producer.name }}
+    app: {{ .Values.config.backendapi.name }}
 spec:
-  replicas: {{ .Values.config.producer.replicas }}
+  replicas: {{ .Values.config.backendapi.replicas }}
   selector:
     matchLabels:
-      app: {{ .Values.config.producer.name }}
+      app: {{ .Values.config.backendapi.name }}
   template:
     metadata:
       labels:
-        app: {{ .Values.config.producer.name }}
+        app: {{ .Values.config.backendapi.name }}
     spec:
       containers:
-      - name: {{ .Values.config.producer.name }}
-        image: {{ .Values.config.docker_registry }}/{{ .Values.config.producer.image }}
+      - name: {{ .Values.config.backendapi.name }}
+        image: {{ .Values.config.docker_registry }}/{{ .Values.config.backendapi.image }}
+        ports:
+          - containerPort: 5000
         env:
           - name: MARIADB
             value: "databases-mariadb"
@@ -32,3 +34,17 @@ spec:
                 name: databases-mariadb
                 key: mariadb-root-password
                 optional: false
+          - name: HUGGINGFACE
+            value: huggingfaceapi
+          - name: ELASTIC_USER
+            value: "elastic"
+          - name: ELASTIC_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: ic4302-es-elastic-user
+                key: elastic
+                optional: false
+          - name: ELASTIC
+            value: "http://ic4302-es-http:9200"
+          - name: ELASTIC_INDEX_NAME
+            value: 'songs'

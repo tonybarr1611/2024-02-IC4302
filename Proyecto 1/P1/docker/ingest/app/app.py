@@ -1,36 +1,35 @@
 import os
 import sys
 import csv
-import time
 import pika
 import boto3
 import mariadb
 import logging
+import chardet
 import requests
 import datetime
 from io import StringIO
-from elasticsearch.helpers import bulk
 from elasticsearch import Elasticsearch
 from prometheus_client import Counter, Histogram, start_http_server
 
-
+# Variables
 XPATH=os.getenv('XPATH')
 DATA=os.getenv('DATAFROMK8S')
 
 RABBIT_MQ=os.getenv('RABBITMQ')
-RABBIT_MQ_PASSWORD=os.getenv('RABBITMQ_PASS')
 QUEUE_NAME=os.getenv('RABBITMQ_QUEUE')
+RABBIT_MQ_PASSWORD=os.getenv('RABBITMQ_PASS')
 
-MARIADB_USER = os.getenv('MARIADB_USER')
-MARIADB_PASS = os.getenv('MARIADB_PASS')
 MARIADB = os.getenv('MARIADB')
 MARIADB_DB = os.getenv('MARIADB_DB')
+MARIADB_USER = os.getenv('MARIADB_USER')
+MARIADB_PASS = os.getenv('MARIADB_PASS')
 MARIADB_TABLE = os.getenv('MARIADB_TABLE')
 
-AWS_ACCESS_KEY = os.getenv('AWS_ACCESS_KEY')
-AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
 S3_BUCKET = os.getenv('S3_BUCKET')
 S3_KEY_PREFIX = os.getenv('S3_KEY_PREFIX')
+AWS_ACCESS_KEY = os.getenv('AWS_ACCESS_KEY')
+AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
 
 ELASTIC_URL = os.getenv('ELASTIC')
 ELASTIC_USER = os.getenv('ELASTIC_USER')
@@ -39,14 +38,9 @@ ELASTIC_INDEX_NAME = os.getenv('ELASTIC_INDEX_NAME')
 
 HUGGING_FACE_API = os.getenv('HUGGING_FACE_API')
 
-REQUEST_COUNT = Counter('app_requests_count', 'Número de requests totales')
-REQUEST_LATENCY = Histogram('app_request_latency_seconds', 'Latencia de requests')
-
-maximum_object = Counter('maximum_processing_time_object', 'Tiempo máximo de procesamiento de un objeto')
-minimum_object = Counter('minimum_processing_time_object', 'Tiempo mínimo de procesamiento de un objeto')
-
-maximum_row = Counter('maximum_processing_time_row', 'Tiempo máximo de procesamiento de una fila')
-minimum_row = Counter('minimum_processing_time_row', 'Tiempo mínimo de procesamiento de una fila')
+# Prometheus
+object_processing_time = Histogram('object_processing_time_seconds', 'Time taken to process an object', buckets=[0.01, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 2, 5, 10, 30, 60, 120, 300])
+row_processing_time = Histogram('row_processing_time_seconds', 'Time taken to process a row', buckets=[0.01, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 2, 5, 10, 30, 60, 120, 300])
 
 objects_processed = Counter('objects_processed', 'Cantidad de objetos procesados')
 rows_processed = Counter('rows_processed', 'Cantidad de filas procesados')
@@ -54,11 +48,11 @@ rows_error = Counter('rows_error', 'Cantidad de filas con error')
 
 # Logging
 logging.basicConfig(
-    level=logging.INFO,  # Nivel de logging
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',  # Formato del mensaje
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler("application.log"),  # Guardar los logs en un archivo llamado application.log
-        logging.StreamHandler(sys.stdout)  # show logs in console
+        logging.FileHandler("application.log"),
+        logging.StreamHandler(sys.stdout)
     ]
 )
 
@@ -89,7 +83,7 @@ def find_object(bucket_name, file_name, prefix=''):
                     logger.info(f"File {file_name} found in bucket {bucket_name}")
                     logger.info(f"Key: {obj['Key']}")
                     return obj['Key']
-        print("File not found")
+        logger.warning('File not found')
         return None
     except Exception as e:
         logger.error(f"Error finding object: {e}")
@@ -98,7 +92,13 @@ def find_object(bucket_name, file_name, prefix=''):
 def read_csv_from_s3(bucket_name, file_key):
     try:
         response = s3_client.get_object(Bucket=bucket_name, Key=file_key)
-        csv_content = response['Body'].read().decode('utf-8')
+        raw_content = response['Body'].read()
+        
+        encoding = chardet.detect(raw_content)['encoding']
+        logger.info(f"Encoding detected: {encoding}")
+        if encoding == None: return []
+        
+        csv_content = raw_content.decode('utf-8')
         csv_reader = csv.reader(StringIO(csv_content))
 
         return [row for row in csv_reader]
@@ -194,6 +194,7 @@ def create_index_if_not_exists():
                 "id": {"type": "text"},
                 "title": {"type": "text"},
                 "artist": {"type": "text"},
+                "lyrics": {"type": "text"},
                 "embeddings": {
                     "type": "dense_vector",
                     "dims": 768
@@ -203,19 +204,22 @@ def create_index_if_not_exists():
     }
     if not elastic_client.indices.exists(index=ELASTIC_INDEX_NAME):
         elastic_client.indices.create(index=ELASTIC_INDEX_NAME, body=mapping)
-        print(f"Index '{ELASTIC_INDEX_NAME}' created successfully.")
+        logger.info(f"Index '{ELASTIC_INDEX_NAME}' created successfully.")
     else:
-        print(f"Index '{ELASTIC_INDEX_NAME}' already exists.")
+        logger.warning(f"Index '{ELASTIC_INDEX_NAME}' already exists.")
 
 create_index_if_not_exists()
 
-def store_embedding(id, title, artist, embeddings):
+def store_embedding(id, title, artist, lyrics, embeddings):
     document = {
         "id": id,
         "title": title,
         "artist": artist,
+        "lyrics": lyrics,
         "embeddings": embeddings
     }
+    logger.info(f"Storing embedding for song id: {id}")
+    logger.info(f"With document: {document}")
     response = elastic_client.index(index=ELASTIC_INDEX_NAME, document=document)
     
     return response
@@ -225,20 +229,24 @@ def callback(ch, method, properties, body):
     logger.info(f"Received job {key}")
     
     if not object_processed(key):
-        songsList = process_csv_file(S3_BUCKET, key, S3_KEY_PREFIX)
+        with object_processing_time.time():
+            songsList = process_csv_file(S3_BUCKET, key, S3_KEY_PREFIX)
 
         for song in songsList[1:]:
-            embedding = get_embeddings(song[16])
-            print(f"Song id: {song[0]} read. Embeddings {embedding}")
-            store_embedding(song[0], song[1], song[3], embedding)
+            with row_processing_time.time():
+                embedding = get_embeddings(song[16])
+                logger.info(f"Song id: {song[0]} read.")
+                logger.info(f"Embedding: {embedding}")
+                store_embedding(song[0], song[1], song[3], song[16], embedding)
+                rows_processed.inc()
 
         mark_object_processed(key)
+        objects_processed.inc()
         logger.info(f"{key} processed")
     else:
         logger.info(f"{key} already processed")
 
-
-start_http_server(8000)
+start_http_server(9101)
 credentials = pika.PlainCredentials('user', RABBIT_MQ_PASSWORD)
 parameters = pika.ConnectionParameters(host=RABBIT_MQ, credentials=credentials) 
 connection = pika.BlockingConnection(parameters)
@@ -246,5 +254,5 @@ channel = connection.channel()
 channel.queue_declare(queue=QUEUE_NAME)
 channel.basic_consume(queue=QUEUE_NAME, on_message_callback=callback, auto_ack=True)
 channel.basic_publish(exchange='', routing_key=QUEUE_NAME, body='part-00075-77fbec1f-53bd-48e0-9790-c733ee82f211-c000.csv')
-print(' [*] Waiting for messages. To exit press CTRL+C')
+logger.info("Ingest waiting for messages")
 channel.start_consuming()
