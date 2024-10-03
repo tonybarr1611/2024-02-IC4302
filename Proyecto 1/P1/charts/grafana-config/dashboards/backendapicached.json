@@ -6,183 +6,7 @@
     "timezone": "browser",
     "schemaVersion": 36,
     "version": 1,
-    "refresh": "5s",
-    "panels": [
-      {
-        "type": "graph",
-        "title": "Cache Hits",
-        "gridPos": {
-          "x": 0,
-          "y": 0,
-          "w": 12,
-          "h": 8
-        },
-        "targets": [
-          {
-            "expr": "cache_hits_total",
-            "interval": "",
-            "legendFormat": "{{instance}}",
-            "refId": "A"
-          }
-        ],
-        "datasource": null,
-        "xaxis": {
-          "show": true,
-          "mode": "time",
-          "name": null,
-          "values": []
-        },
-        "yaxis": {
-          "show": true,
-          "format": "short"
-        }
-      },
-      {
-        "type": "graph",
-        "title": "Cache Misses",
-        "gridPos": {
-          "x": 12,
-          "y": 0,
-          "w": 12,
-          "h": 8
-        },
-        "targets": [
-          {
-            "expr": "cache_misses_total",
-            "interval": "",
-            "legendFormat": "{{instance}}",
-            "refId": "A"
-          }
-        ],
-        "datasource": null,
-        "xaxis": {
-          "show": true,
-          "mode": "time",
-          "name": null,
-          "values": []
-        },
-        "yaxis": {
-          "show": true,
-          "format": "short"
-        }
-      },
-      {
-        "type": "graph",
-        "title": "Max Processing Time",
-        "gridPos": {
-          "x": 0,
-          "y": 8,
-          "w": 12,
-          "h": 8
-        },
-        "targets": [
-          {
-            "expr": "max_processing_time",
-            "interval": "",
-            "legendFormat": "{{instance}}",
-            "refId": "A"
-          }
-        ],
-        "datasource": null,
-        "xaxis": {
-          "show": true,
-          "mode": "time",
-          "name": null,
-          "values": []
-        },
-        "yaxis": {
-          "show": true,
-          "format": "s"
-        }
-      },
-      {
-        "type": "graph",
-        "title": "Min Processing Time",
-        "gridPos": {
-          "x": 12,
-          "y": 8,
-          "w": 12,
-          "h": 8
-        },
-        "targets": [
-          {
-            "expr": "min_processing_time",
-            "interval": "",
-            "legendFormat": "{{instance}}",
-            "refId": "A"
-          }
-        ],
-        "datasource": null,
-        "xaxis": {
-          "show": true,
-          "mode": "time",
-          "name": null,
-          "values": []
-        },
-        "yaxis": {
-          "show": true,
-          "format": "s"
-        }
-      },
-      {
-        "type": "graph",
-        "title": "Average Processing Time",
-        "gridPos": {
-          "x": 0,
-          "y": 16,
-          "w": 12,
-          "h": 8
-        },
-        "targets": [
-          {
-            "expr": "avg_processing_time",
-            "interval": "",
-            "legendFormat": "{{instance}}",
-            "refId": "A"
-          }
-        ],
-        "datasource": null,
-        "xaxis": {
-          "show": true,
-          "mode": "time",
-          "name": null,
-          "values": []
-        },
-        "yaxis": {
-          "show": true,
-          "format": "s"
-        }
-      },
-      {
-        "type": "graph",
-        "title": "Total Requests per Endpoint",
-        "gridPos": {
-          "x": 12,
-          "y": 16,
-          "w": 12,
-          "h": 8
-        },
-        "targets": [
-          {
-            "expr": "sum(total_requests) by (endpoint)",
-            "interval": "",
-            "legendFormat": "{{endpoint}}",
-            "refId": "A"
-          }
-        ],
-        "datasource": null,
-        "xaxis": {
-          "show": true,
-          "mode": "time",
-          "name": null,
-          "values": []
-        },
-        "yaxis": {
-          "show": true,
-          "format": "short"
-        }
-      }
-    ]
+    "refresh": "5s"
   },
   "panels": [
     {
@@ -190,7 +14,7 @@
       "title": "Cache Hits",
       "targets": [
         {
-          "expr": "cache_hits_total",
+          "expr": "ba_cache_hits_total",
           "legendFormat": "Cache Hits",
           "refId": "A"
         }
@@ -208,7 +32,7 @@
       "title": "Cache Misses",
       "targets": [
         {
-          "expr": "cache_misses_total",
+          "expr": "ba_cache_misses_total",
           "legendFormat": "Cache Misses",
           "refId": "B"
         }
@@ -226,7 +50,7 @@
       "title": "Max Processing Time",
       "targets": [
         {
-          "expr": "max_processing_time",
+          "expr": "ba_max_processing_time",
           "legendFormat": "Max Time",
           "refId": "C"
         }
@@ -244,7 +68,7 @@
       "title": "Min Processing Time",
       "targets": [
         {
-          "expr": "min_processing_time",
+          "expr": "ba_min_processing_time",
           "legendFormat": "Min Time",
           "refId": "D"
         }
@@ -262,7 +86,7 @@
       "title": "Average Processing Time",
       "targets": [
         {
-          "expr": "processing_time_seconds_sum / processing_time_seconds_count",
+          "expr": "ba_processing_time_seconds_sum / ba_processing_time_seconds_count",
           "legendFormat": "Avg Time",
           "refId": "E"
         }
@@ -280,7 +104,7 @@
       "title": "Total Requests per Endpoint",
       "targets": [
         {
-          "expr": "sum by (exported_endpoint) (total_requests_total)",
+          "expr": "sum by (exported_endpoint) (ba_total_requests_total)",
           "legendFormat": "{{exported_endpoint}}",
           "refId": "F"
         }
