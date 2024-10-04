@@ -14,7 +14,7 @@ config:
   backendapi:
     replicas: 2
     name: backend-api
-    image: backend-api-memcached
+    image: backend-api
   backendapinodeport:
     port: 5000
     targetPort: 5000

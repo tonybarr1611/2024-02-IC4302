@@ -40,6 +40,10 @@ spec:
                 optional: false
           - name: HUGGINGFACE
             value: huggingfaceapi
+          - name: MEMCACHED
+            value: "databases-memcached"
+          - name: MEMCACHED_PORT
+            value: "11211"
           - name: ELASTIC_USER
             value: "elastic"
           - name: ELASTIC_PASSWORD
