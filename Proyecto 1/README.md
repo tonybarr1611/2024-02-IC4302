@@ -301,37 +301,29 @@ The API routes are organized within the `routes` directory, and additional utili
 
 The frontend for the application is built using React and runs on port `localhost:30080` on your machine. This frontend is organized into various pages, each serving a specific function within the application. Below is an overview of the main pages:
 
-### Login Page
-The login page allows users to authenticate themselves by entering their username and password. Upon successful login, users are redirected to their dashboard.
-![Login page](ruta/de/tu/imagen.png)
-
-### Registration Page
-New users can create an account by providing necessary details such as username, email, and password. This page ensures that all required fields are filled out before allowing the user to register.
-![Registration page](ruta/de/tu/imagen.png)
-
-### Dashboard
-The dashboard serves as the main landing page after login. It provides an overview of the user's activity, including recent posts, friend activity, and system notifications.
-![Dashboard](ruta/de/tu/imagen.png)
 
 ### User Profile
-The user profile page displays the user's personal information, including their bio, posts, and friends list. Users can edit their profile details and manage their account settings from this page.
-![User profile](ruta/de/tu/imagen.png)
+The user profile page displays the user's personal information. 
+![User profile](../../Profile.jpeg)
+![Edit profile](../../EditProfile.jpeg)
 
 ### Social Feed
 The social feed page aggregates posts from the user's friends and displays them in a chronological order. Users can like, comment, and share posts directly from this feed.
-![Social feed](ruta/de/tu/imagen.png)
+![Social feed](../../Feed.jpeg)
 
 ### Search Page
 The search page allows users to search for songs using vector search on Elasticsearch. Users can enter prompts to find songs based on lyrics or other criteria.
-![Search page](ruta/de/tu/imagen.png)
+![Search Example](../../PrompTunes.jpeg)
+![Search Example2](../../PrompTunes2.jpeg)
 
-### Friends Management
-This page enables users to manage their friends list. Users can send friend requests, accept or decline incoming requests, and view their current friends.
-![Friend management page](ruta/de/tu/imagen.png)
+### Friends 
+The friends page displays a list of the user's friends.
+![Friends](../../Friends.jpeg)\
+![Friends Search](../../FriendsSearch.jpeg)
 
 ### Post Creation
-The post creation page allows users to create new posts or prompts. Users can enter text, upload images, and tag friends in their posts.
-![Post creation](ruta/de/tu/imagen.png)
+The post creation page allows users to create new posts or prompts. Users can enter text and submit it to the system.
+![Post creation](../../Posts.jpeg)
 
 Each of these pages is designed to provide a user-friendly experience, ensuring that users can easily navigate and interact with the application.
 
@@ -370,19 +362,25 @@ The following tests were performed to evaluate the performance of the different 
 
 The MariaDB dashboard provides insights into the performance of the MariaDB database, including key metrics such as query related metrics and resource usage. 
 
-![MariaDB grafana dashboard](ruta/de/tu/imagen.png)
+![MariaDB Grafana Dashboard](../../MariaDB.jpeg)
 
 ## Memcached
 
 The Memcached dashboard helps us look into the performance of the Memcached caching system. It shows us certain metrics, such as cache hits, cache misses, and overall cache efficiency.
 
-![Mencached grafana dashboard](ruta/de/tu/imagen.png)
+![Memcached Grafana Dashboard](../../Memcached.jpeg)
 
 ## ElasticSearch
 
 The ElasticSearch dashboard provides information about the performance of the ElasticSearch database, including certain metrics as indexing rates and resource usage.
 
-![Elastic search grafana dashboard](ruta/de/tu/imagen.png)
+![ElasticSearch Grafana Dashboard](../../Elastic.jpeg)
+
+## RabbitMQ
+
+The RabbitMQ dashboard provides insights into the performance of the RabbitMQ message broker, including key metrics such as message rates, queue sizes, and resource usage.
+
+![RabbitMQ Grafana Dashboard](../../Rabbit.jpeg)
 
 ## S3 Crawler Dashboard
 
@@ -391,7 +389,7 @@ The S3 Crawler Dashboard provides a detailed look into the operational performan
 - Number of Objects: Counts the total objects processed by the crawler.
 - Total Processing Time: Summarizes the total time spent processing all objects.
 
-![S3crawler grafana dashboard](ruta/de/tu/imagen.png)
+![S3 Crawler Grafana Dashboard](../../S3Crawler.jpeg)
 
 ## Ingest Dashboard
   
@@ -404,7 +402,7 @@ The Ingest Dashboard offers insights into how well the Ingest service is functio
 - Number of Rows with Errors: Monitors how many rows encountered errors during processing.
 - Number of Objects with Errors: Tracks the total number of objects that failed to process correctly.
 
-![Ingest grafana dashboard](ruta/de/tu/imagen.png)
+![Ingest Grafana Dashboard](../../Ingest.jpeg)
 
 ## Hugging Face Dashboard
    
@@ -413,7 +411,7 @@ The Hugging Face Dashboard sheds light on the performance metrics of the Hugging
 - Number of Requests: Tracks how many requests were made for generating embeddings.
 - Maximum, Minimum, and Average Time for Generating Embeddings: Measures the time taken to generate embeddings, providing insights into performance and efficiency.
 
-![Hugging Face grafana dashboard](ruta/de/tu/imagen.png)
+![Hugging Face Grafana Dashboard](../../Hugging.jpeg)
 
 ## Backend API Dashboard 
 
@@ -424,7 +422,7 @@ The Backend API Dashboard assesses the effectiveness of the Backend API by monit
 - Maximum, Minimum, and Average Processing Time: Measures the performance of API requests by tracking the time taken to process each request.
 - Total Requests per Endpoint: Monitors how many requests were made to each endpoint of the API.
 
-![Backend api grafana dashboard](ruta/de/tu/imagen.png)
+![Backend API Grafana Dashboard](../../BackendAPI.jpeg)
 
 ---
 
