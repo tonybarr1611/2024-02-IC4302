@@ -1,6 +1,6 @@
 pika
 boto3
-chardet
+pandas
 mariadb
 requests
 elasticsearch

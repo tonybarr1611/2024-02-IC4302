@@ -1,14 +1,14 @@
 import os
 import sys
 import csv
-from time import time
 import pika
 import boto3
 import mariadb
 import logging
-import chardet
 import requests
 import datetime
+import pandas as pd
+from time import sleep
 from io import StringIO
 from elasticsearch import Elasticsearch
 from prometheus_client import start_http_server
@@ -90,9 +90,11 @@ def read_csv_from_s3(bucket_name, file_key):
         
         csv_content = raw_content.decode(encoding='utf-8', errors='ignore')
         
-        csv_reader = csv.reader(StringIO(csv_content), skipinitialspace=True)
+        csv_file = StringIO(csv_content)
+        
+        csv_df = pd.read_csv(csv_file, on_bad_lines='skip')
 
-        return [row for row in csv_reader]
+        return csv_df.values.tolist()
     except Exception as e:
         logger.error(f"Error reading CSV from S3: {e}")
         sys.exit(1)
@@ -164,7 +166,7 @@ def get_embeddings(text):
             return response.json()['embedding']
     except Exception as e:
         logger.error(f"Error getting embeddings: {e}")
-        time.sleep(5)
+        sleep(15)
         return get_embeddings(text)
     
 # Elasticsearch
@@ -258,7 +260,7 @@ credentials = pika.PlainCredentials('user', RABBIT_MQ_PASSWORD)
 parameters = pika.ConnectionParameters(host=RABBIT_MQ, credentials=credentials) 
 connection = pika.BlockingConnection(parameters)
 channel = connection.channel()
-channel.queue_declare(queue=QUEUE_NAME)
+channel.queue_declare(queue=QUEUE_NAME, durable=True)
 channel.basic_consume(queue=QUEUE_NAME, on_message_callback=callback, auto_ack=True)
 channel.basic_publish(exchange='', routing_key=QUEUE_NAME, body='part-00075-77fbec1f-53bd-48e0-9790-c733ee82f211-c000.csv')
 logger.info("Ingest waiting for messages")

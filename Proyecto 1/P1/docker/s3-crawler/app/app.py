@@ -82,7 +82,7 @@ def list_s3_objects(bucket, prefix):
 def send_to_rabbitmq(message):
     try:
         # Asegurarse que la cola existe
-        channel.queue_declare(queue=QUEUE_NAME)
+        channel.queue_declare(queue=QUEUE_NAME, durable=True)
         # Publicar el mensaje
         channel.basic_publish(exchange='', routing_key=QUEUE_NAME, body=message)
         logger.info(f"Mensaje enviado a RabbitMQ: {message}")
@@ -121,7 +121,7 @@ def main():
     logger.info(f"Tiempo total de procesamiento: {total_time:.2f} segundos")
     logger.info("Proceso completado.")
     logger.info("Stalling to keep the container running so the metrics can be scraped.")
-    time.sleep(600) # 10 minutes should be enough for the scraping to happen
+    time.sleep(570) # 9.5 minutes should be enough for the scraping to happen
 
 # Ejecutar el código si es el script principal
 if __name__ == "__main__":
