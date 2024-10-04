@@ -88,9 +88,9 @@ def read_csv_from_s3(bucket_name, file_key):
         response = s3_client.get_object(Bucket=bucket_name, Key=file_key)
         raw_content = response['Body'].read()
         
-        csv_content = raw_content.decode(encoding='utf-8', errors='backslashreplace')
+        csv_content = raw_content.decode(encoding='utf-8', errors='ignore')
         
-        csv_reader = csv.reader(StringIO(csv_content))
+        csv_reader = csv.reader(StringIO(csv_content), skipinitialspace=True)
 
         return [row for row in csv_reader]
     except Exception as e:
