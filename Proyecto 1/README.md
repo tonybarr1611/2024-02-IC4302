@@ -273,36 +273,53 @@ In this project, talking specifically about Grafana we can find seven main dashb
 
 - **Ingest Service Dashboard:** This dashboard provides a detailed view of the Ingest Service's performance, including object and row processing times, request counts, and error rates.
 
-## Tests
+## Unit Testing
 
-The following tests were performed to evaluate the performance of the different components of the project. The tests focused on key metrics such as response times, request counts, object processing times, and cache efficiency. The results of the tests were visualized in Grafana dashboards, providing insights into the performance of the different components.
+Unit testing is a critical aspect of software development aimed at validating individual components of the codebase in isolation. In this project, unit tests help ensure that key functions, classes, and modules behave as expected under different conditions. By detecting bugs early in the development cycle, unit testing minimizes the risk of defects making it to production, improves code quality, and enhances maintainability. Additionally, it allows for safer refactoring and easier integration of new features.
 
+### Importance of Unit Testing
+- Reliability: Unit tests verify that each module performs its intended function, building confidence that the system will operate as designed.
+- Bug Detection: By isolating each part of the system, unit tests make it easier to catch bugs at an early stage, before they propagate through the codebase.
+Refactoring Support: Well-written unit tests ensure that future changes or optimizations do not unintentionally break existing functionality.
+- Documentation: Unit tests serve as a form of living documentation for the code, showing how various components are expected to behave.
+- Efficiency in Development: Unit tests provide rapid feedback, allowing developers to fix issues before they escalate into larger, more complex problems.
 
-## MariaDB 
+### What modules should have unit testing
+In this project, unit testing could be applying to key modules, including:
 
-![Prueba](Tests/maria1.jpeg) 
-![Prueba](Tests/maria2.jpeg)
-![Prueba](Tests/maria3.jpeg)
-![Prueba](Tests/maria4.jpeg)
-![Prueba](Tests/maria5.jpeg)
-![Prueba](Tests/maria6.jpeg)
+#### Hugging Face API
+- Verifying the proper functioning of API requests and responses.
+- Ensuring that the expected model outputs are returned based on the given input data.
+- Testing the error handling for API call failures, timeouts, or invalid inputs.
+- Ensuring metrics collection for Prometheus (e.g., API response times, successful requests).
 
+#### Ingest
+- Ensuring data ingestion pipelines correctly process various data formats and sizes.
+- Testing individual data transformation functions for correctness.
+- Validating error handling when ingestion fails (e.g., malformed data or network errors).
 
-## Memcached
+#### S3 crawler
 
-![Prueba](Tests/memcached.jpeg)
+- Testing the ability to list files from S3 buckets.
+- Ensuring graceful handling of S3-specific errors.
+- Testing the processing logic that acts upon the S3 data, ensuring it behaves correctly across different scenarios.
 
-## ElasticSearch
+#### backend API
+- Verifying the correctness of API endpoints (e.g., for creating, reading, updating, and deleting resources).
+- Ensuring the integration with external services, such as Elasticsearch for indexing, and MariaDB for data persistence.
+- Testing error handling, such as database failures, message queue unavailability, or malformed requests.
 
-![Prueba](Tests/elastic.jpeg)
+### Why Unit Testing Was Not Implemented for Certain Modules
+We decided not to implement unit testing for certain modules due to the complexity of their structure and their heavy reliance on external services. While unit testing is a critical part of maintaining code quality, there are several key reasons why these particular modules were not subjected to unit tests at this stage:
 
-## S3 Crawler
+#### Complexity of the Modules
+The modules in question, such as the Hugging Face API, the ingest, the S3 crawler, and the backend API, are highly intricate. They perform a series of complex operations that involve multiple steps of data processing, external API communication, and dynamic data transformations. Due to the depth and complexity of these operations, designing effective and meaningful unit tests would require an exhaustive setup and an in-depth understanding of the module internals, which often makes short, self-contained unit tests less feasible. For these modules, a full, dedicated testing strategy that goes beyond basic unit testing is required, including integration and system-level testing.
 
-## Hugging Face API
+#### Dependency on External Services
+Many of the core functions within these modules rely on interactions with external services such as Amazon S3, RabbitMQ, Elasticsearch, or Hugging Face APIs. Unit tests are generally meant to isolate the logic of the code from its environment, but the dependency on these services makes isolation challenging. Mocking these services for unit tests can introduce added complexity and would require comprehensive simulation of their behavior, which may not fully capture the nuances of real-world interactions. Given the tight coupling to these services, integration tests that work with real or closely simulated environments are a more practical approach to ensuring functionality.
 
-## Ingest
-
-## Backend API
+#### Difficulty in Simplifying the Functions
+The core logic in these modules is designed to handle intricate tasks such as multi-step data processing, cross-service communication, and API responses, which do not lend themselves easily to simplification for unit testing. Breaking these down into smaller, testable units would significantly alter the code's structure and could potentially affect its performance or readability. Moreover, writing unit tests for highly complex functions would likely result in fragile tests that are tightly coupled to implementation details, reducing the maintainability of the test suite.
 
 # References
 
