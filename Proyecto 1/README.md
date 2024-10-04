@@ -35,7 +35,7 @@ The requirements for the project are the following:
 There is a script to build the docker images, to execute it in a bash shell execute:
 
 ```bash
-cd ./TC1/docker
+cd ./P1/docker
 ./build.sh nereo08
 ```
 
@@ -48,7 +48,7 @@ This script will build the images for the components of the homework, including 
 
 ### Configure
 
-* Open the file **TC1/charts/app/values.yaml**
+* Open the file **P1/charts/app/values.yaml**
 * Replace **nereo08** by your DockerHub username
 
 ```yaml
@@ -61,7 +61,7 @@ config:
 Execute:
 
 ```bash
-cd ./TC1/charts
+cd ./P1/charts
 ./install.sh
 ```
 
@@ -72,7 +72,7 @@ Here we are installing the components in the Kubernetes cluster. The script will
 Execute:
 
 ```bash
-cd ./TC1/charts
+cd ./P1/charts
 ./uninstall.sh
 ```
 
@@ -247,7 +247,7 @@ The Ingest application is a Python component responsible for processing data fro
 
 ## Backend API:
 
-This is an API developed in Flask, that starts in the port localhost:31000 ever since you do the install.sh script. It uses several libraries to enhance its functionality. Key libraries include:
+This is an API developed in Flask, that starts in the port localhost:31000 ever since you do the install.sh script. It's main purpose is to interact with the databases and provide the necessary functionality for the frontend to work. It uses several libraries to enhance its functionality. Key libraries include:
 
 - **Flask-CORS**: Allows communication between different domains through CORS (Cross-Origin Resource Sharing).
 - **Requests**: Used to efficiently make HTTP requests.
@@ -313,10 +313,34 @@ The API routes are organized within the `routes` directory, and additional utili
   Allows users to update their profile information, such as username, bio, or other details.
 
 ## UI:
-This is the base front end for the aplication is made in react and starts on port localhost:30080 in your machine. As usual this front end is divide in different pages:
 
-### Login 
+The frontend for the application is built using React and runs on port `localhost:30080` on your machine. This frontend is organized into various pages, each serving a specific function within the application. Below is an overview of the main pages:
 
+### Login Page
+The login page allows users to authenticate themselves by entering their username and password. Upon successful login, users are redirected to their dashboard.
+
+### Registration Page
+New users can create an account by providing necessary details such as username, email, and password. This page ensures that all required fields are filled out before allowing the user to register.
+
+### Dashboard
+The dashboard serves as the main landing page after login. It provides an overview of the user's activity, including recent posts, friend activity, and system notifications.
+
+### User Profile
+The user profile page displays the user's personal information, including their bio, posts, and friends list. Users can edit their profile details and manage their account settings from this page.
+
+### Social Feed
+The social feed page aggregates posts from the user's friends and displays them in a chronological order. Users can like, comment, and share posts directly from this feed.
+
+### Search Page
+The search page allows users to search for songs using vector search on Elasticsearch. Users can enter prompts to find songs based on lyrics or other criteria.
+
+### Friends Management
+This page enables users to manage their friends list. Users can send friend requests, accept or decline incoming requests, and view their current friends.
+
+### Post Creation
+The post creation page allows users to create new posts or prompts. Users can enter text, upload images, and tag friends in their posts.
+
+Each of these pages is designed to provide a user-friendly experience, ensuring that users can easily navigate and interact with the application.
 
 
 
@@ -351,29 +375,61 @@ The following tests were performed to evaluate the performance of the different 
 
 ## MariaDB 
 
-![Prueba](Tests/maria1.jpeg) 
-![Prueba](Tests/maria2.jpeg)
-![Prueba](Tests/maria3.jpeg)
-![Prueba](Tests/maria4.jpeg)
-![Prueba](Tests/maria5.jpeg)
-![Prueba](Tests/maria6.jpeg)
+The MariaDB dashboard provides insights into the performance of the MariaDB database, including key metrics such as query related metrics and resource usage. 
+
+
 
 
 ## Memcached
 
-![Prueba](Tests/memcached.jpeg)
+The Memcached dashboard helps us look into the performance of the Memcached caching system. It shows us certain metrics, such as cache hits, cache misses, and overall cache efficiency.
+
+
 
 ## ElasticSearch
 
-![Prueba](Tests/elastic.jpeg)
+The ElasticSearch dashboard provides information about the performance of the ElasticSearch database, including certain metrics as indexing rates and resource usage.
 
-## S3 Crawler
 
-## Hugging Face API
+## S3 Crawler Dashboard
 
-## Ingest
+The S3 Crawler Dashboard provides a detailed look into the operational performance of the S3 Crawler by tracking the following metrics:
 
-## Backend API
+- Number of Objects: Counts the total objects processed by the crawler.
+- Total Processing Time: Summarizes the total time spent processing all objects.
+
+
+## Ingest Dashboard
+  
+The Ingest Dashboard offers insights into how well the Ingest service is functioning, with the following metrics being monitored:
+
+- Maximum, Minimum, and Average Processing Time for an Object: Assesses the time taken to process each object.
+- Maximum, Minimum, and Average Processing Time for a Row: Evaluates the time taken to process individual rows within the objects.
+- Number of Processed Objects: Tracks how many objects were successfully processed.
+- Number of Processed Rows: Counts the total rows processed.
+- Number of Rows with Errors: Monitors how many rows encountered errors during processing.
+- Number of Objects with Errors: Tracks the total number of objects that failed to process correctly.
+
+## Hugging Face Dashboard
+   
+The Hugging Face Dashboard sheds light on the performance metrics of the Hugging Face API, including:
+
+- Number of Requests: Tracks how many requests were made for generating embeddings.
+- Maximum, Minimum, and Average Time for Generating Embeddings: Measures the time taken to generate embeddings, providing insights into performance and efficiency.
+
+
+## Backend API Dashboard 
+
+The Backend API Dashboard assesses the effectiveness of the Backend API by monitoring the following key metrics:
+
+- Cache Hits: Counts the number of times requested data was found in the cache.
+- Cache Misses: Counts the number of times requested data was not found in the cache.
+- Maximum, Minimum, and Average Processing Time: Measures the performance of API requests by tracking the time taken to process each request.
+- Total Requests per Endpoint: Monitors how many requests were made to each endpoint of the API.
+
+
+---
+
 
 # References
 
