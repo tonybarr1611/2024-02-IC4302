@@ -220,6 +220,8 @@ As mentioned before, Elasticsearch and MariaDB are populated with certain data e
 
 ## S3 Crawler: 
 
+The S3-RabbitMQ Processor is a Python-based application responsible for managing data flow between AWS S3 and RabbitMQ. Upon execution, it lists all objects stored in a specified S3 bucket, filters them using a predefined prefix, and sends their object keys as messages to a RabbitMQ queue. These keys are processed to trigger downstream tasks, such as data extraction or transformation. Prometheus metrics are integrated into the app, tracking the total number of S3 objects processed and the time taken for each execution cycle. It starts by fetching environment variables for configuring AWS credentials, S3 bucket names, and RabbitMQ connection details. For each valid object in S3, the application sends the object key to RabbitMQ using a specified queue. Metrics such as the total number of objects processed and the time taken for each operation are tracked and exposed for Prometheus monitoring. The application runs as a long-running process and is designed to be deployed in a Kubernetes environment where all configuration details are injected through environment variables. The application also supports logging for error handling, providing clear insights into operational statuses and error states. This system efficiently handles S3 objects, ensures message queuing, and offers robust observability through Prometheus, making it a key part of the larger data pipeline.
+
 ## Hugging Face API: (MODIFY)
 
 The API developed in Flask allows users to access Formula 1 data stored in MariaDB databases. Routes are built that execute SQL queries on various tables related to races, drivers, teams, circuits, and Formula 1 events. The main routes include:
@@ -245,7 +247,76 @@ The Ingest application is a Python component responsible for processing data fro
 
 ## Backend API:
 
+This is an API developed in Flask, that starts in the port localhost:31000 ever since you do the install.sh script. It uses several libraries to enhance its functionality. Key libraries include:
+
+- **Flask-CORS**: Allows communication between different domains through CORS (Cross-Origin Resource Sharing).
+- **Requests**: Used to efficiently make HTTP requests.
+- **MariaDB**: Facilitates the connection and manipulation of MariaDB databases.
+- **Elasticsearch**: Used to perform advanced searches and data management in this NoSQL database.
+
+The project structure includes:
+
+- `app.py`: For the central configuration of the application.
+- `config.py`: To manage environment variables.
+- `database.py`: To establish the connection with MariaDB.
+
+The API routes are organized within the `routes` directory, and additional utilities are contained in `utils.py` to support complementary operations like the vector search. The backend is easily deployable through Docker using a Dockerfile, which facilitates its implementation and scalability in production environments.
+
+## Endpoints
+
+- **/register (POST)**: 
+  Used to register a new user by sending the necessary user data.
+
+- **/login (POST)**: 
+  Used for logging in an existing user by providing login credentials (username and password).
+
+- **/followOrUnfollow (POST)**: 
+  Allows a user to follow or unfollow another user.
+
+- **/find (POST)**: 
+  Used to search for users based on their name or username.
+
+- **/isFriend (POST)**: 
+  Checks if a particular user is a friend of the logged-in user.
+
+- **/friends (POST)**: 
+  Retrieves a list of the logged-in user's friends.
+
+- **/likeOrUnlike (POST)**: 
+  Used to like or unlike a specific post (prompt).
+
+- **/hasLiked (POST)**: 
+  Checks if a user has liked a specific post.
+
+- **/feed (POST)**: 
+  Returns a feed of posts from the user’s friends and themselves.
+
+- **/search (POST)**: 
+  Searches for posts based on a query string provided by the user.
+
+- **/prompt (POST)**: 
+  Fetches the top n results of a specific prompt.
+
+- **/postPrompt (POST)**: 
+  Used to submit a new post or prompt.
+
+- **/editPrompt (POST)**: 
+  Allows the editing of an existing post or prompt.
+
+- **/deletePrompt (POST)**: 
+  Deletes a specific post or prompt.
+
+- **/profile (POST)**: 
+  Fetches a user’s information, including their posts and profile details.
+
+- **/updateProfile (POST)**: 
+  Allows users to update their profile information, such as username, bio, or other details.
+
 ## UI:
+This is the base front end for the aplication is made in react and starts on port localhost:30080 in your machine. As usual this front end is divide in different pages:
+
+### Login 
+
 
 
 
