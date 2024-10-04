@@ -13,6 +13,10 @@ dashboards:
     name: memcached
     file: memcached.json
     enable: true
+  rabbitmq:
+    name: rabbitmq
+    file: rabbitmq.json
+    enable: true
   ingest:
     name: ingest
     file: ingest.json

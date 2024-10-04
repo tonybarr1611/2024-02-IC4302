@@ -43,3 +43,11 @@ memcached:
     serviceMonitor:
       enabled: true
       namespace: "monitoring"
+
+rabbitmq:
+  enabled: true
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+      namespace: "monitoring"
