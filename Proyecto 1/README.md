@@ -35,7 +35,7 @@ The requirements for the project are the following:
 There is a script to build the docker images, to execute it in a bash shell execute:
 
 ```bash
-cd ./TC1/docker
+cd ./P1/docker
 ./build.sh nereo08
 ```
 
@@ -48,7 +48,7 @@ This script will build the images for the components of the homework, including 
 
 ### Configure
 
-* Open the file **TC1/charts/app/values.yaml**
+* Open the file **P1/charts/app/values.yaml**
 * Replace **nereo08** by your DockerHub username
 
 ```yaml
@@ -61,7 +61,7 @@ config:
 Execute:
 
 ```bash
-cd ./TC1/charts
+cd ./P1/charts
 ./install.sh
 ```
 
@@ -72,7 +72,7 @@ Here we are installing the components in the Kubernetes cluster. The script will
 Execute:
 
 ```bash
-cd ./TC1/charts
+cd ./P1/charts
 ./uninstall.sh
 ```
 
@@ -220,24 +220,11 @@ As mentioned before, Elasticsearch and MariaDB are populated with certain data e
 
 ## S3 Crawler: 
 
-## Hugging Face API: (MODIFY)
+The S3-RabbitMQ Processor is a Python-based application responsible for managing data flow between AWS S3 and RabbitMQ. Upon execution, it lists all objects stored in a specified S3 bucket, filters them using a predefined prefix, and sends their object keys as messages to a RabbitMQ queue. These keys are processed to trigger downstream tasks, such as data extraction or transformation. Prometheus metrics are integrated into the app, tracking the total number of S3 objects processed and the time taken for each execution cycle. It starts by fetching environment variables for configuring AWS credentials, S3 bucket names, and RabbitMQ connection details. For each valid object in S3, the application sends the object key to RabbitMQ using a specified queue. Metrics such as the total number of objects processed and the time taken for each operation are tracked and exposed for Prometheus monitoring. The application runs as a long-running process and is designed to be deployed in a Kubernetes environment where all configuration details are injected through environment variables. The application also supports logging for error handling, providing clear insights into operational statuses and error states. This system efficiently handles S3 objects, ensures message queuing, and offers robust observability through Prometheus, making it a key part of the larger data pipeline.
 
-The API developed in Flask allows users to access Formula 1 data stored in MariaDB databases. Routes are built that execute SQL queries on various tables related to races, drivers, teams, circuits, and Formula 1 events. The main routes include:
+## Hugging Face API: 
 
-1. Routes for obtaining drivers and constructors:
-
-/drivers: Returns a list of all drivers.
-/constructors: Returns a list of all constructors.
-
-2. Routes for obtaining laps and times:
-
-/circuit/<int:id>/laps: Provides the laps recorded at a specific circuit.
-/drivers/<int:id>/laps: Provides the laps completed by a driver in all races.
-
-3. Other routes:
-
-/driver/<int:id>/total_races: Returns the total number of races a specific driver has participated in.
-/driver/<int:id>/pitstops: Details the pit stops of a driver in different races.
+The Hugging Face is a python application that implements an API through Flask. It uses the Hugging Face Sentence Transformers model to encode text into embeddings. It also integrates Prometheus monitoring to track metrics. The model "all-mpnet-base-v2" is loaded using Sentence Transformers and is used later to encode text into embeddings. It exposes metrics for Prometheus like minimum, maximum and average time for requests and the total amount of requests. This application measures the time taken for each request and updates prometheus metrics accordingly. The application has two endpoints: /encode and /status. Encode takes POST requests with a JSON body containing the key "text". If the text is missing, it returns an error message. The Sentence Transformers model encodes the text as an embedding and returns it as a JSON. Status is a GET endpoint that encodes the hardcoded string "El sistema está funcionando correctamente." and returns the embedding. This is used to check that the system is working correctly. This API provides a service for encoding text using a Hugging Face model, while integrating Prometheus for monitoring and performance tracking. 
 
 ## Ingest:
 
@@ -245,7 +232,100 @@ The Ingest application is a Python component responsible for processing data fro
 
 ## Backend API:
 
+This is an API developed in Flask, that starts in the port localhost:31000 ever since you do the install.sh script. It's main purpose is to interact with the databases and provide the necessary functionality for the frontend to work. It uses several libraries to enhance its functionality. Key libraries include:
+
+- **Flask-CORS**: Allows communication between different domains through CORS (Cross-Origin Resource Sharing).
+- **Requests**: Used to efficiently make HTTP requests.
+- **MariaDB**: Facilitates the connection and manipulation of MariaDB databases.
+- **Elasticsearch**: Used to perform advanced searches and data management in this NoSQL database.
+
+The project structure includes:
+
+- `app.py`: For the central configuration of the application.
+- `config.py`: To manage environment variables.
+- `database.py`: To establish the connection with MariaDB.
+
+The API routes are organized within the `routes` directory, and additional utilities are contained in `utils.py` to support complementary operations like the vector search. The backend is easily deployable through Docker using a Dockerfile, which facilitates its implementation and scalability in production environments.
+
+## Endpoints
+
+- **/register (POST)**: 
+  Used to register a new user by sending the necessary user data.
+
+- **/login (POST)**: 
+  Used for logging in an existing user by providing login credentials (username and password).
+
+- **/followOrUnfollow (POST)**: 
+  Allows a user to follow or unfollow another user.
+
+- **/find (POST)**: 
+  Used to search for users based on their name or username.
+
+- **/isFriend (POST)**: 
+  Checks if a particular user is a friend of the logged-in user.
+
+- **/friends (POST)**: 
+  Retrieves a list of the logged-in user's friends.
+
+- **/likeOrUnlike (POST)**: 
+  Used to like or unlike a specific post (prompt).
+
+- **/hasLiked (POST)**: 
+  Checks if a user has liked a specific post.
+
+- **/feed (POST)**: 
+  Returns a feed of posts from the user’s friends and themselves.
+
+- **/search (POST)**: 
+  Searches for posts based on a query string provided by the user.
+
+- **/prompt (POST)**: 
+  Fetches the top n results of a specific prompt.
+
+- **/postPrompt (POST)**: 
+  Used to submit a new post or prompt.
+
+- **/editPrompt (POST)**: 
+  Allows the editing of an existing post or prompt.
+
+- **/deletePrompt (POST)**: 
+  Deletes a specific post or prompt.
+
+- **/profile (POST)**: 
+  Fetches a user’s information, including their posts and profile details.
+
+- **/updateProfile (POST)**: 
+  Allows users to update their profile information, such as username, bio, or other details.
+
 ## UI:
+
+The frontend for the application is built using React and runs on port `localhost:30080` on your machine. This frontend is organized into various pages, each serving a specific function within the application. Below is an overview of the main pages:
+
+### Login Page
+The login page allows users to authenticate themselves by entering their username and password. Upon successful login, users are redirected to their dashboard.
+
+### Registration Page
+New users can create an account by providing necessary details such as username, email, and password. This page ensures that all required fields are filled out before allowing the user to register.
+
+### Dashboard
+The dashboard serves as the main landing page after login. It provides an overview of the user's activity, including recent posts, friend activity, and system notifications.
+
+### User Profile
+The user profile page displays the user's personal information, including their bio, posts, and friends list. Users can edit their profile details and manage their account settings from this page.
+
+### Social Feed
+The social feed page aggregates posts from the user's friends and displays them in a chronological order. Users can like, comment, and share posts directly from this feed.
+
+### Search Page
+The search page allows users to search for songs using vector search on Elasticsearch. Users can enter prompts to find songs based on lyrics or other criteria.
+
+### Friends Management
+This page enables users to manage their friends list. Users can send friend requests, accept or decline incoming requests, and view their current friends.
+
+### Post Creation
+The post creation page allows users to create new posts or prompts. Users can enter text, upload images, and tag friends in their posts.
+
+Each of these pages is designed to provide a user-friendly experience, ensuring that users can easily navigate and interact with the application.
 
 
 
@@ -280,29 +360,61 @@ The following tests were performed to evaluate the performance of the different 
 
 ## MariaDB 
 
-![Prueba](Tests/maria1.jpeg) 
-![Prueba](Tests/maria2.jpeg)
-![Prueba](Tests/maria3.jpeg)
-![Prueba](Tests/maria4.jpeg)
-![Prueba](Tests/maria5.jpeg)
-![Prueba](Tests/maria6.jpeg)
+The MariaDB dashboard provides insights into the performance of the MariaDB database, including key metrics such as query related metrics and resource usage. 
+
+
 
 
 ## Memcached
 
-![Prueba](Tests/memcached.jpeg)
+The Memcached dashboard helps us look into the performance of the Memcached caching system. It shows us certain metrics, such as cache hits, cache misses, and overall cache efficiency.
+
+
 
 ## ElasticSearch
 
-![Prueba](Tests/elastic.jpeg)
+The ElasticSearch dashboard provides information about the performance of the ElasticSearch database, including certain metrics as indexing rates and resource usage.
 
-## S3 Crawler
 
-## Hugging Face API
+## S3 Crawler Dashboard
 
-## Ingest
+The S3 Crawler Dashboard provides a detailed look into the operational performance of the S3 Crawler by tracking the following metrics:
 
-## Backend API
+- Number of Objects: Counts the total objects processed by the crawler.
+- Total Processing Time: Summarizes the total time spent processing all objects.
+
+
+## Ingest Dashboard
+  
+The Ingest Dashboard offers insights into how well the Ingest service is functioning, with the following metrics being monitored:
+
+- Maximum, Minimum, and Average Processing Time for an Object: Assesses the time taken to process each object.
+- Maximum, Minimum, and Average Processing Time for a Row: Evaluates the time taken to process individual rows within the objects.
+- Number of Processed Objects: Tracks how many objects were successfully processed.
+- Number of Processed Rows: Counts the total rows processed.
+- Number of Rows with Errors: Monitors how many rows encountered errors during processing.
+- Number of Objects with Errors: Tracks the total number of objects that failed to process correctly.
+
+## Hugging Face Dashboard
+   
+The Hugging Face Dashboard sheds light on the performance metrics of the Hugging Face API, including:
+
+- Number of Requests: Tracks how many requests were made for generating embeddings.
+- Maximum, Minimum, and Average Time for Generating Embeddings: Measures the time taken to generate embeddings, providing insights into performance and efficiency.
+
+
+## Backend API Dashboard 
+
+The Backend API Dashboard assesses the effectiveness of the Backend API by monitoring the following key metrics:
+
+- Cache Hits: Counts the number of times requested data was found in the cache.
+- Cache Misses: Counts the number of times requested data was not found in the cache.
+- Maximum, Minimum, and Average Processing Time: Measures the performance of API requests by tracking the time taken to process each request.
+- Total Requests per Endpoint: Monitors how many requests were made to each endpoint of the API.
+
+
+---
+
 
 # References
 
