@@ -222,24 +222,9 @@ As mentioned before, Elasticsearch and MariaDB are populated with certain data e
 
 The S3-RabbitMQ Processor is a Python-based application responsible for managing data flow between AWS S3 and RabbitMQ. Upon execution, it lists all objects stored in a specified S3 bucket, filters them using a predefined prefix, and sends their object keys as messages to a RabbitMQ queue. These keys are processed to trigger downstream tasks, such as data extraction or transformation. Prometheus metrics are integrated into the app, tracking the total number of S3 objects processed and the time taken for each execution cycle. It starts by fetching environment variables for configuring AWS credentials, S3 bucket names, and RabbitMQ connection details. For each valid object in S3, the application sends the object key to RabbitMQ using a specified queue. Metrics such as the total number of objects processed and the time taken for each operation are tracked and exposed for Prometheus monitoring. The application runs as a long-running process and is designed to be deployed in a Kubernetes environment where all configuration details are injected through environment variables. The application also supports logging for error handling, providing clear insights into operational statuses and error states. This system efficiently handles S3 objects, ensures message queuing, and offers robust observability through Prometheus, making it a key part of the larger data pipeline.
 
-## Hugging Face API: (MODIFY)
+## Hugging Face API: 
 
-The API developed in Flask allows users to access Formula 1 data stored in MariaDB databases. Routes are built that execute SQL queries on various tables related to races, drivers, teams, circuits, and Formula 1 events. The main routes include:
-
-1. Routes for obtaining drivers and constructors:
-
-/drivers: Returns a list of all drivers.
-/constructors: Returns a list of all constructors.
-
-2. Routes for obtaining laps and times:
-
-/circuit/<int:id>/laps: Provides the laps recorded at a specific circuit.
-/drivers/<int:id>/laps: Provides the laps completed by a driver in all races.
-
-3. Other routes:
-
-/driver/<int:id>/total_races: Returns the total number of races a specific driver has participated in.
-/driver/<int:id>/pitstops: Details the pit stops of a driver in different races.
+The Hugging Face is a python application that implements an API through Flask. It uses the Hugging Face Sentence Transformers model to encode text into embeddings. It also integrates Prometheus monitoring to track metrics. The model "all-mpnet-base-v2" is loaded using Sentence Transformers and is used later to encode text into embeddings. It exposes metrics for Prometheus like minimum, maximum and average time for requests and the total amount of requests. This application measures the time taken for each request and updates prometheus metrics accordingly. The application has two endpoints: /encode and /status. Encode takes POST requests with a JSON body containing the key "text". If the text is missing, it returns an error message. The Sentence Transformers model encodes the text as an embedding and returns it as a JSON. Status is a GET endpoint that encodes the hardcoded string "El sistema está funcionando correctamente." and returns the embedding. This is used to check that the system is working correctly. This API provides a service for encoding text using a Hugging Face model, while integrating Prometheus for monitoring and performance tracking. 
 
 ## Ingest:
 
