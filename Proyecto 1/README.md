@@ -403,23 +403,18 @@ The core logic in these modules is designed to handle intricate tasks such as mu
 
 ## General Tests
 
-The following tests were performed to evaluate the performance of the different components of the project. The tests focused on key metrics such as response times, request counts, object processing times, and cache efficiency. The results of the tests were visualized in Grafana dashboards, providing insights into the performance of the different components.
-
-
-## MariaDB 
-
+## MariaDB
 The MariaDB dashboard provides insights into the performance of the MariaDB database, including key metrics such as query related metrics and resource usage. 
 
 ![MariaDB Grafana Dashboard](../../MariaDB.jpeg)
 
 ## Memcached
-
 The Memcached dashboard helps us look into the performance of the Memcached caching system. It shows us certain metrics, such as cache hits, cache misses, and overall cache efficiency.
 
 ![Memcached Grafana Dashboard](../../Memcached.jpeg)
 
-## ElasticSearch
 
+## ElasticSearch
 The ElasticSearch dashboard provides information about the performance of the ElasticSearch database, including certain metrics as indexing rates and resource usage.
 
 ![ElasticSearch Grafana Dashboard](../../Elastic.jpeg)
@@ -471,9 +466,6 @@ The Backend API Dashboard assesses the effectiveness of the Backend API by monit
 - Total Requests per Endpoint: Monitors how many requests were made to each endpoint of the API.
 
 ![Backend API Grafana Dashboard](../../BackendAPI.jpeg)
-
----
-
 
 # References
 
