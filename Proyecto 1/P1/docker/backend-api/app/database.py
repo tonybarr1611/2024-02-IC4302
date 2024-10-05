@@ -17,7 +17,6 @@ def init_mariadb():
             database="control"
         )
     except Exception as e:
-        print(f"Error connecting to MariaDB: {e}")
         exit(1)
 
 def init_elasticsearch():
@@ -25,7 +24,6 @@ def init_elasticsearch():
     try:
         elasticsearch_connection = Elasticsearch([ELASTIC], basic_auth=[ELASTIC_USER, ELASTIC_PASSWORD])
     except Exception as e:
-        print(f"Error connecting to Elasticsearch: {e}")
         exit(1)
 
 # Initialize the connections

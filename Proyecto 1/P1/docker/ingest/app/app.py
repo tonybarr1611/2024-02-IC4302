@@ -5,12 +5,14 @@ import pika
 import boto3
 import mariadb
 import logging
-import chardet
 import requests
 import datetime
+import pandas as pd
+from time import sleep
 from io import StringIO
 from elasticsearch import Elasticsearch
-from prometheus_client import Counter, Histogram, start_http_server
+from prometheus_client import start_http_server
+from utilsMetric import objects_processed, objects_error, rows_processed, rows_error, measure_object_processing_time, measure_row_processing_time
 
 # Variables
 XPATH=os.getenv('XPATH')
@@ -37,14 +39,6 @@ ELASTIC_PASS = os.getenv('ELASTIC_PASS')
 ELASTIC_INDEX_NAME = os.getenv('ELASTIC_INDEX_NAME')
 
 HUGGING_FACE_API = os.getenv('HUGGING_FACE_API')
-
-# Prometheus
-object_processing_time = Histogram('object_processing_time_seconds', 'Time taken to process an object', buckets=[0.01, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 2, 5, 10, 30, 60, 120, 300])
-row_processing_time = Histogram('row_processing_time_seconds', 'Time taken to process a row', buckets=[0.01, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 2, 5, 10, 30, 60, 120, 300])
-
-objects_processed = Counter('objects_processed', 'Cantidad de objetos procesados')
-rows_processed = Counter('rows_processed', 'Cantidad de filas procesados')
-rows_error = Counter('rows_error', 'Cantidad de filas con error')
 
 # Logging
 logging.basicConfig(
@@ -94,14 +88,13 @@ def read_csv_from_s3(bucket_name, file_key):
         response = s3_client.get_object(Bucket=bucket_name, Key=file_key)
         raw_content = response['Body'].read()
         
-        encoding = chardet.detect(raw_content)['encoding']
-        logger.info(f"Encoding detected: {encoding}")
-        if encoding == None: return []
+        csv_content = raw_content.decode(encoding='utf-8', errors='ignore')
         
-        csv_content = raw_content.decode('utf-8')
-        csv_reader = csv.reader(StringIO(csv_content))
+        csv_file = StringIO(csv_content)
+        
+        csv_df = pd.read_csv(csv_file, on_bad_lines='skip')
 
-        return [row for row in csv_reader]
+        return csv_df.values.tolist()
     except Exception as e:
         logger.error(f"Error reading CSV from S3: {e}")
         sys.exit(1)
@@ -173,7 +166,8 @@ def get_embeddings(text):
             return response.json()['embedding']
     except Exception as e:
         logger.error(f"Error getting embeddings: {e}")
-        return None
+        sleep(15)
+        return get_embeddings(text)
     
 # Elasticsearch
 
@@ -224,25 +218,40 @@ def store_embedding(id, title, artist, lyrics, embeddings):
     
     return response
 
+@measure_row_processing_time
+def process_row(row):
+    try:
+        embedding = get_embeddings(row[16])
+        if not embedding:
+            logger.error(f"Error getting embedding for song id: {row[0]}")
+            rows_error.inc()
+            return
+        logger.info(f"Song id: {row[0]} read.")
+        store_embedding(row[0], row[1], row[3], row[16], embedding)
+        rows_processed.inc()
+    except Exception as e:
+        logger.error(f"Error processing row: {e}")
+        rows_error.inc()
+        
+@measure_object_processing_time
+def process_object(key):
+    songsList = process_csv_file(S3_BUCKET, key, S3_KEY_PREFIX)
+    if songsList == []:
+        logger.error(f"Error reading CSV file {key}")
+        objects_error.inc()
+        return
+    for song in songsList[1:]:
+        process_row(song)
+    mark_object_processed(key)
+    objects_processed.inc()
+    logger.info(f"{key} processed")
+
 def callback(ch, method, properties, body):
     key = body.decode('utf-8')
     logger.info(f"Received job {key}")
     
     if not object_processed(key):
-        with object_processing_time.time():
-            songsList = process_csv_file(S3_BUCKET, key, S3_KEY_PREFIX)
-
-        for song in songsList[1:]:
-            with row_processing_time.time():
-                embedding = get_embeddings(song[16])
-                logger.info(f"Song id: {song[0]} read.")
-                logger.info(f"Embedding: {embedding}")
-                store_embedding(song[0], song[1], song[3], song[16], embedding)
-                rows_processed.inc()
-
-        mark_object_processed(key)
-        objects_processed.inc()
-        logger.info(f"{key} processed")
+        process_object(key)
     else:
         logger.info(f"{key} already processed")
 
@@ -251,7 +260,7 @@ credentials = pika.PlainCredentials('user', RABBIT_MQ_PASSWORD)
 parameters = pika.ConnectionParameters(host=RABBIT_MQ, credentials=credentials) 
 connection = pika.BlockingConnection(parameters)
 channel = connection.channel()
-channel.queue_declare(queue=QUEUE_NAME)
+channel.queue_declare(queue=QUEUE_NAME, durable=True)
 channel.basic_consume(queue=QUEUE_NAME, on_message_callback=callback, auto_ack=True)
 channel.basic_publish(exchange='', routing_key=QUEUE_NAME, body='part-00075-77fbec1f-53bd-48e0-9790-c733ee82f211-c000.csv')
 logger.info("Ingest waiting for messages")

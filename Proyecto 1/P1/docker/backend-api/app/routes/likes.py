@@ -1,5 +1,6 @@
+from metrics import total_requests
 from flask import Blueprint, request, jsonify
-from utils import executeQuery, errResult
+from utils import executeQuery, errResult, measure_processing_time
 
 likes_bp = Blueprint('likes', __name__)
 
@@ -7,7 +8,9 @@ likes_bp = Blueprint('likes', __name__)
 # Route localhost:31000/likeOrUnlike: Used to like or unlike a prompt
 #####################################################################
 @likes_bp.route('/likeOrUnlike', methods=['POST'])
+@measure_processing_time
 def likeOrUnlike():
+    total_requests.labels('likeOrUnlike').inc()
     # Get the user_id and prompt_id from the request
     body = request.get_json()
     
@@ -44,7 +47,9 @@ def unlike(user_id: str, prompt_id: str, likes: int):
 # Route localhost:31000/hasLiked: Used to check if a user has liked a prompt
 ############################################################################
 @likes_bp.route('/hasLiked', methods=['POST'])
+@measure_processing_time
 def hasLiked():
+    total_requests.labels('hasLiked').inc()
     # Get the user_id and prompt_id from the request
     body = request.get_json()
     

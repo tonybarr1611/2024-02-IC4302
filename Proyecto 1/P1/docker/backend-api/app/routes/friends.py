@@ -1,5 +1,6 @@
+from metrics import total_requests
 from flask import Blueprint, request, jsonify
-from utils import executeQuery, errResult
+from utils import executeQuery, errResult, measure_processing_time
 
 friends_bp = Blueprint('friends', __name__)
 
@@ -7,7 +8,9 @@ friends_bp = Blueprint('friends', __name__)
 # Route localhost:31000/followOrUnfollow: Used to follow or unfollow a user
 ###########################################################################
 @friends_bp.route('/followOrUnfollow', methods=['POST'])
+@measure_processing_time
 def followOrUnfollow():
+    total_requests.labels('followOrUnfollow').inc()
     # Get the user_id and friend_user_id from the request
     body = request.get_json()
     
@@ -47,7 +50,9 @@ def unfollow(user_id: int, friend_user_id: int, friends: int):
 # Route localhost:31000/find: Used to find users by name or username
 ####################################################################
 @friends_bp.route('/find', methods=['POST'])
+@measure_processing_time
 def find():
+    total_requests.labels('find').inc()
     # Get the query from the request
     body = request.get_json()
     
@@ -66,7 +71,9 @@ def find():
 # Route localhost:31000/isFriend: Used to check if a user is a friend
 #####################################################################
 @friends_bp.route('/isFriend', methods=['POST'])
+@measure_processing_time
 def isFriend():
+    total_requests.labels('isFriend').inc()
     # Get the user_id and friend_user_id from the request
     body = request.get_json()
     
@@ -85,7 +92,9 @@ def isFriend():
 # Route localhost:31000/friends: Used to get a user's friends
 #############################################################  
 @friends_bp.route('/friends', methods=['POST'])
+@measure_processing_time
 def getFriends():
+    total_requests.labels('friends').inc()
     # Get the user_id from the request
     body = request.get_json()
     

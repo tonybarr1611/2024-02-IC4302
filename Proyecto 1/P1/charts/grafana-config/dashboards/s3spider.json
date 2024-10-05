@@ -85,7 +85,7 @@
               "uid": "PBFA97CFB590B2093"
             },
             "editorMode": "builder",
-            "expr": "processing_time",
+            "expr": "s3_processing_time_seconds",
             "legendFormat": "__auto",
             "range": true,
             "refId": "A"
@@ -151,7 +151,7 @@
               "uid": "PBFA97CFB590B2093"
             },
             "editorMode": "builder",
-            "expr": "object_amount",
+            "expr": "s3_object_count_total",
             "legendFormat": "__auto",
             "range": true,
             "refId": "A"

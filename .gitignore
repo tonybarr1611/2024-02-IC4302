@@ -8,3 +8,5 @@
 *.tgz
 
 *.tsbuildinfo
+
+*.pyc

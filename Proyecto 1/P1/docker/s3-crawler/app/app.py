@@ -82,7 +82,7 @@ def list_s3_objects(bucket, prefix):
 def send_to_rabbitmq(message):
     try:
         # Asegurarse que la cola existe
-        channel.queue_declare(queue=QUEUE_NAME)
+        channel.queue_declare(queue=QUEUE_NAME, durable=True)
         # Publicar el mensaje
         channel.basic_publish(exchange='', routing_key=QUEUE_NAME, body=message)
         logger.info(f"Mensaje enviado a RabbitMQ: {message}")
@@ -93,7 +93,7 @@ def send_to_rabbitmq(message):
 def main():
     logger.info(f"Listando objetos en S3 bucket '{BUCKET_NAME}' con prefijo '{KEY_PREFIX}'")
     
-    start_http_server(8000)  # Inicia el servidor HTTP para Prometheus en el puerto 8000
+    start_http_server(9102)  # Inicia el servidor HTTP para Prometheus en el puerto 8000
 
     start_time = time.time()
 
@@ -120,6 +120,8 @@ def main():
 
     logger.info(f"Tiempo total de procesamiento: {total_time:.2f} segundos")
     logger.info("Proceso completado.")
+    logger.info("Stalling to keep the container running so the metrics can be scraped.")
+    time.sleep(570) # 9.5 minutes should be enough for the scraping to happen
 
 # Ejecutar el código si es el script principal
 if __name__ == "__main__":

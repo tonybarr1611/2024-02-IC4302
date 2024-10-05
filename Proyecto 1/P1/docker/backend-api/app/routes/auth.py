@@ -1,6 +1,7 @@
-from flask import Blueprint, request, jsonify
-from utils import executeQuery, errResult
 import hashlib
+from metrics import total_requests
+from flask import Blueprint, request, jsonify
+from utils import executeQuery, errResult, measure_processing_time
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -8,7 +9,9 @@ auth_bp = Blueprint('auth', __name__)
 # Route localhost:31000/register: Used to register a new user
 #############################################################
 @auth_bp.route('/register', methods=['POST'])
+@measure_processing_time
 def register():
+    total_requests.labels('register').inc()
     # Get the name, username, password, and email from the request
     body = request.get_json()
     
@@ -44,7 +47,9 @@ def register():
 # Route localhost:31000/login: Used to login an existing user
 ############################################################# 
 @auth_bp.route('/login', methods=['POST'])
+@measure_processing_time
 def login():
+    total_requests.labels('login').inc()
     # Get the name, username, password, and email from the request body
     body = request.get_json()
     
