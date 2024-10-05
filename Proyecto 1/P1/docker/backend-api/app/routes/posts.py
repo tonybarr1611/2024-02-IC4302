@@ -23,7 +23,6 @@ def feed():
     # Get the user's friends
     friends = executeQuery(f"SELECT user_id FROM friends WHERE friend_user_id = {user_id}")
     # friends = executeQuery(f"SELECT friends FROM users WHERE user_id = {user_id}")[0]
-    print(friends)
     if friends:
         friends_copy = friends.copy()
         friends = []
@@ -31,13 +30,12 @@ def feed():
             friends.append(friend[0])
     else:
         friends = []
-    print(friends)
     friends.append(user_id)
-    print(friends)
+
     
     # Convert friends list to a string for SQL
     friends_str = ', '.join(str(friend) for friend in friends)  # Ensure all IDs are strings
-    print(friends_str)
+
     
     # Get the posts from the user's friends
     posts = executeQuery(f"SELECT P.prompt_id, U.username, P.likes, P.prompt, P.updated_at FROM prompts P LEFT JOIN users U on P.user_id = U.user_id WHERE P.user_id IN ({friends_str}) ORDER BY P.created_at DESC")
