@@ -70,6 +70,7 @@ while true; do
     update_helm_charts "bootstrap"
     update_helm_charts "monitoring-stack"
     update_helm_charts "databases"
+    sleep 90
     update_helm_charts "application"
     update_helm_charts "webapp"
     update_helm_charts "grafana-config"

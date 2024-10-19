@@ -1,4 +1,6 @@
 grafana:
+  log:
+    level: debug
   namespaceOverride: monitoring
   operator:
     enabled: true

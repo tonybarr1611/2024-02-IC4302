@@ -3,8 +3,8 @@ kind: CronJob
 metadata:
   name: {{ .Values.config.producer.name }}  # Using the name from values.yaml
 spec:
-  schedule: "*/10 * * * *"  # Schedule for every 10 minutes
-  jobTemplate:
+  schedule: "30 * * * *"  # Schedule for every 10 minutes
+  jobTemplate: 
     spec:
       template:
         metadata:

@@ -31,5 +31,5 @@ dashboards:
     enable: true
   backendapi:
     name: backendapi
-    file: backendapi.json
+    file: backendapicached.json
     enable: true

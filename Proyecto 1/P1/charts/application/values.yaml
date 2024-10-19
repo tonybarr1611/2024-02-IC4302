@@ -8,10 +8,10 @@ config:
     name: s3-crawler
     image: s3-crawler
   consumer:
-    replicas: 1
+    replicas: 2
     name: ingest
     image: ingest
   huggingfaceApi:
     name: huggingfaceapi
-    replicas: 1
+    replicas: 2
     image: huggingface-api
