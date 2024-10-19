@@ -1,0 +1,19 @@
+config:
+  docker_registry: tonybarr16
+  backend:
+    replicas: 1
+    name: backend
+    image: backendTuneStay
+  backendnodeport:
+    port: 5000
+    targetPort: 5000
+    nodePort: 31000
+  frontend:
+    replicas: 1
+    name: frontend
+    image: frontendTuneStay
+  frontendnodeport:
+    port: 80
+    targetPort: 80
+    nodePort: 30080
+  

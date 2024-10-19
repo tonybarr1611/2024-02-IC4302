@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.config.frontend.name }}
+  labels:
+    app: {{ .Values.config.frontend.name }}
+spec:
+  replicas: {{ .Values.config.frontend.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.config.frontend.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.config.frontend.name }}
+    spec:
+      containers:
+      - name: {{ .Values.config.frontend.name }}
+        image: {{ .Values.config.docker_registry }}/{{ .Values.config.frontend.image }}
+        ports:
+          - containerPort: 80 

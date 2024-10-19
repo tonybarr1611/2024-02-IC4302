@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.config.backend.name }}
+  labels:
+    app: {{ .Values.config.backend.name }}
+spec:
+  replicas: {{ .Values.config.backend.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.config.backend.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.config.backend.name }}
+    spec:
+      containers:
+      - name: {{ .Values.config.backend.name }}
+        image: {{ .Values.config.docker_registry }}/{{ .Values.config.backend.image }}
+        ports:
+          - containerPort: 5000
+        env:
+          - name: ELASTIC_USER
+            value: "elastic"
+          - name: ELASTIC_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: ic4302-es-elastic-user
+                key: elastic
+                optional: false
+          - name: ELASTIC
+            value: "http://ic4302-es-http:9200"
+          - name: ELASTIC_INDEX_NAME
+            value: 'listingsAndReviews'

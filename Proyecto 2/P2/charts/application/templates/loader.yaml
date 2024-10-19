@@ -1,0 +1,35 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Values.config.loader.name }}
+spec:
+  template:
+    spec:
+      containers:
+        - name: {{ .Values.config.loader.name }}
+          image: {{ .Values.config.docker_registry }}/{{ .Values.config.loader.image }}
+          env:
+            - name: GOOGLE_CLOUD_PROJECT
+              value: {{ .Values.config.project_id }}
+            - name: GCS_BUCKET
+              value: "ic4302-202402"
+            # - name: POSTGRES_HOST
+            #   value: "{{ .Values.postgres.host }}" # Add this in the Helm values
+            # - name: POSTGRES_USER
+            #   value: "{{ .Values.postgres.user }}"
+            # - name: POSTGRES_PASSWORD
+            #   value: "{{ .Values.postgres.password }}"
+            # - name: POSTGRES_DB
+            #   value: "{{ .Values.postgres.db }}"
+            # - name: MONGO_URI
+            #   value: "{{ .Values.mongo.uri }}"
+          volumeMounts:
+            - name: gcs-key
+              mountPath: /etc/secrets
+              readOnly: true
+      restartPolicy: OnFailure
+      volumes:
+        - name: gcs-key
+          secret:
+            secretName: gcs-key-secret  # Create a secret for the GCS key
+  backoffLimit: 3

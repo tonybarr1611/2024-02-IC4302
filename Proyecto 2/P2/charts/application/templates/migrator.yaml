@@ -1,0 +1,27 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Values.config.migrator.name }}
+spec:
+  template:
+    spec:
+      containers:
+        - name: {{ .Values.config.migrator.name }}
+          image: {{ .Values.config.docker_registry }}/{{ .Values.config.migrator.image }}
+          env:
+            # - name: MONGO_URI
+            #   value: "{{ .Values.mongo.uri }}"
+            # - name: ELASTICSEARCH_HOST
+            #   value: "{{ .Values.elasticsearch.host }}"
+            - name: ELASTICSEARCH_INDEX
+              value: "listingsAndReviews"
+          volumeMounts:
+            - name: gcs-key
+              mountPath: /etc/secrets
+              readOnly: true
+      restartPolicy: OnFailure
+      volumes:
+        - name: gcs-key
+          secret:
+            secretName: gcs-key-secret  # Secret containing credentials for external services
+  backoffLimit: 3
