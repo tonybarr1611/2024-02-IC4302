@@ -1,5 +1,5 @@
 config:
-  docker_registry: tonybarr16
+  docker_registry: mwgh
   type: service_account
   project_id: formal-incline-431300-v8
   private_key_id: b810b4ffbab660f24f04834af2294a4283f70c91
