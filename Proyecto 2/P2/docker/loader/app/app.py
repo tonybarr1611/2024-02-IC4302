@@ -2,7 +2,7 @@ import csv
 from os import getenv
 from google.cloud import storage
 from utils.postgres import generatePostgresConnection, initDB, insertDataPostgres, get
-from utils.mongo import generateMongoConnection, insertDataMongo
+from utils.mongo import generateMongoConnection, initDB as initDBMongo, insertDataMongo
 
 BUCKET_NAME = getenv('GCS_BUCKET')
 SERVICE_ACCOUNT_CREDENTIALS = "./service_account.json"
@@ -66,6 +66,7 @@ if __name__ == "__main__":
 
     # Mongo
     mongoPool = generateMongoConnection()
+    initDBMongo(mongoPool)
 
     # Execution
     blobs = readGoogleCloudBucket()
