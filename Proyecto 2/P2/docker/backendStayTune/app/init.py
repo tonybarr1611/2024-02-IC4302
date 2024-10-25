@@ -1,7 +1,8 @@
 from flask import Flask, Response
 from flask_cors import CORS
-from routes_mongo import refine_mongo_bp
-from routes_posgres import refine_postgres_bp
+from routes_mongo.refine_mongo_bp import refine_bp as refine_mongo_bp
+from routes_posgres.refine_postgres_bp import refine_bp as refine_postgres_bp
+
 
 def createFlask():
     app = Flask(__name__)
