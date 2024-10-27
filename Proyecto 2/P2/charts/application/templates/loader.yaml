@@ -13,16 +13,22 @@ spec:
               value: {{ .Values.config.project_id }}
             - name: GCS_BUCKET
               value: "ic4302-202402"
-            # - name: POSTGRES_HOST
-            #   value: "{{ .Values.postgres.host }}" # Add this in the Helm values
-            # - name: POSTGRES_USER
-            #   value: "{{ .Values.postgres.user }}"
-            # - name: POSTGRES_PASSWORD
-            #   value: "{{ .Values.postgres.password }}"
-            # - name: POSTGRES_DB
-            #   value: "{{ .Values.postgres.db }}"
-            # - name: MONGO_URI
-            #   value: "{{ .Values.mongo.uri }}"
+            - name: POSTGRES
+              value: "databases-postgresql"
+            - name: POSTGRES_USER
+              value: "postgres"
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: databases-postgresql
+                  key: postgres-password
+                  optional: false
+            - name: POSTGRES_DB
+              value: "lyricsdb"
+            - name: MONGO_URI
+              value: "mongodb+srv://deployment:X5awIOdpdBwM2aaL@serverlessinstance0.okpu6jr.mongodb.net/?retryWrites=true&w=majority&appName=ServerlessInstance0"
+            - name: MONGO_DB
+              value: "LyricsDB"
           volumeMounts:
             - name: gcs-key
               mountPath: /etc/secrets
