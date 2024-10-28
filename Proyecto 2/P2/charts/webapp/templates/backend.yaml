@@ -20,6 +20,22 @@ spec:
         ports:
           - containerPort: 5000
         env:
+          - name: POSTGRES
+            value: "databases-postgresql"
+          - name: POSTGRES_USER
+            value: "postgres"
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: databases-postgresql
+                key: postgres-password
+                optional: false
+          - name: POSTGRES_DB
+            value: "lyricsdb"
+          - name: MONGO_URI
+            value: "mongodb+srv://deployment:X5awIOdpdBwM2aaL@serverlessinstance0.okpu6jr.mongodb.net/?retryWrites=true&w=majority&appName=ServerlessInstance0"
+          - name: MONGO_DB
+            value: "LyricsDB"
           - name: ELASTIC_USER
             value: "elastic"
           - name: ELASTIC_PASSWORD

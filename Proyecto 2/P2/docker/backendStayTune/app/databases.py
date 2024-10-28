@@ -1,33 +1,31 @@
-from pymongo import MongoClient
-import psycopg2
-import os
 from config import *
+from psycopg2 import pool
+from pymongo.mongo_client import MongoClient
+from pymongo.server_api import ServerApi
 
-#Mongo connection function
-def connect_to_mongo():
-    mongo_uri = os.getenv('MONGO_URI', 'tu_mongo_uri') # Parameters for the connection
-    client = MongoClient(mongo_uri)
-    
-    # Database and collection
-    db = client['LyricsDB']
-    collection = db['LyricsCollection']
-    
-    print("Successful connection to MongoDB")
-    return collection
-
-#Postgres connection function  
-def connect_to_postgres():
+def generatePostgresConnection():
     try:
-        connection = psycopg2.connect(
-            user=os.getenv('POSTGRES_USER', 'tu_usuario'),
-            password=os.getenv('POSTGRES_PASSWORD', 'tu_contraseña'),
-            host=os.getenv('POSTGRES_HOST', 'localhost'),
-            port=os.getenv('POSTGRES_PORT', '5432'),
-            database=os.getenv('POSTGRES_DB', 'LyricsDB')
+        postgres_connection_pool = pool.SimpleConnectionPool(
+            minconn=1,
+            maxconn=5,
+            host=POSTGRES,
+            user=POSTGRES_USER,
+            password=POSTGRES_PASSWORD,
+            dbname=POSTGRES_DB
         )
-        cursor = connection.cursor()
-        print("Succefull connection to PostgreSQL")
-        return connection, cursor
-    except (Exception, psycopg2.Error) as error:
-        print(f"Error conecting to PostGreSQL: {error}")
-        return None, None
+        return postgres_connection_pool
+    except Exception as e:
+        print(f"Error connecting to PostgreSQL: {e}")
+
+def generateMongoConnection():
+    try:
+        client = MongoClient(
+            MONGO_URI,
+            server_api=ServerApi('1'),
+            maxPoolSize=10, 
+            minPoolSize=1 
+        )
+        return client
+    except Exception as e:
+        print(f"Error connecting to MongoDB: {e}")
+        return None

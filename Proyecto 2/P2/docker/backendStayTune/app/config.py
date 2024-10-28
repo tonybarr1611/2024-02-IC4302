@@ -1,9 +1,9 @@
-#Config of the environment variables for the connections to the databases 
-import os
+from os import getenv
 
-POSTGRES_USER = os.getenv('POSTGRES_USER', 'tu_usuario')
-POSTGRES_PASSWORD = os.getenv('POSTGRES_PASSWORD', 'tu_contraseña')
-POSTGRES_HOST = os.getenv('POSTGRES_HOST', 'localhost')
-POSTGRES_PORT = os.getenv('POSTGRES_PORT', '5432')
+MONGO_URI = getenv("MONGO_URI")
+MONGO_DB = getenv("MONGO_DB")
 
-print(f"POSTGRES_USER: {POSTGRES_USER}")
+POSTGRES = getenv("POSTGRES")
+POSTGRES_DB = getenv("POSTGRES_DB")
+POSTGRES_USER = getenv("POSTGRES_USER")
+POSTGRES_PASSWORD = getenv("POSTGRES_PASSWORD")
