@@ -1,7 +1,13 @@
 from config import *
 from psycopg2 import pool
-from pymongo.mongo_client import MongoClient
+from elasticsearch import Elasticsearch
 from pymongo.server_api import ServerApi
+from pymongo.mongo_client import MongoClient
+
+
+postgres_connection = None
+mongodb_connection = None
+elasticsearch_connection = None
 
 def generatePostgresConnection():
     try:
@@ -16,6 +22,7 @@ def generatePostgresConnection():
         return postgres_connection_pool
     except Exception as e:
         print(f"Error connecting to PostgreSQL: {e}")
+        exit(1)
 
 def generateMongoConnection():
     try:
@@ -28,4 +35,16 @@ def generateMongoConnection():
         return client
     except Exception as e:
         print(f"Error connecting to MongoDB: {e}")
-        return None
+        exit(1)
+
+def generateElasticsearchConnection():
+    try:
+        connection = Elasticsearch([ELASTIC], basic_auth=[ELASTIC_USER, ELASTIC_PASSWORD])
+        return connection
+    except Exception as e:
+        print(f"Error connecting to Elasticsearch: {e}")
+        exit(1)
+
+postgres_connection = generatePostgresConnection()
+mongodb_connection = generateMongoConnection()
+elasticsearch_connection = generateElasticsearchConnection()
