@@ -1,0 +1,117 @@
+
+.modal .modal-content {
+    background: var(--gradient_background);
+    color: #fff;
+    width: 92%;
+}
+
+.modal .modal-header {
+    border-bottom: none;
+    letter-spacing: 0.2em;
+    font-weight: 700;
+    justify-content: left;
+    padding-bottom: 15px;
+    padding-left: 20px;
+}
+
+.modal .modal-body {
+    border-top: none;
+    border-bottom: none;
+    padding-top: 15px;
+    padding-bottom: 0px;
+    text-align: left;
+    padding-right: 20px;
+    padding-left: 20px;
+}
+
+.modal .modal-footer {
+    border-top: none;
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 20px;
+    padding-right: 0px;
+    padding-left: 0px;
+}
+
+.accept-btn,
+.accept-only-btn {
+    background-color: rgba(20, 207, 154, 0.3);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.1rem;
+}
+
+.accept-btn {
+    margin-right: 0px;
+}
+
+.accept-only-btn {
+    margin-right: 20px;
+}
+
+.cancel-btn {
+    margin-left: 0px;
+    background-color: rgba(223, 9, 101, 0.3);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.1rem;
+}
+
+.modal-form .form-group {
+    margin-bottom: 25px;
+}
+
+.modal-form label {
+    text-align: left;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.modal-form input,
+.modal-form select,
+.modal-form textarea {
+    margin-bottom: 10px;
+}
+
+.modal-form select {
+    background-color: #004953;
+    color: #fff;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    width: 100%;
+    box-sizing: border-box;
+    appearance: none;
+    cursor: pointer;
+}
+
+.modal-form  select:hover {
+    background-color: #003942;
+}
+
+.modal-form  select:focus {
+    outline: none;
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+}
+
+.modal-custom-select {
+    background-color: #004953;
+    color: #fff;
+}
+  
+.modal-custom-select:hover,
+.modal-custom-select:focus {
+    background-color: #003942;
+}
+  
+.modal-custom-select:hover {
+    background-color: #003942;
+}
+
+.modal-form-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}

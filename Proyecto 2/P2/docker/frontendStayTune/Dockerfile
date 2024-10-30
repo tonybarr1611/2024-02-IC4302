@@ -6,6 +6,8 @@ WORKDIR /app
 COPY app/. .
 
 RUN npm install
+
+RUN npm install react-router-dom@latest
 RUN npm run build
 
 FROM nginx:1.17.1-alpine
