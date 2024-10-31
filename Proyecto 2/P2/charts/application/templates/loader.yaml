@@ -38,4 +38,4 @@ spec:
         - name: gcs-key
           secret:
             secretName: gcs-key-secret  # Create a secret for the GCS key
-  backoffLimit: 3
+  backoffLimit: 20
