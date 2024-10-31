@@ -37,3 +37,14 @@ def executeMongoQuery(text):
     results = collection.find({"$text": {"$search": text}})
 
     return results
+
+def executeMongoUnique():
+    global mongodb_connection
+    db = mongodb_connection[MONGO_DB]
+    song_collection = db['Song']
+    artist_collection = db['Artist']
+    
+    languages = set(song_collection.distinct('Language'))
+    genres = set(artist_collection.distinct('Genres'))
+    
+    return languages, genres
