@@ -4,7 +4,6 @@ from elasticsearch import Elasticsearch
 from pymongo.server_api import ServerApi
 from pymongo.mongo_client import MongoClient
 
-
 postgres_connection = None
 mongodb_connection = None
 elasticsearch_connection = None

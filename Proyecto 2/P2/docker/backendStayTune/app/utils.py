@@ -1,6 +1,4 @@
-import psycopg2
 from config import MONGO_DB
-from pymongo import MongoClient
 from sentence_transformers import SentenceTransformer
 
 model = SentenceTransformer('all-mpnet-base-v2')
@@ -39,9 +37,3 @@ def executeMongoQuery(text):
     results = collection.find({"$text": {"$search": text}})
 
     return results
-
-def executeQuery(database, query):
-    if database.lower() == "postgres":
-        executePostgresQuery(query)
-    elif database.lower() == "mongo":
-        executeMongoQuery(query)

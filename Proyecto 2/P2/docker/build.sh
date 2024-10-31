@@ -10,7 +10,7 @@ build_docker_image() {
     cd ..
 }
 
-build_docker_image "backendStayTune" "$1"
-build_docker_image "frontendStayTune" "$1"
+build_docker_image "backendstaytune" "$1"
+build_docker_image "frontendstaytune" "$1"
 build_docker_image "loader" "$1"
 build_docker_image "migrator" "$1"
