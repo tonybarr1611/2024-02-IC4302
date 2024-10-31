@@ -1,0 +1,31 @@
+.lyrics-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+    justify-content: center; 
+    text-align: center;
+    margin: 20px 0;
+    padding: 10px;
+  }
+  
+  .lyrics-section .verse {
+    font-size: 1.2rem;
+    margin: 8px 0;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .lyrics-section .verse:hover {
+    background-color: #f0f0f0;
+  }
+  
+  .lyrics-section .selected {
+    background-color: #d1e7dd;
+    border-radius: 5px;
+    font-weight: bold;
+  }
+  
+  .lyrics-action {
+    margin-top: 15px;
+  }
+  

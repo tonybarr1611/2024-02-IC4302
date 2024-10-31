@@ -19,6 +19,26 @@ def generateMongoConnection():
         print(f"Error connecting to MongoDB: {e}")
         return None
     
+def initDB(connection):
+    if not connection:
+        print("Failed to connect to MongoDB. Exiting.")
+        return
+
+    try:
+        db = connection.get_database(MONGO_DB)
+
+        collections = db.list_collection_names()
+        if collections:
+            for collection_name in collections:
+                db.drop_collection(collection_name)
+        else:
+            print(f"No collections found in database '{MONGO_DB}'. It is already empty.")
+
+    except Exception as e:
+        print(f"Error wiping database '{MONGO_DB}': {e}")
+    finally:
+        connection.close()
+
 def insertDataMongo(connection, collection_name, fields, data):
     if not connection:
         print("Failed to connect to MongoDB. Exiting.")
