@@ -46,5 +46,6 @@ def executeMongoUnique():
     
     languages = set(song_collection.distinct('Language'))
     genres = set(artist_collection.distinct('Genres'))
+    artists = {artist for artist in artist_collection.find()}
     
-    return languages, genres
+    return languages, genres, artists
