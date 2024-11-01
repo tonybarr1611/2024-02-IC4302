@@ -209,8 +209,15 @@ The Migrator component is responsible for processing and transferring data to El
 
 ## Backend API: 
 
-# Explanation of the Backend API AND ENDPOINTS PENDING
+The Backend component is a Python API developed using Flask and deployed as a Kubernetes Deployment, which manages requests from the TuneStay frontend. This API enables efficient data retrieval and interaction with the underlying databases and Elasticsearch. By integrating with the frontend, the Backend provides a bridge for user actions, supporting key functionalities like lyric searches, apartment recommendations, and data filtering. The Backend API processes user requests, executes queries, retrieves data from the databases, and returns relevant information to the frontend. It acts as the core communication layer between the user interface and the data sources, ensuring seamless interaction and real-time data access. The Backend API is essential for managing user requests, processing data, and delivering accurate search results and recommendations within the application.
 
+### Endpoints
+
+- **Transform Endpoint (/transform)**: This endpoint retrieves song lyrics and, based on the lyrics, searches for apartment recommendations using embeddings in Elasticsearch. It enables users to find apartment listings that align closely with the selected song’s context or theme.
+
+- **Song Endpoint (/song)**: This endpoint allows users to search for specific songs based on their input, enabling a direct lookup and retrieval of relevant song information from the databases.
+
+- **Filters Endpoint (/filters)**: The Filters endpoint provides filtering capabilities, allowing users to refine search results based on specific attributes like language, genre, and popularity, helping users navigate to the most relevant content efficiently.
 
 
 ## UI:
