@@ -2,11 +2,11 @@
 
 ## Introduction
 Following is the documentation for 'Proyecto 2' of the course IC4302 - Databases II.
-This project assignment focuses on developing an application that integrates multiple technologies, including MariaDB, Elasticsearch, RabbitMQ, and the Hugging Face API. The application is designed to handle various tasks such as loading and processing datasets, generating text embeddings, and interacting with these databases. To optimize performance, the system includes caching using Memcached, and it is instrumented with Prometheus to monitor critical metrics such as HTTP request counts, query response times, object processing times, and cache efficiency.
+This project assignment focuses on developing a web application prototype called TuneStay, which integrates multiple technologies, including MongoDB Atlas, Elasticsearch, PostgreSQL, and Google Cloud Storage. TuneStay is designed to manage tasks such as dataset loading and processing, generating text embeddings, and querying across both relational and non-relational databases. To optimize its search capabilities, the system supports full-text and embedded vector searches, and is deployed in Kubernetes to ensure scalability and manageability.
 
-The application is deployed in a Kubernetes environment using Helm Charts, ensuring scalability, manageability, and observability. Each component is containerized using Docker, packaging only the necessary dependencies and database interactions. For performance evaluation, the system collects Prometheus metrics and displays them on Grafana dashboards, enabling real-time monitoring and analysis of the system's performance under different workloads.
+The application is deployed in a Kubernetes environment using Helm Charts, ensuring scalability, manageability, and observability. Each component is containerized using Docker, packaging only the necessary dependencies and database interactions. To streamline data access, the system utilizes Google Cloud Storage for dataset management, and all datasets are parsed and stored in both PostgreSQL and MongoDB Atlas.
 
-Additionally, a React-based UI is implemented, allowing users to interact with the system in a user-friendly way. The UI supports functionality such as user registration and login, submitting prompts to query songs using vector search on Elasticsearch, and interacting with friends through a social feed. Users can search for song-related prompts, follow friends, and manage their profiles and posts. The UI is deployed as a Kubernetes Deployment and exposed via NodePort for external access. The UI interacts with the backend API to perform various tasks, such as querying the database, processing text, and caching results.
+Additionally, a simple React-based UI is implemented, allowing users to interact with the system in a user-friendly way. The UI supports functionality such as selecting the search engine (PostgreSQL or MongoDB Atlas), entering search terms to query song lyrics and artists, refining results by facets such as language, genre, and popularity, and displaying song details. Users can also select specific song verses to initiate related searches for apartment recommendations using embedding-based queries. The UI is deployed as a Kubernetes Deployment and exposed via NodePort for external access, interacting with the backend API to manage search requests, parse song data, and display recommendations.
 
 ## Team Members
 - Victor Aymerich
@@ -35,7 +35,7 @@ The requirements for the project are the following:
 There is a script to build the docker images, to execute it in a bash shell execute:
 
 ```bash
-cd ./P1/docker
+cd ./P2/docker
 ./build.sh nereo08
 ```
 
@@ -48,7 +48,7 @@ This script will build the images for the components of the homework, including 
 
 ### Configure
 
-* Open the file **P1/charts/app/values.yaml**
+* Open the file **P2/charts/application/values.yaml**
 * Replace **nereo08** by your DockerHub username
 
 ```yaml
@@ -61,7 +61,7 @@ config:
 Execute:
 
 ```bash
-cd ./P1/charts
+cd ./P2/charts
 ./install.sh
 ```
 
@@ -72,7 +72,7 @@ Here we are installing the components in the Kubernetes cluster. The script will
 Execute:
 
 ```bash
-cd ./P1/charts
+cd ./P2/charts
 ./uninstall.sh
 ```
 
@@ -92,15 +92,13 @@ In case you need to access the debug pod to check the logs or execute some comma
 # How to Test
 
 To test the whole project together, you can follow the next steps:
-First you need to do the build and install steps, in this time you have to choose the components that will be used for this you have to change in TC1\charts\app\values.yaml, after that to verify that the project is working correctly you can follow the next steps:
+First you need to do the build and install steps, in this time you have to choose the components that will be used for this you have to change in P2\charts\application\values.yaml, after that to verify that the project is working correctly you can follow the next steps:
 
-- Check Docker images are running, you can check this in the Docker Desktop application. In this area it is important to check the different images, you can check the logs of the images to see if there are any errors. You should check the logs of the S3 Crawler, Backend API, Hugging Face API, Ingest, the MariaDB, Memcached, Prometheus, and Grafana images. You can check the logs of the images by clicking on the image and then clicking on the logs button. Y
-
+- Check that the Docker images are running; you can verify this in the Docker Desktop application. In this area, it’s essential to monitor the different images, as you can review their logs to identify any potential errors. Specifically, check the logs for the following images: the Loader, Migrator, Backend API, Elasticsearch, MongoDB Atlas, PostgreSQL, and Kubernetes services. To view the logs, click on the image and select the logs option to ensure each component is functioning as expected.
 
 - After that you can check in Lens that the pods are running correctly, here you can check the logs of the pods to see if there are any errors and the status of the pods.
 
-
-- The frontend is also available for testing, you can access it by forwarding the port of the frontend service called **frontend-deployment** to your local machine. From here you can access the frontend by going to http://localhost: (Port you decide) and interact with the UI. The frontend provides a user-friendly interface for users to interact with the system, including features such as user registration, login, and social feed. Users can submit prompts to query songs using vector search on Elasticsearch, follow friends, and manage their profiles and posts. The frontend interacts with the backend API to perform various tasks, such as querying the database, processing text, and caching results. 
+- The frontend for TuneStay is also available for testing. You can access it by forwarding the port of the frontend service, frontend-deployment, to your local machine. Once forwarded, access the frontend by navigating to http://localhost:(Port you decide), where you can interact with the UI. The frontend provides a user-friendly interface, allowing users to explore the TuneStay system with features like choosing search engines (PostgreSQL or MongoDB Atlas), conducting song and artist searches, and refining results by language, genre, and popularity. Users can view song details, select verses, and initiate apartment searches based on selected lyrics. The frontend communicates with the backend API to execute queries, process embeddings, and present data in real-time.
 
 # Recommendations and Conclusions
 
@@ -116,13 +114,13 @@ To successfully complete the project, the following recommendations are provided
    - **Recommendation**: Learn how to use Helm charts, which are used to deploy the application in Kubernetes. It is relevant to understand how they work and what it their function so you can deploy the application correctly.
    - **Reason**: The project uses Helm charts to deploy the application in Kubernetes. Knowing how to use Helm charts will help you manage the deployment of the application.
 
-3. **Get Familiar with MariaDB**
-   - **Recommendation**: Learn how to access and use MariaDB, which the the main database used. You should learn the basics, including knowing how to connect to it, view tables, and check data for example.
-   - **Reason**: You will need to know how to connect to MariaDB to ensure certain components are working correctly, as well as to verify that data is being updated and stored properly.
+3. **Get Familiar with MongoDB Atlas**
+   - **Recommendation**: Learn the basics of MongoDB Atlas, a primary database in TuneStay, including how to connect, view collections, and check data.
+   - **Reason**: Connecting to MongoDB Atlas is necessary to verify that data is being properly stored and updated.
 
 4.  **Get Familiar with Elasticsearch Indexing**
-   - **Recommendation**: Study the basics of Elasticsearch, focusing on how to create and manage indices where data will be stored.
-   - **Reason**: Understanding how to create and manage indices in Elasticsearch is crucial for storing and retrieving data efficiently.
+   - **Recommendation**: Study Elasticsearch basics, especially regarding index creation and management, as data will be stored and queried here.
+   - **Reason**: Efficient data storage and retrieval are essential to TuneStay's performance, making familiarity with Elasticsearch indices crucial.
   
 5.  **Monitor Resource Usage**
    - **Recommendation**: Keep an eye on resource usage (CPU, memory) while running the script to ensure it operates within acceptable limits.
@@ -133,93 +131,85 @@ To successfully complete the project, the following recommendations are provided
     - **Reason**: Clear documentation helps users understand the setup and execution process, making it easier to troubleshoot and replicate the environment.
   
 7.  **Understand the Data Schema**
-    - **Recommendation**: Familiarize yourself with the data schema and relationships between tables to write efficient queries.
+    - **Recommendation**: Familiarize yourself with the data schema and relationships between tables to structure efficient queries in both PostgreSQL and MongoDB Atlas.
     - **Reason**: Understanding the data schema helps optimize queries and ensures accurate results when fetching data from the databases.
 
-8.  **Learn How to Use RabbitMQ**
-    - **Recommendation**: Learn how to use RabbitMQ, which is used generate messages and communicate between components.
-    - **Reason**: Understanding how to use RabbitMQ will help you send messages to the Ingest service and process data efficiently.
+8. **Understand Google Cloud Storage**
+   - **Recommendation**: Learn how to connect and retrieve datasets from Google Cloud Storage.
+   - **Reason**: Familiarity with Google Cloud Storage enables efficient dataset management and integration with TuneStay’s database components.
 
-9.  **Understand Prometheus and how to use it**
-    - **Recommendation**: Learn how to use Prometheus to monitor the different components of the project and how to scrape the metrics.
-    - **Reason**: Prometheus is a key component of the project as it captures the metrics of the different components and stores them in its database. 
+9. **Understand PostgreSQL**
+   - **Recommendation**: Learn the basics of PostgreSQL, which is used as TuneStay’s relational database for structured song data.
+   - **Reason**: Understanding PostgreSQL enables effective data organization, search functionality, and integration with other system components.
 
-10. **Understand Grafana and the consequent Dashboards**
-    - **Recommendation**: Learn how to use Grafana to visualize the metrics of the different components of the project.
-    - **Reason**: Grafana is a key component of the project as it allows you to see the metrics of the different components and see how they are performing in real time.
-
-11. **Understand Memcached**
-    - **Recommendation**: Learn how to use Memcached, which is used as a cache system in the project.
-    - **Reason**: Understanding how to use Memcached will help you cache data and understand how it impacts the performance of the application.
-
-12. **Understand React**
+10. **Understand React**
     - **Recommendation**: Learn how to use React, which is used to create the frontend of the project.
     - **Reason**: Understanding how to use React will help you interact with the UI and understand how the frontend interacts with the backend.
+  
+11. **Understand API Development**
+    - **Recommendation**: Learn the principles of API development as the TuneStay application relies on a backend API for communication between the frontend and various services.
+    - **Reason**: Understanding API design and implementation will help you effectively manage data requests and responses, ensuring seamless interactions within the application.
   
 
 ## Conclusions 
 
-1. Optimal Technology Integration: The integration of diverse technologies, helps create a application that uses optimal solutions for different tasks, such as data storage, retrieval, caching, and monitoring. Various components permit the application to develop different functionalities and using the best technology for each task.
+1. Analyzing the Desired Functionality: The project aims to provide a comprehensive search and recommendation system for song lyrics and apartment listings. By integrating multiple technologies, such as PostgreSQL, MongoDB Atlas, Elasticsearch, and Google Cloud Storage, the system offers advanced search capabilities, real-time data processing, and efficient data storage. The project's architecture is designed to handle large datasets, process unstructured text data, and provide personalized recommendations. It is essential to understand the desired functionality and user requirements to design an effective system that meets user expectations and delivers a seamless user experience.
 
 2. Containerized Scalability: The use of Kubernetes allows the system to scale horizontally, adding or removing instances as needed to handle varying loads. This ensures that the project can support high levels of concurrency and data throughput, essential for real-time applications.
 
-3. Efficient Data Handling: The use of postgreSQL allows handling large volumes of data. Additionally, integrating Elasticsearch into the project provides options for fast and scalable searches in even larger or distributed databases.
+3. Efficient Data Handling:  The incorporation of PostgreSQL enables effective management of large data volumes, while Elasticsearch enhances the system's capabilities with fast and scalable search functionalities, even in extensive or distributed databases.
    
-4. Advanced Observability and Metrics: The integration with Prometheus and Grafana allows for observability of the system's performance metrics, including object and row processing times, error rates, and system loads. This level of monitoring is essential for maintaining high system reliability and optimizing resource usage.
+4. Interactive User Interface: The project provides a user-friendly interface for users to interact with the system, which counts with various features, such as selecting the search engine, exploring song lyrics, and viewing recommended apartments. The UI is designed to allow users to navigate and explore seamlessly, enabling them to filter results, view song details, and perform customized searches quickly and efficiently.
 
-5. Interactive User Interface: The project provides a user-friendly interface for users to interact with the system, including features such as user registration, login, and social feed. Users can submit prompts to query songs using vector search on Elasticsearch, follow friends, and manage their profiles and posts. Vector search is a very powerful algorithm that allows users to search for songs based on the similarity of the lyrics, providing a unique and efficient way to discover new music.
-
-6. Efficient Embedding Generation: The project incorporates Hugging Face's API to generate embeddings for song lyrics, making the use of machine learning models practical for vector-based searches. This brings advanced AI-driven functionality to the project, enhancing search precision and user experience.
-
-7. Scalable and Reliable Caching: The project uses Memcached as a caching system to store frequently accessed data, reducing the load on the databases and improving response times. Caching is essential for optimizing performance and ensuring a smooth user experience, especially for read-heavy applications.
+5. Efficient Embedding Generation: The project uses Sentence Transformers to generate embeddings for 
+Embeddings are essential for processing unstructured data and performing advanced queries, enhancing the system's search capabilities and user experience.
    
-8. Efficient Data Handling: The project effectively manages data from external sources, such as S3 buckets. It ensures that data is processed, embedded with vector search capabilities, and seamlessly stored in Elasticsearch, maintaining data integrity and scalability.
-
-9. Flexible and Extensible Design: The application's architecture allows for easy integration of new features or components. Whether it's adding more data sources, expanding the Elasticsearch index, or integrating additional APIs, the design supports continuous development and flexibility.
-
-10. Logging Usage: The project uses logging to track the performance of the different components, helping to identify issues and optimize the system. Logging is essential in the real world for monitoring the system's behavior and ensuring that it operates efficiently. It provides valuable information for troubleshooting and performance tuning.
-
-11. Real-Time Execution: The project is designed to process data in real time, ensuring that new data is ingested, processed, and stored efficiently. This real-time processing capability is essential for applications that require up-to-date information and fast response times.
-
-12. Connectivity and Component Interaction: The project demonstrates effective communication between components, such as RabbitMQ messages in the S3 Crawler triggering data processing in the Ingest service which connects to the Hugging Face API to generate embeddings. Also, the frontend interacts with the backend API to perform various tasks, such as querying the database, processing text, and caching results. This seamless interaction between components ensures that the system functions as a cohesive unit, delivering the desired functionality to users.
+6. Efficient Data Handling: The project effectively manages data from external sources, such as Google Cloud Storage, ensuring that it is processed, embedded for vector search capabilities, and stored seamlessly in Elasticsearch. This approach maintains data integrity and supports scalability.
    
+7. Flexible and Extensible Design: The application's architecture allows for easy integration of new features or components. Whether it's adding more data sources, expanding ElasticSearch indices, or integrating additional APIs, the design supports continuous development and flexibility.
+
+8. Real-Time Execution: The project is designed to process data in real time, ensuring that new data is ingested, processed, and stored efficiently. This real-time processing capability is essential for applications that require up-to-date information and fast response times.
+
+9. Cross-Platform Compatibility: By leveraging web-based and containerized components, the project is accessible across various platforms, allowing it to operate seamlessly on different environments without compatibility issues. This adaptability broadens its usability, making it suitable for deployment across a wide range of infrastructures.  
+ 
+10. Advanced Data Enrichment Capabilities: By leveraging embeddings and language models, the project transforms unstructured text data into meaningful vector representations. This enrichment allows for enhanced querying and recommendation accuracy, adding value to search functionalities by making them context-aware and personalized.
+    
+11. Importance of Diveriity of Technologies: The project's use of multiple technologies, such as PostgreSQL, MongoDB Atlas, Elasticsearch, and Google Cloud Storage, demonstrates the importance of selecting the right tools for specific tasks. Each technology brings unique capabilities to the project, enabling efficient data storage, retrieval, and search functionalities. The diversity of technologies ensures that the project can handle complex data processing requirements and deliver optimal performance.  
 
 # Components
 
 ## Databases:
 
-The databases used in the project are postgreSQL and ElasticSearch. These databases are widely used in the industry and offer features for storing and managing data. 
+The databases used in the project are PostgreSQL, MongoDB Atlas, and Elasticsearch. These databases are widely used in the industry and offer features for storing and managing data. 
 
-PostgreSQL is a popular open-source relational database management system that is compatible with MySQL. It provides excellent performance, scalability, and reliability. PostgreSQL ensures data integrity and consistency. It also offers advanced features such as replication, clustering, and high availability, making it suitable for handling large volumes of data.
+PostgreSQL is a popular open-source relational database management system that is well-known for its performance, scalability, and reliability. It ensures data integrity and consistency, making it an excellent choice for storing user information and structured object data. PostgreSQL supports advanced features such as replication, clustering, and high availability, which are essential for handling large volumes of data.
+
+MongoDB Atlas is a fully managed cloud database service that provides a flexible and scalable NoSQL database solution. It is designed for storing unstructured data and offers features like automatic scaling, sharding, and data distribution. MongoDB Atlas is suitable for handling diverse data types and supporting dynamic schemas, making it ideal for storing song lyrics and other unstructured data.
 
 Elasticsearch is also a popular NoSQL database that is used for full-text search and analytics. It is designed for real-time search and analysis of large volumes of data. It offers features like full-text search, aggregations, and spatial search, making it suitable for handling complex data structures and performing advanced queries.
 
-PostgreSQL is well-suited for handling complex data structures and performing complex queries. They offer strong data consistency, reliability, and security. The choice between the two databases depends on specific project requirements, familiarity with the technology, and the need for specific features or compatibility with existing systems. On the other hand, Elasticsearch is ideal for full-text search and analytics, providing fast and scalable search capabilities for large volumes of data.
-
-Overall, the combination of PostgreSQL and ElasticSearch in this project ensures efficient and reliable data storage and retrieval, enabling the application to handle large amounts of data effectively.
-
-The structure of the databases is designed to store data related to songs, users, and objects. The PostgreSQL database stores user information and object data, while the Elasticsearch database stores song titles, artists, and lyrics. 
+The databases are used to store and manage various types of data, including song lyrics, embeddings, and search indices. Each database serves a specific purpose, providing an efficient and organized solution for handling and retrieving data across different components. The relational and non-relational databases complement each other, enabling comprehensive data management tailored to the application’s needs.
 
 PostgreSQL has the following tables:
 
-- **processed_objects**: Stores information about processed objects, including the `object_key` and the `processed` status.
-- **users**: Contains user-related information such as `user_id`, `name`, `username`, `password`, `friends`, `email`, `biography`, `created_at`, and `updated_at`.
-- **friends**: Manages friendships between users, storing `friend_id`, `user_id`, `friend_user_id`, `created_at`, and `updated_at`.
-- **prompts**: Holds data about user prompts, including `prompt_id`, `user_id`, `likes`, `prompt`, `created_at`, and `updated_at`.
-- **likes**: Keeps track of likes on prompts, storing `like_id`, `user_id`, `prompt_id`, and `created_at`.
+- Artist: Stores information about artists, including their name, genres, songs, popularity, and link.
+- Song: Stores information about songs, including the artist link, name, link, lyric, and language.
 
+MongoDB Atlas has a collection called listingsAndReviews, which stores detailed information about songs, including metadata, descriptive details, and embeddings. The collection structure includes general fields, embeddings, artist information, location, availability, ratings, reviews, and additional details.
 
-
+Elasticsearch has an index called listingsAndReviews, which stores the same data as the MongoDB Atlas collection, along with additional fields specific to Elasticsearch. The index structure includes general fields, embeddings, artist information, location, availability, ratings, reviews, and additional details.
 
 ## Loader: 
 
-
+The Loader component is responsible for loading data from external sources, processing it, and storing it in the databases within the TuneStay project. Running as a Python application within a Kubernetes Job, the Loader retrieves data from Google Cloud Storage, processes it and stores the processed data in both PostgreSQL and MongoDB Atlas. This component ensures efficient data ingestion, accurate processing, and secure storage within the databases. By automating the data loading process, the Loader streamlines data management, ensuring that the databases remain up-to-date with the latest information. The Loader is essential for maintaining data consistency and enabling seamless data access across the application. 
 
 ## Migrator:
 
+The Migrator component is responsible for processing and transferring data to Elasticsearch within the TuneStay project. Running as a Python application in a Kubernetes Job, the Migrator reads documents from a MongoDB Atlas test collection (sample_airbnb.listingsAndReviews), processes these records using a Large Language Model (LLM), in this case we use `SentenceTransformers` to generate embeddings for fields like name, summary, description, and reviews[*].comments, and then stores the enriched documents in an Elasticsearch index (listingsAndReviews). This automated process enables efficient, vector-based search and recommendation capabilities, ensuring that data is optimized for retrieval in real-time. By leveraging embeddings and language models, the Migrator enhances the search functionalities of the application, providing users with accurate and context-aware results. The Migrator is essential for enriching data, enabling advanced search capabilities, and enhancing the user experience within the application.
 
+## Backend API: 
 
-## Backend API:
+# Explanation of the Backend API AND ENDPOINTS PENDING
 
 
 
@@ -227,29 +217,15 @@ PostgreSQL has the following tables:
 
 The frontend for the application is built using React and runs on port `localhost:30080` on your machine. This frontend is organized into various pages, each serving a specific function within the application. Below is an overview of the main pages:
 
+- **Home Page**: The home page serves as the main landing page for the application, here you can find a introduction to the application and you can select the search engine you want to use, PostgreSQL or MongoDB Atlas.
 
-### User Profile
-The user profile page displays the user's personal information. 
-![User profile](../../Profile.jpeg)
-![Edit profile](../../EditProfile.jpeg)
+- **Search Page**: The search page allows users to search for song lyrics and artists using the selected search engine. Users can enter search terms, refine results by language, genre, and popularity, and view song details. The search page provides a user-friendly interface for exploring song data and retrieving relevant information. Here you can also view the lyrics of the song, of which you can select specific verses to initiate related searches for apartment recommendations based on the selected lyrics.
 
-### Social Feed
-The social feed page aggregates posts from the user's friends and displays them in a chronological order. Users can like, comment, and share posts directly from this feed.
-![Social feed](../../Feed.jpeg)
+- **Song Details Page**: The song details page displays detailed information about a selected song, including lyrics, artist, genre, and popularity. Users can view specific song details and explore more information about the song. This page provides a comprehensive overview of the song data, allowing users to access relevant information quickly and efficiently.
 
-### Search Page
-The search page allows users to search for songs using vector search on Elasticsearch. Users can enter prompts to find songs based on lyrics or other criteria.
-![Search Example](../../PrompTunes.jpeg)
-![Search Example2](../../PrompTunes2.jpeg)
+- **Apartment Recommendations Page**: The apartment recommendations page displays recommended apartments based on selected song lyrics. Users can view apartment details, such as name, summary, description, in case you want to know more about the apartment you can click on the button to see more details. This page provides personalized apartment suggestions based on the selected song lyrics, enhancing the user experience and offering tailored recommendations.
 
-### Friends 
-The friends page displays a list of the user's friends.
-![Friends](../../Friends.jpeg)\
-![Friends Search](../../FriendsSearch.jpeg)
-
-### Post Creation
-The post creation page allows users to create new posts or prompts. Users can enter text and submit it to the system.
-![Post creation](../../Posts.jpeg)
+- **Apartment Details Page**: The apartment details page shows detailed information about a selected apartment, including name, summary, description, and reviews left for the apartment. In this section, users can explore apartment details and view additional information about the property. This page offers a comprehensive overview of the apartment data, allowing users to access relevant information quickly and efficiently.
 
 Each of these pages is designed to provide a user-friendly experience, ensuring that users can easily navigate and interact with the application.
 
@@ -302,11 +278,11 @@ Many of the core functions within these modules rely on interactions with extern
 #### Difficulty in Simplifying the Functions
 The core logic in these modules is designed to handle intricate tasks such as multi-step data processing, cross-service communication, and API responses, which do not lend themselves easily to simplification for unit testing. Breaking these down into smaller, testable units would significantly alter the code's structure and could potentially affect its performance or readability. Moreover, writing unit tests for highly complex functions would likely result in fragile tests that are tightly coupled to implementation details, reducing the maintainability of the test suite.
 
-## General Tests
 
-# Database Schemas
 
-## PostgreSQL
+## Database Schemas
+
+### PostgreSQL
 
 CREATE TABLE IF NOT EXISTS Artist (
     Name VARCHAR(255),
@@ -325,34 +301,37 @@ CREATE TABLE IF NOT EXISTS Song (
     Language VARCHAR(255)
 )
 
-![Postgres Schema](images/postgres.png)
+![PostgreSQL Schema](images/postgres.png)
 
-## MongoDB Schema 
-### General Description
+
+### MongoDB Schema 
+
+#### General Description
 The collection in MongoDB, called `listingsAndReviews`, stores the same data as the index in Elasticsearch, along with some additional fields specific to MongoDB. This structure allows for storing and retrieving detailed information about songs, including metadata, descriptive details, and embeddings.
 
-### Document Structure
+#### Document Structure
 Each document in `listingsAndReviews` has the following structure:
 
-### General Fields
+#### General Fields
 - `_id`: Unique MongoDB identifier for each song.
 - `listing_url`, `name`, `summary`, `interaction`, `house_rules`, and other descriptive fields, identical to those in the Elasticsearch index.
 
-### Embeddings
+#### Embeddings
 - `name_embedding`, `summary_embedding`, `description_embedding`: Vector representations of `name`, `summary`, and `description`, enabling advanced semantic searches within the song's content.
 - `reviews_embeddings`: Array of embeddings generated from the reviews, used for searches related to the content of the reviews.
 
-### Artist Information and Additional Details
+#### Artist Information and Additional Details
 - `host`: Contains information about the artist or creator, such as `host_id`, `host_name`, `host_location`, and `host_about`, among others.
 
-### Location and Availability
+#### Location and Availability
 - `address`: Contains details about the origin location of the song or artist. Includes fields such as `street`, `country`, and `location` (with support for `geo_point`).
 - `availability`: Details about the song's availability, with metrics such as `availability_30`, `availability_60`, etc.
 
-### Ratings and Reviews
+#### Ratings and Reviews
 - `review_scores`: Ratings of the song in categories such as `review_scores_accuracy`, `review_scores_cleanliness`, `review_scores_checkin`, `review_scores_communication`, among others.
 - `reviews`: Array of comments or reviews from users, each with fields such as `date`, `reviewer_id`, `reviewer_name`, and `comments`.
-## Elasticsearch
+
+### Elasticsearch
 
 mapping = {
     "mappings": {
@@ -473,6 +452,13 @@ mapping = {
     }
 
 This mapping was not modified because it comes from the dataset. It was already established. 
+
+## General Test
+
+In this section, you can observe a general test of the application. Focused on the frontend, we can see the different functionalities that the application offers. The frontend is designed to provide a user-friendly experience, ensuring that users can easily navigate and interact with the application. The following test will show the main functionalities of the application, including searching for a song, viewing recommended apartments, and refining search results.
+
+
+
 
 # References
 
