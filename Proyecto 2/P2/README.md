@@ -327,6 +327,31 @@ CREATE TABLE IF NOT EXISTS Song (
 
 ![Postgres Schema](images/postgres.png)
 
+## MongoDB Schema 
+### General Description
+The collection in MongoDB, called `listingsAndReviews`, stores the same data as the index in Elasticsearch, along with some additional fields specific to MongoDB. This structure allows for storing and retrieving detailed information about songs, including metadata, descriptive details, and embeddings.
+
+### Document Structure
+Each document in `listingsAndReviews` has the following structure:
+
+### General Fields
+- `_id`: Unique MongoDB identifier for each song.
+- `listing_url`, `name`, `summary`, `interaction`, `house_rules`, and other descriptive fields, identical to those in the Elasticsearch index.
+
+### Embeddings
+- `name_embedding`, `summary_embedding`, `description_embedding`: Vector representations of `name`, `summary`, and `description`, enabling advanced semantic searches within the song's content.
+- `reviews_embeddings`: Array of embeddings generated from the reviews, used for searches related to the content of the reviews.
+
+### Artist Information and Additional Details
+- `host`: Contains information about the artist or creator, such as `host_id`, `host_name`, `host_location`, and `host_about`, among others.
+
+### Location and Availability
+- `address`: Contains details about the origin location of the song or artist. Includes fields such as `street`, `country`, and `location` (with support for `geo_point`).
+- `availability`: Details about the song's availability, with metrics such as `availability_30`, `availability_60`, etc.
+
+### Ratings and Reviews
+- `review_scores`: Ratings of the song in categories such as `review_scores_accuracy`, `review_scores_cleanliness`, `review_scores_checkin`, `review_scores_communication`, among others.
+- `reviews`: Array of comments or reviews from users, each with fields such as `date`, `reviewer_id`, `reviewer_name`, and `comments`.
 ## Elasticsearch
 
 mapping = {
