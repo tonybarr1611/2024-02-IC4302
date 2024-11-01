@@ -37,7 +37,7 @@ def indexCreation():
     mapping = {
         "mappings": {
             "properties": {
-                "_id": {"type": "keyword"},
+                "id": {"type": "keyword"},
                 "listing_url": {"type": "keyword"},
                 "name": {"type": "text"},
                 "summary": {"type": "text"},
@@ -49,10 +49,10 @@ def indexCreation():
                 "minimum_nights": {"type": "integer"},
                 "maximum_nights": {"type": "integer"},
                 "cancellation_policy": {"type": "keyword"},
-                "last_scraped": {"type": "date"},
-                "calendar_last_scraped": {"type": "date"},
-                "first_review": {"type": "date"},
-                "last_review": {"type": "date"},
+                "last_scraped": {"type": "text"},
+                "calendar_last_scraped": {"type": "text"},
+                "first_review": {"type": "text"},
+                "last_review": {"type": "text"},
                 "accommodates": {"type": "integer"},
                 "bedrooms": {"type": "integer"},
                 "beds": {"type": "integer"},
@@ -132,7 +132,7 @@ def indexCreation():
                     "type": "nested",
                     "properties": {
                         "_id": {"type": "keyword"},
-                        "date": {"type": "date"},
+                        "date": {"type": "text"},
                         "listing_id": {"type": "keyword"},
                         "reviewer_id": {"type": "keyword"},
                         "reviewer_name": {"type": "text"},
@@ -155,6 +155,7 @@ def indexCreation():
     if not es.indices.exists(index=ELASTIC_INDEX_NAME):
         es.indices.create(index=ELASTIC_INDEX_NAME, body=mapping)
     return
+
 
 # Indexes a document in Elasticsearch
 def indexDocument(doc: dict):

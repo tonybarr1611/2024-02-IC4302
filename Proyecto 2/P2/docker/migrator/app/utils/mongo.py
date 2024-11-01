@@ -1,5 +1,7 @@
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
+from utils.docs import generateDocumentEmbeddings, serializableDoc
+from utils.elastic import indexDocument
 from os import getenv
 
 MONGO_URI = getenv("MONGO_URI")
@@ -36,20 +38,29 @@ def generateMongoConnection():
 
 # Reads data from MongoDB
 def readDataMongo(collectionName: str):
+    print("Reading data from MongoDB")
     connection = generateMongoConnection()
     if not connection:
         print("Failed to connect to MongoDB. Exiting.")
         return
 
     try:
+        print("Connected to MongoDB")
         db = connection.get_database(MONGO_DB)
         collection = db.get_collection(collectionName)
+        print(f"Reading data from {collectionName} collection")
         
         documents = collection.find()
-        
+        print("Data read successfully")
         # Parse the documents into a list
-        return [doc for doc in documents]
-        
+        n = 1
+        for doc in documents:
+            print(f"Processing document {n}")
+            embeddedDoc = generateDocumentEmbeddings(doc)
+            indexDocument(serializableDoc(embeddedDoc))
+            print(f"Document {n} processed and indexed")
+            n += 1 
+        return n
     except Exception as e:
         print(f"Error reading data: {e}")
     finally:
