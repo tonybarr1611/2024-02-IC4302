@@ -4,46 +4,58 @@ from elasticsearch import Elasticsearch
 from pymongo.server_api import ServerApi
 from pymongo.mongo_client import MongoClient
 
-postgres_connection = None
-mongodb_connection = None
-elasticsearch_connection = None
+from psycopg2 import pool
+from pymongo import MongoClient
+from pymongo.server_api import ServerApi
+from elasticsearch import Elasticsearch
 
-def generatePostgresConnection():
-    try:
-        postgres_connection_pool = pool.SimpleConnectionPool(
-            minconn=1,
-            maxconn=5,
-            host=POSTGRES,
-            user=POSTGRES_USER,
-            password=POSTGRES_PASSWORD,
-            dbname=POSTGRES_DB
-        )
-        return postgres_connection_pool
-    except Exception as e:
-        print(f"Error connecting to PostgreSQL: {e}")
-        exit(1)
+class DatabaseConnections:
+    _postgres_connection_pool = None
+    _mongo_client = None
+    _elasticsearch_client = None
 
-def generateMongoConnection():
-    try:
-        client = MongoClient(
-            MONGO_URI,
-            server_api=ServerApi('1'),
-            maxPoolSize=10, 
-            minPoolSize=1 
-        )
-        return client
-    except Exception as e:
-        print(f"Error connecting to MongoDB: {e}")
-        exit(1)
+    @staticmethod
+    def getPostgresConnection():
+        if DatabaseConnections._postgres_connection_pool is None or DatabaseConnections._postgres_connection_pool.closed:
+            try:
+                DatabaseConnections._postgres_connection_pool = pool.SimpleConnectionPool(
+                    minconn=1,
+                    maxconn=20,
+                    host=POSTGRES,
+                    user=POSTGRES_USER,
+                    password=POSTGRES_PASSWORD,
+                    dbname=POSTGRES_DB
+                )
+            except Exception as e:
+                print(f"Error connecting to PostgreSQL: {e}")
+                exit(1)
+        return DatabaseConnections._postgres_connection_pool
 
-def generateElasticsearchConnection():
-    try:
-        connection = Elasticsearch([ELASTIC], basic_auth=[ELASTIC_USER, ELASTIC_PASSWORD])
-        return connection
-    except Exception as e:
-        print(f"Error connecting to Elasticsearch: {e}")
-        exit(1)
+    @staticmethod
+    def getMongoConnection():
+        if DatabaseConnections._mongo_client is None:
+            try:
+                DatabaseConnections._mongo_client = MongoClient(
+                    MONGO_URI,
+                    server_api=ServerApi('1'),
+                    maxPoolSize=10, 
+                    minPoolSize=1 
+                )
+            except Exception as e:
+                print(f"Error connecting to MongoDB: {e}")
+                exit(1)
+        return DatabaseConnections._mongo_client
 
-postgres_connection = generatePostgresConnection()
-mongodb_connection = generateMongoConnection()
-elasticsearch_connection = generateElasticsearchConnection()
+    @staticmethod
+    def getESConnection():
+        if DatabaseConnections._elasticsearch_client is None:
+            try:
+                DatabaseConnections._elasticsearch_client = Elasticsearch(
+                    [ELASTIC],
+                    basic_auth=[ELASTIC_USER, ELASTIC_PASSWORD]
+                )
+            except Exception as e:
+                print(f"Error connecting to Elasticsearch: {e}")
+                exit(1)
+        return DatabaseConnections._elasticsearch_client
+

@@ -16,6 +16,9 @@ def executePostgresQuery(query, params=None):
         cursor = connection.cursor()
         cursor.execute(query, params)
         result = cursor.fetchall()
+        connection.commit()
+        connection.close()
+        DatabaseConnections.getPostgresConnection().putconn(connection)
         return result
     
     except Exception as e:
@@ -49,20 +52,11 @@ def executeMongoQuery(text, collectionS):
 def executeMongoUnique():
     conn = DatabaseConnections.getMongoConnection()
     db = conn[MONGO_DB]
-    song_collection = db['Song']
     artist_collection = db['Artist']
+
+    artists = []
+    for artist in artist_collection.find():
+        artist.pop('_id', None)
+        artists.append(artist)
     
-    languages = set(song_collection.distinct('Language'))
-    genres = set(artist_collection.distinct('Genres'))
-    popularities = song_collection.aggregate([
-    {
-        "$group": {
-            "_id": None,
-            "max": {"$max": "$Popularity"},
-            "min": {"$min": "$Popularity"}
-        }
-    }
-])
-    artists = {artist for artist in artist_collection.find()}
-    
-    return languages, genres, popularities, artists
+    return artists

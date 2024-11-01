@@ -4,20 +4,25 @@ from utils import executePostgresQuery, executeMongoUnique
 filters_bp = Blueprint('filters', __name__)
 
 def filtersPostres():
-    languages = "SELECT DISTINCT Language FROM Song"
-    genres = "SELECT DISTINCT Genres FROM Artist"
     artists = "SELECT * FROM Artist"
+    artists = list(executePostgresQuery(artists))
+    artistsDict = []
+    for artist in artists:
+        artistsDict.append({
+            'Name': artist[0],
+            'Genres': artist[1],
+            'Songs': artist[2],
+            'Popularity': artist[3],
+            'Link': artist[4],
+        })
+    
     return jsonify({
-        "languages": list(executePostgresQuery(languages)),
-        "genres": list(executePostgresQuery(genres)),
-        "artists": list(executePostgresQuery(artists))
+        "artists": artistsDict
     })
     
 def filtersMongo():
-    languages, genres, artists = executeMongoUnique()
+    artists = executeMongoUnique()
     return jsonify({
-         "languages": list(languages),
-         "genres": list(genres),
          "artists": list(artists)
     })
 
