@@ -10,3 +10,10 @@
 *.tsbuildinfo
 
 *.pyc
+Proyecto Opcional/PO/mdpdf.log
+
+*.log
+
+*.lock
+
+Proyecto Opcional/.vscode/
