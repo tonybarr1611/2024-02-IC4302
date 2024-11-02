@@ -1,0 +1,77 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ .Values.config.producer.name }}  # Using the name from values.yaml
+spec:
+  schedule: "*/10 * * * *"  # Schedule for every 10 minutes
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: {{ .Values.config.producer.name }}  # Using the name from values.yaml for labels
+        spec:
+          containers:
+          - name: {{ .Values.config.producer.name }}-container  # Container name from values.yaml
+            image: {{ .Values.config.docker_registry }}/{{ .Values.config.producer.image }}  # Image from values.yaml
+            ports:
+              - containerPort: 9102  # Port for Prometheus
+            env:
+              - name: S3_KEY_PREFIX       # Esto está bien como variable de entorno
+                value: "spotify/"
+              - name: S3_BUCKET           # Variable de entorno válida
+                value: {{ .Values.config.bucket }}
+              - name: AWS_ACCESS_KEY_ID   # Variable de entorno válida
+                value: {{ .Values.config.access_key }}
+              - name: AWS_SECRET_ACCESS_KEY # Variable de entorno válida
+                value: {{ .Values.config.secret_key }}
+              - name: RABBITMQ            # Variable de entorno válida
+                value: "databases-rabbitmq"
+              - name: RABBITMQ_QUEUE      # Variable de entorno válida
+                value: "queue"
+              - name: RABBITMQ_USER       # Variable de entorno válida
+                value: "user"
+              - name: RABBITMQ_PASS       # Usando secretKeyRef para la contraseña
+                valueFrom:
+                  secretKeyRef:
+                    name: databases-rabbitmq
+                    key: rabbitmq-password
+                    optional: false
+          restartPolicy: OnFailure
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.config.producer.name }}
+  namespace: default
+  labels:
+    app: {{ .Values.config.producer.name }}
+spec:
+  ports:
+    - name: metrics # Nombre para el puerto de Prometheus
+      protocol: TCP
+      port: 9102  # Puerto para métricas de Prometheus
+      targetPort: 9102  # Puerto del contenedor
+  selector:
+    app: {{ .Values.config.producer.name }}
+  type: NodePort    # O NodePort/LoadBalancer según lo necesites
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: s3crawler-monitor
+  labels:
+    app: {{ .Values.config.producer.name }}
+  namespace: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.config.producer.name }}
+  endpoints:
+  - port: metrics
+    path: metrics
+    interval: 15s
+  namespaceSelector:
+    matchNames:
+    - default

@@ -1,0 +1,10 @@
+import os
+
+HUGGINGFACE = os.getenv('HUGGINGFACE', 'false')
+MARIADB = os.getenv("MARIADB")
+MARIADB_USER = os.getenv("MARIADB_USER")
+MARIADB_PASSWORD = os.getenv("MARIADB_PASS")
+ELASTIC = os.getenv("ELASTIC")
+ELASTIC_USER = os.getenv("ELASTIC_USER")
+ELASTIC_PASSWORD = os.getenv("ELASTIC_PASSWORD")
+ELASTIC_INDEX_NAME = os.getenv("ELASTIC_INDEX_NAME")

@@ -1,0 +1,19 @@
+
+.metals/
+
+.vscode/
+
+*.lock
+
+*.tgz
+
+*.tsbuildinfo
+
+*.pyc
+Proyecto Opcional/PO/mdpdf.log
+
+*.log
+
+*.lock
+
+Proyecto Opcional/.vscode/

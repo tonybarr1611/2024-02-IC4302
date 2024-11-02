@@ -1,0 +1,189 @@
+{
+  "title": "Ingest",
+  "panels": [
+    {
+      "type": "gauge",
+      "title": "Max Object Processing Time (seconds)",
+      "targets": [
+        {
+          "expr": "max_object_processing_time_seconds",
+          "legendFormat": "Max Object Time",
+          "refId": "A"
+        }
+      ],
+      "datasource": "Prometheus",
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "type": "gauge",
+      "title": "Min Object Processing Time (seconds)",
+      "targets": [
+        {
+          "expr": "min_object_processing_time_seconds",
+          "legendFormat": "Min Object Time",
+          "refId": "B"
+        }
+      ],
+      "datasource": "Prometheus",
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 6,
+        "y": 0
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Average Object Processing Time (seconds)",
+      "targets": [
+        {
+          "expr": "avg_object_processing_time_seconds_sum / avg_object_processing_time_seconds_count",
+          "legendFormat": "Avg Object Time",
+          "refId": "C"
+        }
+      ],
+      "datasource": "Prometheus",
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 0,
+        "y": 6
+      }
+    },
+    {
+      "type": "gauge",
+      "title": "Max Row Processing Time (seconds)",
+      "targets": [
+        {
+          "expr": "max_row_processing_time_seconds",
+          "legendFormat": "Max Row Time",
+          "refId": "D"
+        }
+      ],
+      "datasource": "Prometheus",
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 12,
+        "y": 0
+      }
+    },
+    {
+      "type": "gauge",
+      "title": "Min Row Processing Time (seconds)",
+      "targets": [
+        {
+          "expr": "min_row_processing_time_seconds",
+          "legendFormat": "Min Row Time",
+          "refId": "E"
+        }
+      ],
+      "datasource": "Prometheus",
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 18,
+        "y": 0
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Average Row Processing Time (seconds)",
+      "targets": [
+        {
+          "expr": "avg_row_processing_time_seconds_sum / avg_row_processing_time_seconds_count",
+          "legendFormat": "Avg Row Time",
+          "refId": "F"
+        }
+      ],
+      "datasource": "Prometheus",
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 12,
+        "y": 6
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Objects Processed",
+      "targets": [
+        {
+          "expr": "objects_processed_total",
+          "legendFormat": "Total Objects Processed",
+          "refId": "G"
+        }
+      ],
+      "datasource": "Prometheus",
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 0,
+        "y": 24
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Objects with Errors",
+      "targets": [
+        {
+          "expr": "objects_error_total",
+          "legendFormat": "Total Objects with Errors",
+          "refId": "H"
+        }
+      ],
+      "datasource": "Prometheus",
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 6,
+        "y": 24
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Rows Processed",
+      "targets": [
+        {
+          "expr": "rows_processed_total",
+          "legendFormat": "Total Rows Processed",
+          "refId": "I"
+        }
+      ],
+      "datasource": "Prometheus",
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 12,
+        "y": 24
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Rows with Errors",
+      "targets": [
+        {
+          "expr": "rows_error_total",
+          "legendFormat": "Total Rows with Errors",
+          "refId": "J"
+        }
+      ],
+      "datasource": "Prometheus",
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 18,
+        "y": 24
+      }
+    }
+  ],
+  "datasource": "Prometheus",
+  "refresh": "5s",
+  "schemaVersion": 16,
+  "version": 1
+}

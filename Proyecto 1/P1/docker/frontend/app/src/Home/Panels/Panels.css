@@ -1,0 +1,116 @@
+.panel {
+    margin-top: 1%;
+    margin-bottom: 2%;
+    padding: 20px;
+}
+
+.subtitles {
+    font-size: 1.3em;
+    font-weight: bold;
+    margin-bottom: 1%;
+}
+
+.width-full {
+    width: 100%;
+}
+
+.ask-input {
+    width: 100%;
+    height: 100%;
+    padding: 10px;
+    margin-bottom: 2%;
+    border-radius: 5px;
+    color: #ffffff;
+    border: 1px solid #ffffff;
+    background-color: #FFFFFF00;
+}
+
+.post-card{
+    margin-top: 1%;
+    margin-bottom: 2%;
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid #d3d3d3;
+    background-color: #141e29;
+    overflow: auto;
+}
+
+.post-content {
+    height: 15vh;
+    margin-bottom: 2%;
+    overflow: auto;
+}
+
+.post-user {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-bottom: 2%;
+    height: 25%;
+}
+
+.bold {
+    font-weight: bold;
+}
+
+.like-btn {
+    all: unset;
+}
+
+.friend {
+    width: 100%;
+    height: 100%;
+    border: 1px solid #d3d3d3;
+}
+
+.friend-info {
+    width: 100%;
+    height: 100%;
+    padding: 10px;
+    margin-bottom: 2%;
+    border-radius: 5px;
+    color: #ffffff;
+    border: 1px solid #ffffff;
+    background-color: #FFFFFF00;
+}
+
+.friend-buttons {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.dark-modal .modal-content {
+    background-color: var(--dark_background);
+    color: #FFFFFF99;
+    border-radius: 10px;
+}
+
+.btn-cancel {
+    background-color: #FFFFFF00;
+    color: #FFFFFF;
+    border: 3px solid #808080;
+}
+
+.btn-cancel:hover {
+    background-color: #808080;
+}
+
+.btn-delete {
+    background-color: #FFFFFF00;
+    color: #FFFFFF;
+    border: 3px solid #ff00004e;
+}
+
+.btn-delete:hover {
+    background-color: #ff00004e;
+}
+
+.btn-save {
+    background-color: #FFFFFF00;
+    color: #FFFFFF;
+    border: 3px solid #00ff004e;
+}
+
+.btn-save:hover {
+    background-color: #00ff004e;
+}

@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.config.backendapi.name }}
+  labels:
+    app: {{ .Values.config.backendapi.name }}
+spec:
+  replicas: {{ .Values.config.backendapi.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.config.backendapi.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.config.backendapi.name }}
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '5000'
+        prometheus.io/path: '/metrics'
+    spec:
+      containers:
+      - name: {{ .Values.config.backendapi.name }}
+        image: {{ .Values.config.docker_registry }}/{{ .Values.config.backendapi.image }}
+        ports:
+          - containerPort: 5000
+        env:
+          - name: MARIADB
+            value: "databases-mariadb"
+          - name: MARIADB_TABLE
+            value: "objects"
+          - name: MARIADB_DB
+            value: "control"
+          - name: MARIADB_USER
+            value: "root"
+          - name: MARIADB_PASS
+            valueFrom:
+              secretKeyRef:
+                name: databases-mariadb
+                key: mariadb-root-password
+                optional: false
+          - name: HUGGINGFACE
+            value: huggingfaceapi
+          - name: MEMCACHED
+            value: "databases-memcached"
+          - name: MEMCACHED_PORT
+            value: "11211"
+          - name: ELASTIC_USER
+            value: "elastic"
+          - name: ELASTIC_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: ic4302-es-elastic-user
+                key: elastic
+                optional: false
+          - name: ELASTIC
+            value: "http://ic4302-es-http:9200"
+          - name: ELASTIC_INDEX_NAME
+            value: 'songs'
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ .Values.config.backendapi.name }}-monitor
+  labels:
+    app: {{ .Values.config.backendapi.name }}
+  namespace: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.config.backendapi.name }}
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+  namespaceSelector:
+    matchNames:
+      - default

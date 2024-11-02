@@ -1,0 +1,37 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Values.config.migrator.name }}
+spec:
+  template:
+    spec:
+      containers:
+        - name: {{ .Values.config.migrator.name }}
+          image: {{ .Values.config.docker_registry }}/{{ .Values.config.migrator.image }}
+          env:
+            - name: MONGO_URI
+              value: "mongodb+srv://deployment:X5awIOdpdBwM2aaL@serverlessinstance0.okpu6jr.mongodb.net/?retryWrites=true&w=majority&appName=ServerlessInstance0"
+            - name: MONGO_DB
+              value: "sample_airbnb"
+            - name: ELASTIC_USER
+              value: "elastic"
+            - name: ELASTIC_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: ic4302-es-elastic-user
+                  key: elastic
+                  optional: false
+            - name: ELASTIC
+              value: "http://ic4302-es-http:9200"
+            - name: ELASTIC_INDEX_NAME
+              value: "listingsandreviews"
+          volumeMounts:
+            - name: gcs-key
+              mountPath: /etc/secrets
+              readOnly: true
+      restartPolicy: OnFailure
+      volumes:
+        - name: gcs-key
+          secret:
+            secretName: gcs-key-secret  # Secret containing credentials for external services
+  backoffLimit: 20

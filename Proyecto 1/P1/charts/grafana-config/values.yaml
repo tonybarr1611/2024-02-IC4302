@@ -1,0 +1,35 @@
+prometheus: 
+  namespace: monitoring
+dashboards:
+  elasticsearch:
+    name: elasticsearch
+    file: elasticsearch.json
+    enable: true
+  mariadb:
+    name: mariadb
+    file: mariadb.json
+    enable: true
+  memcached:
+    name: memcached
+    file: memcached.json
+    enable: true
+  rabbitmq:
+    name: rabbitmq
+    file: rabbitmq.json
+    enable: true
+  ingest:
+    name: ingest
+    file: ingest.json
+    enable: true
+  huggingface:
+    name: huggingface
+    file: huggingface.json
+    enable: true
+  s3spider:
+    name: s3spider
+    file: s3spider.json
+    enable: true
+  backendapi:
+    name: backendapi
+    file: backendapi.json
+    enable: true

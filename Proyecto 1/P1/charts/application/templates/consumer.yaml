@@ -1,0 +1,115 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.config.consumer.name }}
+  labels:
+    app: {{ .Values.config.consumer.name }}
+spec:
+  replicas: {{ .Values.config.consumer.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.config.consumer.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.config.consumer.name }}
+    spec:
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: data
+      containers:
+      - name: {{ .Values.config.consumer.name }}
+        volumeMounts:
+          - mountPath: "/data"
+            name: data
+        image: {{ .Values.config.docker_registry }}/{{ .Values.config.consumer.image }}
+        env:
+          - name: AWS_ACCESS_KEY
+            value: {{ .Values.config.access_key }}
+          - name: AWS_SECRET_ACCESS_KEY
+            value: {{ .Values.config.secret_key }}
+          - name: S3_KEY_PREFIX 
+            value: "spotify/"
+          - name: S3_BUCKET
+            value: "2024-02-ic4302-gr1"
+          - name: RABBITMQ
+            value: "databases-rabbitmq"
+          - name: RABBITMQ_QUEUE
+            value: "queue"
+          - name: RABBITMQ_USER
+            value: "user"
+          - name: XPATH
+            value: "/data"
+          - name: RABBITMQ_PASS
+            valueFrom:
+              secretKeyRef:
+                name: databases-rabbitmq
+                key: rabbitmq-password
+                optional: false
+          - name: MARIADB
+            value: "databases-mariadb"
+          - name: MARIADB_TABLE
+            value: "objects"
+          - name: MARIADB_DB
+            value: "control"
+          - name: MARIADB_USER
+            value: "root"
+          - name: MARIADB_PASS
+            valueFrom:
+              secretKeyRef:
+                name: databases-mariadb
+                key: mariadb-root-password
+                optional: false
+          - name: ELASTIC_USER
+            value: "elastic"
+          - name: ELASTIC
+            value: "http://ic4302-es-http:9200"
+          - name: ELASTIC_PASS
+            valueFrom:
+              secretKeyRef:
+                name: ic4302-es-elastic-user
+                key: elastic
+                optional: false
+          - name: ELASTIC_INDEX_NAME
+            value: 'songs'
+          - name: HUGGING_FACE_API
+            value: "http://huggingfaceapi:5000/"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ingest
+  namespace: default
+  labels:                                                                   
+    app: ingest
+spec:
+  ports:
+    - name: metrics
+      protocol: TCP
+      port: 9101
+      targetPort: 9101
+  selector:
+    app: ingest
+  type: NodePort
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ingest-monitor
+  labels:
+    app: ingest
+  namespace: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: ingest
+  endpoints:
+  - port: metrics
+    path: metrics
+    interval: 15s
+  namespaceSelector:
+    matchNames:
+    - default

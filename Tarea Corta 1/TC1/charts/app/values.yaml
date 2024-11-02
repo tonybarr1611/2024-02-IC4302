@@ -1,0 +1,9 @@
+config:
+  flask:
+    enabled: true
+    name: flaskapi
+    image: sfabricito/flaskapi
+  loader:
+    enabled: true
+    name: loader
+    image: sfabricito/loader

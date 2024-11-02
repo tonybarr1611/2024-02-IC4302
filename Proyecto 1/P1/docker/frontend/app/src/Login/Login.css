@@ -1,0 +1,24 @@
+.leftText{
+    text-align: left;
+}
+
+.container-login {
+    height: 94vh;
+    width: 100%;
+}
+
+.card-login {
+    width: 26rem;
+    height: 40%;
+    display: flex;
+    background-color: var(--light_background);
+}
+
+.icon-login {
+    color: #1A485B;
+}
+
+.guest-login {
+    color: #e3deec;
+    cursor: pointer;
+}

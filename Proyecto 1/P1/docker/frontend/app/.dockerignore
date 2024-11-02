@@ -1,0 +1,53 @@
+# .dockerignore
+
+# Node modules (should be installed in Docker during the build process)
+node_modules
+npm-debug.log
+yarn-error.log
+
+# Logs
+*.log
+
+# Build directory (should be created during the build process)
+build
+dist
+
+# Local environment files
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Temporary files and directories
+*.cache
+*.tmp
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Git-related files
+.git
+.gitignore
+
+# Editor-related files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# MacOS files
+.DS_Store
+
+# Docker files that are only useful locally
+docker-compose.yml
+docker-compose.override.yml
+Dockerfile.*
+
+# Ignore coverage directory created during tests
+coverage/
+
+# Miscellaneous
+*.log
+*.lock
