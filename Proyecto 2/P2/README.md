@@ -225,12 +225,18 @@ The Backend component is a Python API developed using Flask and deployed as a Ku
 The frontend for the application is built using React and runs on port `localhost:30080` on your machine. This frontend is organized into various pages, each serving a specific function within the application. Below is an overview of the main pages:
 
 - **Home Page**: The home page serves as the main landing page for the application, here you can find a introduction to the application and you can select the search engine you want to use, PostgreSQL or MongoDB Atlas.
+- 
+![Home Page](images/Homedashboard.png)
 
 - **Search Page**: The search page allows users to search for song lyrics and artists using the selected search engine. Users can enter search terms, refine results by language, genre, and popularity, and view song details. The search page provides a user-friendly interface for exploring song data and retrieving relevant information. Here you can also view the lyrics of the song, of which you can select specific verses to initiate related searches for apartment recommendations based on the selected lyrics.
+
+![Search Page](images/Searchdpage.png)
 
 - **Song Details Page**: The song details page displays detailed information about a selected song, including lyrics, artist, genre, and popularity. Users can view specific song details and explore more information about the song. This page provides a comprehensive overview of the song data, allowing users to access relevant information quickly and efficiently.
 
 - **Apartment Recommendations Page**: The apartment recommendations page displays recommended apartments based on selected song lyrics. Users can view apartment details, such as name, summary, description, in case you want to know more about the apartment you can click on the button to see more details. This page provides personalized apartment suggestions based on the selected song lyrics, enhancing the user experience and offering tailored recommendations.
+
+![Apartment Recommendations Page](images/ApartmentListExample.png)
 
 - **Apartment Details Page**: The apartment details page shows detailed information about a selected apartment, including name, summary, description, and reviews left for the apartment. In this section, users can explore apartment details and view additional information about the property. This page offers a comprehensive overview of the apartment data, allowing users to access relevant information quickly and efficiently.
 
@@ -251,26 +257,10 @@ Refactoring Support: Well-written unit tests ensure that future changes or optim
 ### What modules should have unit testing
 In this project, unit testing could be applying to key modules, including:
 
-#### Hugging Face API
-- Verifying the proper functioning of API requests and responses.
-- Ensuring that the expected model outputs are returned based on the given input data.
-- Testing the error handling for API call failures, timeouts, or invalid inputs.
-- Ensuring metrics collection for Prometheus (e.g., API response times, successful requests).
-
-#### Ingest
-- Ensuring data ingestion pipelines correctly process various data formats and sizes.
-- Testing individual data transformation functions for correctness.
-- Validating error handling when ingestion fails (e.g., malformed data or network errors).
-
-#### S3 crawler
-
-- Testing the ability to list files from S3 buckets.
-- Ensuring graceful handling of S3-specific errors.
-- Testing the processing logic that acts upon the S3 data, ensuring it behaves correctly across different scenarios.
 
 #### Backend API
 - Verifying the correctness of API endpoints (e.g., for creating, reading, updating, and deleting resources).
-- Ensuring the integration with external services, such as Elasticsearch for indexing, and MariaDB for data persistence.
+- Ensuring the integration with external services, such as Elasticsearch for indexing, and PostgreSQL for data persistence.
 - Testing error handling, such as database failures, message queue unavailability, or malformed requests.
 
 ### Why Unit Testing Was Not Implemented for Certain Modules
