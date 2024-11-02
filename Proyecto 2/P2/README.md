@@ -280,12 +280,6 @@ In this project, unit testing is applying to key modules, including:
 - Testing error handling, such as database failures, message queue unavailability, or malformed requests.
 ![Migrator Unit Testing](images/unit2.png)
 
-
-#### Backend API
-- Verifying the correctness of API endpoints (e.g., for creating, reading, updating, and deleting resources).
-- Ensuring the integration with external services, such as Elasticsearch for indexing, and PostgreSQL for data persistence.
-- Testing error handling, such as database failures, message queue unavailability, or malformed requests.
-
 ### Why Unit Testing Was Not Implemented for Certain Modules
 We decided not to implement unit testing for certain modules due to the complexity of their structure and their heavy reliance on external services. While unit testing is a critical part of maintaining code quality, there are several key reasons why these particular modules were not subjected to unit tests at this stage:
 
