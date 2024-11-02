@@ -232,9 +232,9 @@ The frontend for the application is built using React and runs on port `localhos
 
 ![Search Page](images/img3.jpeg)
 
-- **Search Results**: The search page allows users to search for song lyrics and artists using the selected search engine. Users can enter search terms, refine results by language, genre, and popularity, and view song details. The search page provides a user-friendly interface for exploring song data and retrieving relevant information. Here you can also view the lyrics of the song, of which you can select specific verses to initiate related searches for apartment recommendations based on the selected lyrics.
+- **Search Results**: The Search Results allows users to display the results for a specific search.
 
-![Search Page](images/img3.jpeg)
+![Search Page](images/img4.jpeg)
 
 
 - **Song Details Page**: The song details page displays detailed information about a selected song, including lyrics, artist, genre, and popularity. Users can view specific song details and explore more information about the song. This page provides a comprehensive overview of the song data, allowing users to access relevant information quickly and efficiently.
