@@ -1,0 +1,16 @@
+:root {
+  --dark_background: #15202B;
+  --light_background: #080808;
+} 
+
+
+html, body {
+  background-color: var(--dark_background);
+  height: 100%;
+  margin: 0;
+  font-family: "Inria Sans", sans-serif;
+}
+
+.text-end {
+  text-align: end;
+}

@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.config.backend.name }}-service
+  namespace: default
+  labels:
+    app: {{ .Values.config.backend.name }}
+spec:
+  ports:
+    - name: http
+      protocol: TCP
+      port: {{ .Values.config.backendnodeport.port }}
+      targetPort: {{ .Values.config.backendnodeport.targetPort }}
+      nodePort: {{ .Values.config.backendnodeport.nodePort }}
+  selector:
+    app: {{ .Values.config.backend.name }}
+  type: NodePort

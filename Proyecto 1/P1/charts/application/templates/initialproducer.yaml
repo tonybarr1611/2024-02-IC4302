@@ -1,0 +1,39 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Values.config.producer.name }}-initial-job  # Using a unique name for the initial job
+  labels:
+    app: {{ .Values.config.producer.name }}  # Using the same label for monitoring
+spec:
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.config.producer.name }}  # Using the same label for monitoring
+    spec:
+      containers:
+      - name: {{ .Values.config.producer.name }}-initial-job-container  # Unique container name
+        image: {{ .Values.config.docker_registry }}/{{ .Values.config.producer.image }}  # Image from values.yaml
+        ports:
+          - containerPort: 9102  # Port for Prometheus
+        env:
+          - name: S3_KEY_PREFIX
+            value: "spotify/"
+          - name: S3_BUCKET
+            value: {{ .Values.config.bucket }}
+          - name: AWS_ACCESS_KEY_ID
+            value: {{ .Values.config.access_key }}
+          - name: AWS_SECRET_ACCESS_KEY
+            value: {{ .Values.config.secret_key }}
+          - name: RABBITMQ
+            value: "databases-rabbitmq"
+          - name: RABBITMQ_QUEUE
+            value: "queue"
+          - name: RABBITMQ_USER
+            value: "user"
+          - name: RABBITMQ_PASS
+            valueFrom:
+              secretKeyRef:
+                name: databases-rabbitmq
+                key: rabbitmq-password
+                optional: false
+      restartPolicy: OnFailure

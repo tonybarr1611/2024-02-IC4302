@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.config.frontend.name }}-service
+spec:
+  type: NodePort
+  ports:
+    - port: {{ .Values.config.frontendnodeport.port }}
+      targetPort: {{ .Values.config.frontendnodeport.targetPort }}
+      protocol: TCP
+      nodePort: {{ .Values.config.frontendnodeport.nodePort }}
+  selector:
+    app: {{ .Values.config.frontend.name }}

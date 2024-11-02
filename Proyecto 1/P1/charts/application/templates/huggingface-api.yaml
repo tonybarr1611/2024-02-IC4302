@@ -1,0 +1,78 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: data
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.config.huggingfaceApi.name }}
+  labels:
+    app: {{ .Values.config.huggingfaceApi.name }}
+spec:
+  replicas: {{ .Values.config.huggingfaceApi.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.config.huggingfaceApi.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.config.huggingfaceApi.name }}
+    spec:
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: data
+      containers:
+      - name: {{ .Values.config.huggingfaceApi.name }}
+        volumeMounts:
+          - mountPath: "/data"
+            name: data
+        image: {{ .Values.config.docker_registry }}/{{ .Values.config.huggingfaceApi.image }}
+        ports:
+          - containerPort: 5000
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: huggingfaceapi
+  namespace: default
+  labels:                                                                   
+    app: huggingfaceapi
+spec:
+  ports:
+    - name: http  # Nombre para el puerto de la API
+      protocol: TCP
+      port: 5000  # Puerto del servicio
+      targetPort: 5000  # Puerto del contenedor
+  selector:
+    app: huggingfaceapi
+  type: NodePort
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: huggingfaceapi-monitor
+  labels:
+    app: huggingfaceapi
+  namespace: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: huggingfaceapi
+  endpoints:
+  - port: http
+    path: metrics
+    interval: 15s
+  namespaceSelector:
+    matchNames:
+    - default

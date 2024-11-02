@@ -1,0 +1,29 @@
+.leftText {
+    text-align: left;
+}
+
+.container-register {
+    height: 94vh;
+    width: 100%;
+}
+
+.card-register {
+    width: 26rem;
+    height: 55%;
+    display: flex;
+    background-color: var(--light_background);
+}
+
+.icon-register {
+    color: #1A485B;
+}
+
+.register-button {
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.guest-register {
+    color: #e3deec;
+    cursor: pointer;
+}

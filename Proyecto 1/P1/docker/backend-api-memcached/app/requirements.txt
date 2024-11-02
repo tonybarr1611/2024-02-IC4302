@@ -1,0 +1,7 @@
+flask
+mariadb
+requests
+flask-cors
+pymemcache
+elasticsearch
+prometheus_client

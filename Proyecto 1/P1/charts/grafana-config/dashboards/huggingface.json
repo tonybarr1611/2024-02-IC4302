@@ -1,0 +1,80 @@
+{
+  "title": "HuggingFace API",
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Total Requests",
+      "targets": [
+        {
+          "expr": "app_requests_count_total",
+          "legendFormat": "Total Requests",
+          "refId": "A"
+        }
+      ],
+      "datasource": "Prometheus",
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "type": "gauge",
+      "title": "Max Processing Time (seconds)",
+      "targets": [
+        {
+          "expr": "max_processing_time",
+          "legendFormat": "Max Time",
+          "refId": "B"
+        }
+      ],
+      "datasource": "Prometheus",
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 6,
+        "y": 0
+      }
+    },
+    {
+      "type": "gauge",
+      "title": "Min Processing Time (seconds)",
+      "targets": [
+        {
+          "expr": "min_processing_time",
+          "legendFormat": "Min Time",
+          "refId": "C"
+        }
+      ],
+      "datasource": "Prometheus",
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 0,
+        "y": 6
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Average Processing Time (seconds)",
+      "targets": [
+        {
+          "expr": "processing_time_seconds_sum / processing_time_seconds_count",
+          "legendFormat": "Avg Time",
+          "refId": "D"
+        }
+      ],
+      "datasource": "Prometheus",
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 0,
+        "y": 12
+      }
+    }
+  ],
+  "datasource": "Prometheus",
+  "schemaVersion": 16,
+  "version": 1
+}

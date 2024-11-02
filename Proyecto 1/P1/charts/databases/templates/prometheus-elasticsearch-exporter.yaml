@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: elasticsearch-exporter
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: elasticsearch-exporter
+  template:
+    metadata:
+      labels:
+        app: elasticsearch-exporter
+    spec:
+      containers:
+      - name: elasticsearch-exporter
+        image: quay.io/prometheuscommunity/elasticsearch-exporter:v1.8.0
+        ports:
+        - name: metrics
+          containerPort: 9114
+        env:
+        - name: ES_USERNAME
+          value: "elastic"  # Provided in prometheus-elasticsearch-exporter values
+        - name: ES_PASSWORD
+          valueFrom:                # Correct indentation here
+            secretKeyRef:
+              name: ic4302-es-elastic-user
+              key: elastic
+              optional: false
+        args:
+        - --es.uri=http://ic4302-es-http:9200  # Provided Elasticsearch URI
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: elasticsearch-exporter
+  namespace: default
+  labels:
+    app: elasticsearch-exporter
+spec:
+  ports:
+  - name: metrics
+    port: 9114
+    targetPort: 9114
+  selector:
+    app: elasticsearch-exporter
+  type: ClusterIP
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: elasticsearch-exporter-monitor
+  labels:
+    app: elasticsearch-exporter
+  namespace: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: elasticsearch-exporter
+  endpoints:
+  - port: metrics
+    path: metrics
+    interval: 15s
+  namespaceSelector:
+    matchNames:
+    - default
+  jobLabel: elasticsearch-exporter

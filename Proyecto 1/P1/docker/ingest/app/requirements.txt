@@ -1,0 +1,7 @@
+pika
+boto3
+pandas
+mariadb
+requests
+elasticsearch
+prometheus_client

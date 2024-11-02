@@ -1,0 +1,41 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Values.config.loader.name }}
+spec:
+  template:
+    spec:
+      containers:
+        - name: {{ .Values.config.loader.name }}
+          image: {{ .Values.config.docker_registry }}/{{ .Values.config.loader.image }}
+          env:
+            - name: GOOGLE_CLOUD_PROJECT
+              value: {{ .Values.config.project_id }}
+            - name: GCS_BUCKET
+              value: "ic4302-202402"
+            - name: POSTGRES
+              value: "databases-postgresql"
+            - name: POSTGRES_USER
+              value: "postgres"
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: databases-postgresql
+                  key: postgres-password
+                  optional: false
+            - name: POSTGRES_DB
+              value: "lyricsdb"
+            - name: MONGO_URI
+              value: "mongodb+srv://deployment:X5awIOdpdBwM2aaL@serverlessinstance0.okpu6jr.mongodb.net/?retryWrites=true&w=majority&appName=ServerlessInstance0"
+            - name: MONGO_DB
+              value: "LyricsDB"
+          volumeMounts:
+            - name: gcs-key
+              mountPath: /etc/secrets
+              readOnly: true
+      restartPolicy: OnFailure
+      volumes:
+        - name: gcs-key
+          secret:
+            secretName: gcs-key-secret  # Create a secret for the GCS key
+  backoffLimit: 20
