@@ -230,13 +230,22 @@ The frontend for the application is built using React and runs on port `localhos
 
 - **Search Page**: The search page allows users to search for song lyrics and artists using the selected search engine. Users can enter search terms, refine results by language, genre, and popularity, and view song details. The search page provides a user-friendly interface for exploring song data and retrieving relevant information. Here you can also view the lyrics of the song, of which you can select specific verses to initiate related searches for apartment recommendations based on the selected lyrics.
 
-![Search Page](images/Searchdpage.png)
+![Search Page](images/img3.jpeg)
+
+- **Search Results**: The search page allows users to search for song lyrics and artists using the selected search engine. Users can enter search terms, refine results by language, genre, and popularity, and view song details. The search page provides a user-friendly interface for exploring song data and retrieving relevant information. Here you can also view the lyrics of the song, of which you can select specific verses to initiate related searches for apartment recommendations based on the selected lyrics.
+
+![Search Page](images/img3.jpeg)
+
 
 - **Song Details Page**: The song details page displays detailed information about a selected song, including lyrics, artist, genre, and popularity. Users can view specific song details and explore more information about the song. This page provides a comprehensive overview of the song data, allowing users to access relevant information quickly and efficiently.
 
 - **Apartment Recommendations Page**: The apartment recommendations page displays recommended apartments based on selected song lyrics. Users can view apartment details, such as name, summary, description, in case you want to know more about the apartment you can click on the button to see more details. This page provides personalized apartment suggestions based on the selected song lyrics, enhancing the user experience and offering tailored recommendations.
 
-![Apartment Recommendations Page](images/ApartmentListExample.png)
+![Apartment Recommendations Page](images/img5.jpeg)
+![Apartment Recommendations Page with Details](images/img6.jpeg)
+
+- **Apartment Information**: The apartment information page displays recommended an aparment based on selected song lyrics. 
+![Apartment Information](images/img7.jpeg)
 
 - **Apartment Details Page**: The apartment details page shows detailed information about a selected apartment, including name, summary, description, and reviews left for the apartment. In this section, users can explore apartment details and view additional information about the property. This page offers a comprehensive overview of the apartment data, allowing users to access relevant information quickly and efficiently.
 
@@ -255,7 +264,21 @@ Refactoring Support: Well-written unit tests ensure that future changes or optim
 - Efficiency in Development: Unit tests provide rapid feedback, allowing developers to fix issues before they escalate into larger, more complex problems.
 
 ### What modules should have unit testing
-In this project, unit testing could be applying to key modules, including:
+In this project, unit testing is applying to key modules, including:
+
+#### Loader
+- Verify the correct download of the elements of the Google Cloud service.
+- Certify correct extraction of elements from CSV files.
+- Ensure integration with other technologies, such as PostgreSQL for sequential data storage and MongoDB for non-sequential data storage.
+- Testing error handling, such as database failures, message queue unavailability, or malformed requests.
+![Loader Unit Testing](images/unit1.png)
+
+#### Migrator
+- Check the correct generation of embeddings by using the HuggingFace model.
+- Verify the correctness generation and storage of information.
+- Ensure integration with other technologies, such as PostgreSQL for sequential data storage, MongoDB for non-sequential data storage and Elasticsearch for vector storage.
+- Testing error handling, such as database failures, message queue unavailability, or malformed requests.
+![Migrator Unit Testing](images/unit2.png)
 
 
 #### Backend API
