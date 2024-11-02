@@ -11,6 +11,7 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  --gradient_background: linear-gradient(to top right, #06363b 17%, #0d6b77 100%);
 }
 
 a {
@@ -28,6 +29,7 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  background: var(--gradient_background);
 }
 
 h1 {

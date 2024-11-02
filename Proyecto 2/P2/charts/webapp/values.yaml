@@ -11,7 +11,7 @@ config:
   frontend:
     replicas: 1
     name: frontend
-    image: frontendTuneStay
+    image: frontendstaytune
   frontendnodeport:
     port: 80
     targetPort: 80
