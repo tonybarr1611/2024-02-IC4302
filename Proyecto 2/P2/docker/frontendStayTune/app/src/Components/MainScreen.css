@@ -200,3 +200,17 @@
   padding: 10px;
   color: #fff;
 }
+
+.text-wrapper {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 200px;
+  transition: all 1s ease;
+}
+
+.text-wrapper:hover {
+  white-space: normal; 
+  overflow-y: auto; 
+}
+
