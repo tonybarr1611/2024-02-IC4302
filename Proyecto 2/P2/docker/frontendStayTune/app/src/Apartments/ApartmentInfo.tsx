@@ -1,13 +1,6 @@
-
-import { useEffect, useState } from 'react';
-import { Form, Button, Modal } from 'react-bootstrap';
-
-interface Apartment {
-  name: string;
-  description: string;
-  reviews: string[];
-  summary: string;
-}
+import { useEffect, useState } from "react";
+import { Form, Button, Modal } from "react-bootstrap";
+import { Apartment } from "../Commons/Requests";
 
 interface ApartmentInfoProps {
   apartment: Apartment;
@@ -15,8 +8,12 @@ interface ApartmentInfoProps {
   onHide: () => void;
 }
 
-const ApartmentInfo: React.FC<ApartmentInfoProps> = ({ apartment, show, onHide }) => {
-  const [reviews, setReviews] = useState<string[]>([]);
+const ApartmentInfo: React.FC<ApartmentInfoProps> = ({
+  apartment,
+  show,
+  onHide,
+}) => {
+  const [reviews, setReviews] = useState<string>();
 
   useEffect(() => {
     if (show) {
@@ -25,12 +22,12 @@ const ApartmentInfo: React.FC<ApartmentInfoProps> = ({ apartment, show, onHide }
   }, [apartment, show]);
 
   const handleClose = () => {
-    setReviews([]); 
+    setReviews("");
     onHide();
   };
 
   return (
-    <Modal show={show} onHide={handleClose} centered className='modal'>
+    <Modal show={show} onHide={handleClose} centered className="modal">
       <Modal.Header>
         <Modal.Title>APARTMENT INFORMATION</Modal.Title>
       </Modal.Header>
@@ -42,7 +39,7 @@ const ApartmentInfo: React.FC<ApartmentInfoProps> = ({ apartment, show, onHide }
               type="text"
               value={apartment.name}
               readOnly
-              style={{ cursor: 'default' }}
+              style={{ cursor: "default" }}
             />
           </Form.Group>
 
@@ -54,9 +51,9 @@ const ApartmentInfo: React.FC<ApartmentInfoProps> = ({ apartment, show, onHide }
               readOnly
               rows={4}
               style={{
-                cursor: 'default',
-                overflowY: 'auto',
-                maxHeight: '150px'
+                cursor: "default",
+                overflowY: "auto",
+                maxHeight: "150px",
               }}
             />
           </Form.Group>
@@ -69,9 +66,9 @@ const ApartmentInfo: React.FC<ApartmentInfoProps> = ({ apartment, show, onHide }
               readOnly
               rows={4}
               style={{
-                cursor: 'default',
-                overflowY: 'auto',
-                maxHeight: '150px'
+                cursor: "default",
+                overflowY: "auto",
+                maxHeight: "150px",
               }}
             />
           </Form.Group>
@@ -80,25 +77,24 @@ const ApartmentInfo: React.FC<ApartmentInfoProps> = ({ apartment, show, onHide }
             <Form.Label>Reviews</Form.Label>
             <Form.Control
               as="textarea"
-              value={reviews.join('\n\n')}
+              value={reviews}
               readOnly
               rows={6}
               style={{
-                cursor: 'default',
-                overflowY: 'auto',
-                maxHeight: '200px'
+                cursor: "default",
+                overflowY: "auto",
+                maxHeight: "200px",
               }}
             />
           </Form.Group>
         </Form>
       </Modal.Body>
 
-      <Modal.Footer className="modal-footer" style={{ justifyContent: 'flex-end' }}>
-        <Button
-          variant="outline-success"
-          type="button"
-          onClick={handleClose}
-        >
+      <Modal.Footer
+        className="modal-footer"
+        style={{ justifyContent: "flex-end" }}
+      >
+        <Button variant="outline-success" type="button" onClick={handleClose}>
           ACCEPT
         </Button>
       </Modal.Footer>

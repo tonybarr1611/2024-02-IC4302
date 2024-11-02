@@ -27,7 +27,7 @@ const LyricsSection: React.FC<LyricsSectionProps> = ({
 
   const handleSearchClick = () => {
     onSelectVerse(selectedVerses);
-    navigate(`/apartments`, { state: { verses: selectedVerses.join(", ") } });
+    navigate(`/apartments`, { state: { verse: selectedVerses.join(", ") } });
   };
 
   return (
