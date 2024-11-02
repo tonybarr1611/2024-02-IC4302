@@ -1,35 +1,51 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
+import "./LyricsSection.css";
+import { useNavigate } from "react-router-dom";
 
 interface LyricsSectionProps {
   lyrics: string;
-  onSelectVerse: (verse: string) => void;
+  onSelectVerse: (verses: string[]) => void;
 }
 
-const LyricsSection: React.FC<LyricsSectionProps> = ({ lyrics, onSelectVerse }) => {
-  const [selectedVerse, setSelectedVerse] = useState<string | null>(null);
+const LyricsSection: React.FC<LyricsSectionProps> = ({
+  lyrics,
+  onSelectVerse,
+}) => {
+  const navigate = useNavigate();
+  const [selectedVerses, setSelectedVerses] = useState<string[]>([]);
 
   const handleVerseClick = (verse: string) => {
-    setSelectedVerse(verse);
-    onSelectVerse(verse);
+    setSelectedVerses((prevSelected) => {
+      const updatedSelection = prevSelected.includes(verse)
+        ? prevSelected.filter((v) => v !== verse)
+        : [...prevSelected, verse];
+
+      onSelectVerse(updatedSelection);
+      return updatedSelection;
+    });
+  };
+
+  const handleSearchClick = () => {
+    onSelectVerse(selectedVerses);
+    navigate(`/apartments`, { state: { verses: selectedVerses.join(", ") } });
   };
 
   return (
     <div className="lyrics-section">
-      {lyrics.split('\n').map((verse, index) => (
+      {lyrics.split("\n").map((verse, index) => (
         <p
           key={index}
-          className={`verse ${selectedVerse === verse ? 'selected' : ''}`}
+          className={`verse ${
+            selectedVerses.includes(verse) ? "selected" : ""
+          }`}
           onClick={() => handleVerseClick(verse)}
         >
           {verse}
         </p>
       ))}
-      {selectedVerse && (
+      {selectedVerses.length > 0 && (
         <div className="lyrics-action">
-          <button
-            className="btn btn-primary"
-            onClick={() => alert(`Searching apartments for: "${selectedVerse}"`)}
-          >
+          <button className="btn btn-primary" onClick={handleSearchClick}>
             Search Apartments
           </button>
         </div>
